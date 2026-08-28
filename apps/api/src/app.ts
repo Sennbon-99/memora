@@ -16,14 +16,15 @@ import { redis } from './config/redis.js';
 import { globalLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { apiRouter } from './router.js';
+import { stripeWebhookRouter } from './features/payments/payment.routes.js';
 
 export function createApp() {
   const app = express();
 
-  // Le webhook Stripe doit recevoir le corps BRUT pour que sa signature
-  // puisse etre verifiee. Il sera monte ICI, avant express.json(), qui
-  // transformerait le corps et invaliderait la signature.
-  // (ajoute avec la feature paiement)
+  // Le webhook Stripe recoit le corps BRUT. Il est monte ici, avant
+  // express.json(), qui transformerait le corps et rendrait la verification
+  // de signature impossible. L ordre de ces deux lignes n est pas negociable.
+  app.use('/api/stripe', stripeWebhookRouter);
 
   // Middlewares globaux
   app.use(helmet());
