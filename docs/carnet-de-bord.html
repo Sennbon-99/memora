@@ -99,7 +99,7 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--p
 <div class="hero"><div class="hero-in">
   <div class="kicker">Titre professionnel CDA &mdash; promotion Rho</div>
   <h1>Carnet de bord<br>Memora</h1>
-  <p>Chaque fichier du projet, ce qu&rsquo;il fait et pourquoi il est &eacute;crit ainsi. R&eacute;dig&eacute; au fil de la construction pour servir de r&eacute;vision avant la soutenance. <b>52 fichiers TypeScript, 83 tests, sept domaines m&eacute;tier.</b></p>
+  <p>Chaque fichier du projet, ce qu&rsquo;il fait et pourquoi il est &eacute;crit ainsi. R&eacute;dig&eacute; au fil de la construction pour servir de r&eacute;vision avant la soutenance. <b>84 fichiers TypeScript, 166 tests, 95 pourcent de couverture m&eacute;tier.</b></p>
   <div class="strip"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </div></div>
 
@@ -120,6 +120,10 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--p
   <a href="#moments">9 &middot; Moments forts</a>
   <a href="#payments">10 &middot; Paiement</a>
   <a href="#jobs">11 &middot; T&acirc;ches planifi&eacute;es</a>
+  <a href="#equipe">12 &middot; Équipe et suivi</a>
+  <a href="#temps-reel">13 &middot; Temps r&eacute;el</a>
+  <a href="#archive">14 &middot; Archive et push</a>
+  <a href="#infra">15 &middot; Infrastructure</a>
   <a href="#concepts">Concepts &agrave; ma&icirc;triser</a>
   <a href="#jury">Questions de jury</a>
 </nav>
@@ -419,6 +423,85 @@ app.use(express.json({ limit: '1mb' }));      // puis seulement JSON</pre>
   <details class="file"><summary><span class="tag">infra</span>qrkit.service.ts</summary><div class="body-in">
     <p>Kit PDF au format A5 paysage, qui se plie en chevalet une fois imprim&eacute;. Une carte par table, ou une seule &agrave; l&rsquo;entr&eacute;e.</p>
     <div class="why"><b>Correction d&rsquo;erreur M</b>Tol&egrave;re trente pour cent de dommage&nbsp;: un chevalet tach&eacute; de vin ou pli&eacute; reste scannable. La marge de quatre modules est le minimum requis pour que les scanners d&eacute;tectent le code.</div>
+  </div></details>
+</section>
+
+
+<section id="equipe">
+  <div class="lot"><span class="n">Lot 12</span><h2>&Eacute;quipe et suivi</h2></div>
+  <p class="lead">Co-h&ocirc;tes, acc&egrave;s photographe, tableau de bord. Dix tests.</p>
+
+  <details class="file" open><summary><span class="tag">m&eacute;tier</span>team.service.ts</summary><div class="body-in">
+    <p>Deux m&eacute;canismes tr&egrave;s diff&eacute;rents sous un m&ecirc;me toit. Le co-h&ocirc;te est une personne identifi&eacute;e qui poss&egrave;de un compte ; le photographe re&ccedil;oit un simple lien.</p>
+    <div class="why"><b>On ne cr&eacute;e pas de compte &agrave; la place de quelqu&rsquo;un</b><code>inviteCoHost</code> exige que la personne soit d&eacute;j&agrave; inscrite. Lui cr&eacute;er un compte reviendrait &agrave; lui imposer une inscription qu&rsquo;elle n&rsquo;a pas demand&eacute;e, avec une adresse qu&rsquo;elle n&rsquo;a pas confirm&eacute;e.</div>
+    <div class="why"><b>Un co-h&ocirc;te ne coopte pas un pair</b>Seul le propri&eacute;taire invite et retire. Sinon la matrice des r&ocirc;les du dossier ne tiendrait plus : un co-h&ocirc;te pourrait s&rsquo;adjoindre autant de personnes qu&rsquo;il veut.</div>
+    <div class="why"><b>Le jeton du photographe n&rsquo;est jamais reg&eacute;n&eacute;r&eacute;</b>Le reg&eacute;n&eacute;rer casserait le lien d&eacute;j&agrave; transmis. Il est donc cr&eacute;&eacute; une fois, puis r&eacute;utilis&eacute;.</div>
+    <p>Le photographe a un quota nominal de 2000 poses — &eacute;lev&eacute; mais born&eacute;, rien n&rsquo;est infini — et son consentement est acquis d&rsquo;office&nbsp;: il est mandat&eacute; par l&rsquo;h&ocirc;te, pas convive.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>dashboard.service.ts</summary><div class="body-in">
+    <p>L&rsquo;h&ocirc;te regarde son t&eacute;l&eacute;phone entre deux discours&nbsp;: il doit comprendre en trois secondes si ses invit&eacute;s photographient.</p>
+    <div class="why"><b>Le photographe est exclu des statistiques</b>Ses centaines de photographies &eacute;craseraient toutes les autres colonnes et rendraient le graphique par table illisible.</div>
+    <div class="why"><b>Une requ&ecirc;te par agr&eacute;gat, pas une boucle</b>Pour deux cents pellicules, compter les photographies une par une multiplierait les allers-retours, alors que l&rsquo;h&ocirc;te rafra&icirc;chit son &eacute;cran toutes les quelques secondes.</div>
+  </div></details>
+</section>
+
+<section id="temps-reel">
+  <div class="lot"><span class="n">Lot 13</span><h2>Temps r&eacute;el</h2></div>
+  <p class="lead">Le cha&icirc;non manquant. Six tests.</p>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>realtime/socket.ts</summary><div class="body-in">
+    <p>Un vrai d&eacute;faut corrig&eacute; ici. Les contr&ocirc;leurs &eacute;mettaient depuis le d&eacute;but vers la salle <code>event:&lt;id&gt;</code>, mais <b>aucun client ne la rejoignait jamais</b>&nbsp;: ces messages partaient dans le vide.</p>
+    <div class="why"><b>Rejoindre une salle est un acte d&rsquo;autorisation</b><code>canJoin</code> v&eacute;rifie soit le jeton d&rsquo;acc&egrave;s d&rsquo;un h&ocirc;te et sa propri&eacute;t&eacute; de l&rsquo;&eacute;v&eacute;nement, soit le cookie d&rsquo;appareil d&rsquo;un invit&eacute; et l&rsquo;appartenance de sa pellicule. Sans ce contr&ocirc;le, conna&icirc;tre un identifiant d&rsquo;&eacute;v&eacute;nement suffirait &agrave; recevoir le tableau de bord et les notifications de quelqu&rsquo;un d&rsquo;autre.</div>
+    <p>Les clients n&rsquo;&eacute;mettent jamais rien qui modifie l&rsquo;&eacute;tat&nbsp;: Socket.io ne sert qu&rsquo;&agrave; la diffusion descendante. Toute action passe par l&rsquo;API HTTP, o&ugrave; les m&ecirc;mes contr&ocirc;les s&rsquo;appliquent.</p>
+  </div></details>
+</section>
+
+<section id="archive">
+  <div class="lot"><span class="n">Lot 14</span><h2>Archive et notifications</h2></div>
+  <p class="lead">T&eacute;l&eacute;chargement de l&rsquo;album et web push. Neuf tests.</p>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>download.service.ts</summary><div class="body-in">
+    <div class="why"><b>Diffusion au fil de l&rsquo;eau</b>Deux cents invit&eacute;s &agrave; vingt-quatre poses font pr&egrave;s de cinq mille fichiers, plusieurs gigaoctets. Construire l&rsquo;archive en m&eacute;moire ferait tomber le processus&nbsp;: chaque fichier est lu depuis le stockage et pouss&eacute; imm&eacute;diatement dans la r&eacute;ponse.</div>
+    <div class="why"><b>Compression &agrave; z&eacute;ro</b>Un JPEG est d&eacute;j&agrave; compress&eacute;. Tenter de le recompresser co&ucirc;terait du temps pour rien, et surtout l&rsquo;h&ocirc;te doit r&eacute;cup&eacute;rer le fichier exact que son invit&eacute; a pris.</div>
+    <div class="why"><b>Une erreur apr&egrave;s le d&eacute;but de la diffusion</b>Les en-t&ecirc;tes sont d&eacute;j&agrave; partis&nbsp;: on ne peut plus renvoyer un statut, seulement couper la connexion. Le contr&ocirc;leur teste <code>res.headersSent</code> pour cela.</div>
+    <p>Point de m&eacute;thode&nbsp;: <code>archiver</code> version 8 n&rsquo;expose plus d&rsquo;export par d&eacute;faut mais des classes nomm&eacute;es. V&eacute;rifi&eacute; &agrave; l&rsquo;ex&eacute;cution plut&ocirc;t que suppos&eacute;.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>push.service.ts</summary><div class="body-in">
+    <p>Deux notifications seulement&nbsp;: le d&eacute;clenchement d&rsquo;un moment fort, et la publication de l&rsquo;album. Une application qui notifie pour tout finit coup&eacute;e.</p>
+    <div class="why"><b>Un abonnement expir&eacute; ne prive pas les autres</b>Les envois partent en parall&egrave;le avec <code>allSettled</code>&nbsp;: un &eacute;chec sur deux cents ne fait pas tomber les cent quatre-vingt-dix-neuf autres.</div>
+    <div class="why"><b>Seuls les 404 et 410 d&eacute;sabonnent</b>Ces codes signifient que l&rsquo;abonnement n&rsquo;existe plus c&ocirc;t&eacute; navigateur. Une panne passag&egrave;re du service, elle, ne doit pas d&eacute;sabonner l&rsquo;invit&eacute;.</div>
+    <div class="why"><b>Limite iOS assum&eacute;e</b>Une application web ne re&ccedil;oit de notifications sur iOS que si elle a &eacute;t&eacute; ajout&eacute;e &agrave; l&rsquo;&eacute;cran d&rsquo;accueil. D&rsquo;o&ugrave; le repli&nbsp;: un bandeau affich&eacute; &agrave; la r&eacute;ouverture, tant que la fen&ecirc;tre du moment n&rsquo;est pas expir&eacute;e.</div>
+  </div></details>
+</section>
+
+<section id="infra">
+  <div class="lot"><span class="n">Lot 15</span><h2>Infrastructure</h2></div>
+  <p class="lead">Migration, conteneur, int&eacute;gration continue, documentation d&rsquo;interface.</p>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>openapi/spec.ts</summary><div class="body-in">
+    <p>La documentation n&rsquo;est pas &eacute;crite, elle est <b>d&eacute;duite</b> des sch&eacute;mas Zod qui valident d&eacute;j&agrave; les entr&eacute;es.</p>
+    <div class="why"><b>Ce que &ccedil;a garantit</b>Une r&egrave;gle de validation qui change modifie la documentation &agrave; la compilation suivante. Documenter une route autrement qu&rsquo;elle ne se comporte devient impossible. Un test le v&eacute;rifie&nbsp;: il lit les bornes du quota dans la sp&eacute;cification g&eacute;n&eacute;r&eacute;e et attend 5 et 60, les valeurs du sch&eacute;ma partag&eacute;.</div>
+    <p>Quarante routes, neuf familles, expos&eacute;es sur <code>/api/openapi.json</code> et lisibles sur <code>/api/docs</code>.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">infra</span>prisma/migrations/</summary><div class="body-in">
+    <p>Migration initiale g&eacute;n&eacute;r&eacute;e par <code>prisma migrate diff</code>, sans base de donn&eacute;es&nbsp;: 33 instructions, 8 types &eacute;num&eacute;r&eacute;s, 10 tables, index et contraintes.</p>
+    <p>C&rsquo;est ce fichier qui r&eacute;pond &agrave; la comp&eacute;tence 7 du r&eacute;f&eacute;rentiel, &laquo;&nbsp;&eacute;crire et ex&eacute;cuter un script de cr&eacute;ation de base de donn&eacute;es&nbsp;&raquo;.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">infra</span>Dockerfile</summary><div class="body-in">
+    <p>Trois &eacute;tapes&nbsp;: d&eacute;pendances, compilation, ex&eacute;cution.</p>
+    <div class="why"><b>Les manifestes avant les sources</b>Tant que les d&eacute;pendances ne changent pas, Docker r&eacute;utilise la couche d&rsquo;installation. Copier tout d&rsquo;un coup rejouerait l&rsquo;installation compl&egrave;te &agrave; chaque commit.</div>
+    <div class="why"><b>Utilisateur non privil&eacute;gi&eacute;</b>Un processus compromis ne doit pas &ecirc;tre root dans son conteneur.</div>
+    <p>L&rsquo;image finale ne contient ni sources TypeScript, ni outils de compilation, ni d&eacute;pendances de d&eacute;veloppement.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">infra</span>.github/workflows/ci.yml</summary><div class="body-in">
+    <p>Quatre &eacute;tapes bloquantes&nbsp;: types, analyse, tests, couverture — avec PostgreSQL et Redis d&eacute;marr&eacute;s en services. Plus un travail s&eacute;par&eacute; pour l&rsquo;audit des d&eacute;pendances et la d&eacute;tection de secrets commit&eacute;s.</p>
+    <div class="why"><b>Moins de cinq minutes</b>Contrainte volontaire. Au-del&agrave;, l&rsquo;exp&eacute;rience montre qu&rsquo;on prend l&rsquo;habitude de contourner la cha&icirc;ne.</div>
+    <div class="why"><b>L&rsquo;audit &eacute;choue sur haut et critique seulement</b>Bloquer sur une alerte mineure reviendrait &agrave; d&eacute;sactiver l&rsquo;&eacute;tape au bout de deux semaines.</div>
   </div></details>
 </section>
 
