@@ -1,4 +1,4 @@
-# 🐳 docker-compose.yml
+# docker-compose.yml
 # Les trois services d'infrastructure, en developpement comme en production.
 # On les demarre en local avec exactement les memes images qu'en production :
 # c'est ce qui evite la classe d'anomalies qui n'apparait qu'apres deploiement.

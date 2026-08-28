@@ -1,4 +1,4 @@
-// 🧠 apps/api/src/features/events/event.service.ts
+// apps/api/src/features/events/event.service.ts
 // Regles metier de l'evenement : creation, configuration, ouverture, fermeture.
 
 import type { CreateEventInput, UpdateEventInput } from '@memora/types';

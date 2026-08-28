@@ -1,4 +1,4 @@
-// ⚙️ apps/api/src/config/env.ts
+// apps/api/src/config/env.ts
 // Validation des variables d'environnement au demarrage.
 // Le principe : si une variable manque ou est mal formee, le serveur refuse
 // de demarrer avec un message clair, plutot que de tomber trois heures plus tard
@@ -33,7 +33,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error('❌ Variables d\'environnement invalides :');
+  console.error(' Variables d\'environnement invalides :');
   console.error(parsed.error.flatten().fieldErrors);
   process.exit(1);
 }

@@ -1,4 +1,4 @@
-// ⚖️ apps/api/prisma/schema/removalRequest.prisma
+// apps/api/prisma/schema/removalRequest.prisma
 // Droit a l'image : demande de retrait formulee par un invite.
 
 /// Le masquage de la photographie est immediat des le signalement ;

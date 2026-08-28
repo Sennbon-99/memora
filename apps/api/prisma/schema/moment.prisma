@@ -1,4 +1,4 @@
-// ⏱️ apps/api/prisma/schema/moment.prisma
+// apps/api/prisma/schema/moment.prisma
 // Les moments forts de la soiree : discours, ouverture du bal, gateau.
 
 model Moment {

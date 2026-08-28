@@ -1,4 +1,4 @@
-// 💳 apps/api/prisma/schema/payment.prisma
+// apps/api/prisma/schema/payment.prisma
 // Reglement d'un evenement au-dela de l'offre gratuite.
 
 model Payment {

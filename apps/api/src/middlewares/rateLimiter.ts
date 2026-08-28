@@ -1,4 +1,4 @@
-// 🚦 apps/api/src/middlewares/rateLimiter.ts
+// apps/api/src/middlewares/rateLimiter.ts
 // Limitation du debit, pour freiner les tentatives repetees.
 
 import rateLimit from 'express-rate-limit';

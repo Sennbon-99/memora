@@ -1,4 +1,4 @@
-// 🔤 apps/api/src/utils/slug.ts
+// apps/api/src/utils/slug.ts
 // Fabrication des identifiants publics et des jetons.
 
 import { randomBytes } from 'node:crypto';

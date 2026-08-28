@@ -1,4 +1,4 @@
-// 🎮 apps/api/src/features/auth/auth.controller.ts
+// apps/api/src/features/auth/auth.controller.ts
 // Le controleur fait le lien entre HTTP et le service : il lit la requete,
 // appelle le service, pose le cookie et choisit le code de statut.
 // Aucune regle metier ici. Les erreurs partent vers l'intercepteur via next().

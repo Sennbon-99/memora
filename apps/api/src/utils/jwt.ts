@@ -1,4 +1,4 @@
-// 🔑 apps/api/src/utils/jwt.ts
+// apps/api/src/utils/jwt.ts
 // Emission et verification des jetons.
 //
 // Deux jetons de durees differentes : un jeton d'acces court, transmis dans

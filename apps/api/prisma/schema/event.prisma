@@ -1,4 +1,4 @@
-// 🎉 apps/api/prisma/schema/event.prisma
+// apps/api/prisma/schema/event.prisma
 // L'evenement, pivot du modele, et les tables de la salle.
 
 model Event {

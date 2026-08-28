@@ -1,4 +1,4 @@
-// 🧠 apps/api/src/features/auth/auth.service.ts
+// apps/api/src/features/auth/auth.service.ts
 // Regles metier de l'authentification de l'hote.
 // Le service ne connait ni Express, ni req, ni res : il recoit des donnees
 // validees et renvoie des donnees. C'est ce qui le rend testable seul.

@@ -1,4 +1,4 @@
-// 🎞️ apps/api/prisma/schema/roll.prisma
+// apps/api/prisma/schema/roll.prisma
 // La pellicule : l'appareil d'un invite pour un evenement donne.
 
 /// Represente l'appareil d'un invite, non l'invite lui-meme.

@@ -1,4 +1,4 @@
-// 🎮 apps/api/src/features/events/event.controller.ts
+// apps/api/src/features/events/event.controller.ts
 // Lien entre HTTP et le service. Aucune regle metier ici.
 
 import type { RequestHandler } from 'express';
@@ -59,7 +59,7 @@ export const open: RequestHandler = async (req, res, next) => {
 export const close: RequestHandler = async (req, res, next) => {
   try {
     const event = await eventService.closeEvent(req.params.id!, currentUserId(req));
-    // 📡 On previent les invites connectes que la pellicule est terminee.
+    // On previent les invites connectes que la pellicule est terminee.
     req.io.to(`event:${event.id}`).emit('event:closed', { eventId: event.id });
     res.status(200).json({ event });
   } catch (err) {

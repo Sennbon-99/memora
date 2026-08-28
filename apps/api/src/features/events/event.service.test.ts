@@ -1,4 +1,4 @@
-// 🧪 apps/api/src/features/events/event.service.test.ts
+// apps/api/src/features/events/event.service.test.ts
 // Tests des regles metier de l'evenement. Prisma est remplace par un double :
 // ces tests portent sur les regles, pas sur la base.
 

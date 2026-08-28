@@ -1,4 +1,4 @@
-// 🛡️ packages/types/src/schemas.ts
+// packages/types/src/schemas.ts
 // Les contrats d'entree de l'API, ecrits une seule fois avec Zod.
 // Le serveur les utilise pour valider ce qu'il recoit, le client pour valider
 // avant d'envoyer. Une regle qui change ici change des deux cotes a la fois :

@@ -1,4 +1,4 @@
-// 🔒 apps/api/src/utils/hash.ts
+// apps/api/src/utils/hash.ts
 // Hachage des mots de passe et des codes de recuperation.
 
 import bcrypt from 'bcrypt';

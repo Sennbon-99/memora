@@ -1,4 +1,4 @@
-// 🪣 apps/api/src/config/storage.ts
+// apps/api/src/config/storage.ts
 // Acces au stockage objet MinIO, compatible avec l'interface S3.
 //
 // Regle du projet : le fichier ne transite jamais par l'API. Celle-ci se

@@ -1,4 +1,4 @@
-// 🗄️ apps/api/prisma/schema/schema.prisma
+// apps/api/prisma/schema/schema.prisma
 // Configuration du client et de la source de donnees.
 // Les modeles sont repartis dans les autres fichiers de ce dossier :
 // Prisma les assemble tous automatiquement grace a "prisma": { "schema": "./prisma/schema" }

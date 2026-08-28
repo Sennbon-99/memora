@@ -1,4 +1,4 @@
-// 📷 apps/api/prisma/schema/photo.prisma
+// apps/api/prisma/schema/photo.prisma
 // Les photographies deposees par les invites.
 
 model Photo {

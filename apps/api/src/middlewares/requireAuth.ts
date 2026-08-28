@@ -1,4 +1,4 @@
-// 🔐 apps/api/src/middlewares/requireAuth.ts
+// apps/api/src/middlewares/requireAuth.ts
 // Authentification de l'hote.
 //
 // Verifie le jeton d'acces, puis RECHARGE l'utilisateur depuis la base plutot

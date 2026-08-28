@@ -1,4 +1,4 @@
-// ✅ apps/api/src/middlewares/validate.ts
+// apps/api/src/middlewares/validate.ts
 // Applique un schema Zod au corps de la requete avant d'entrer dans le controleur.
 //
 // L'interet : le controleur recoit des donnees deja validees ET deja typees.

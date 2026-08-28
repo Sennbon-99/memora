@@ -1,4 +1,4 @@
-// ⚡ apps/api/src/config/redis.ts
+// apps/api/src/config/redis.ts
 // Connexion Redis et script atomique de decrement du quota.
 //
 // Pourquoi Redis plutot que PostgreSQL pour compter les poses : lors d'un
@@ -11,7 +11,7 @@ import { env } from './env.js';
 
 export const redis = new Redis(env.REDIS_URL, { maxRetriesPerRequest: 3 });
 
-redis.on('error', (err) => console.error('❌ Erreur Redis :', err.message));
+redis.on('error', (err) => console.error(' Erreur Redis :', err.message));
 
 /**
  * Script Lua execute par Redis. Son interet tient en un mot : atomicite.

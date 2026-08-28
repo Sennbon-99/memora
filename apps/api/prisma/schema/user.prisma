@@ -1,4 +1,4 @@
-// 👤 apps/api/prisma/schema/user.prisma
+// apps/api/prisma/schema/user.prisma
 // L'hote, ses co-hotes, et l'administrateur de la plateforme.
 
 model User {

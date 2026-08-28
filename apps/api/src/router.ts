@@ -1,4 +1,4 @@
-// 🛣️ apps/api/src/router.ts
+// apps/api/src/router.ts
 // Assemble les routeurs de chaque feature sous un prefixe unique.
 // C'est le seul endroit ou l'on voit la carte complete de l'API :
 // ajouter un domaine, c'est ajouter une ligne ici.

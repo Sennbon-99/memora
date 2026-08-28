@@ -1,4 +1,4 @@
-// 🧩 apps/api/src/app.ts
+// apps/api/src/app.ts
 // Construction de l'application Express, sans demarrage.
 //
 // Cette separation a un but precis : les tests d'integration importent app
@@ -20,19 +20,19 @@ import { apiRouter } from './router.js';
 export function createApp() {
   const app = express();
 
-  // ⚠️ Le webhook Stripe doit recevoir le corps BRUT pour que sa signature
+  // Le webhook Stripe doit recevoir le corps BRUT pour que sa signature
   // puisse etre verifiee. Il sera monte ICI, avant express.json(), qui
   // transformerait le corps et invaliderait la signature.
   // (ajoute avec la feature paiement)
 
-  // 🌐 Middlewares globaux
+  // Middlewares globaux
   app.use(helmet());
   app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
   app.use(express.json({ limit: '1mb' })); // aucune image ne transite ici
   app.use(cookieParser());
   app.use(globalLimiter);
 
-  // ❤️ Sonde de vitalite : verifie l'API, la base et Redis.
+  // Sonde de vitalite : verifie l'API, la base et Redis.
   // C'est elle que Coolify interroge avant de basculer le trafic sur une
   // nouvelle version : si elle echoue, le deploiement est annule.
   app.get('/health', async (_req, res) => {
@@ -47,7 +47,7 @@ export function createApp() {
 
   app.use('/api', apiRouter);
 
-  // 🧯 Intercepteur d'erreurs : toujours en dernier, apres toutes les routes.
+  // Intercepteur d'erreurs : toujours en dernier, apres toutes les routes.
   app.use(errorHandler);
 
   return app;

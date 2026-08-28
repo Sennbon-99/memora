@@ -1,4 +1,4 @@
-// 📇 packages/types/src/enums.ts
+// packages/types/src/enums.ts
 // Les valeurs metier partagees entre le serveur et le client.
 // Elles sont declarees ici une seule fois : Prisma les reprend dans son schema,
 // et le front les importe pour ne jamais ecrire une chaine "en dur".

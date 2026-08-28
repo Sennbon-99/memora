@@ -1,4 +1,4 @@
-// 🗄️ apps/api/src/config/prisma.ts
+// apps/api/src/config/prisma.ts
 // Instance unique du client Prisma, partagee par toute l'application.
 // En developpement, tsx recharge les modules a chaque sauvegarde : sans ce
 // cache sur globalThis, on ouvrirait une nouvelle connexion a chaque fois

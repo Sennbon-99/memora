@@ -1,4 +1,4 @@
-// 🚨 apps/api/src/utils/errors.ts
+// apps/api/src/utils/errors.ts
 // Hierarchie d'erreurs applicatives.
 //
 // Le principe : le client recoit une information utile et rien d'interne,

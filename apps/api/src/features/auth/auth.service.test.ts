@@ -1,4 +1,4 @@
-// 🧪 apps/api/src/features/auth/auth.service.test.ts
+// apps/api/src/features/auth/auth.service.test.ts
 // Tests du service d'authentification. Prisma est remplace par un double,
 // pour que ces tests portent sur la regle metier et non sur la base.
 
