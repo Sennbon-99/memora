@@ -124,6 +124,9 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--p
   <a href="#temps-reel">13 &middot; Temps r&eacute;el</a>
   <a href="#archive">14 &middot; Archive et push</a>
   <a href="#infra">15 &middot; Infrastructure</a>
+  <a href="#client">16 &middot; Client invit&eacute;</a>
+  <a href="#client-lib" class="sub">Le socle du client</a>
+  <a href="#client-ecrans" class="sub">Les &eacute;crans</a>
   <a href="#concepts">Concepts &agrave; ma&icirc;triser</a>
   <a href="#jury">Questions de jury</a>
 </nav>
@@ -454,6 +457,7 @@ app.use(express.json({ limit: '1mb' }));      // puis seulement JSON</pre>
     <p>Un vrai d&eacute;faut corrig&eacute; ici. Les contr&ocirc;leurs &eacute;mettaient depuis le d&eacute;but vers la salle <code>event:&lt;id&gt;</code>, mais <b>aucun client ne la rejoignait jamais</b>&nbsp;: ces messages partaient dans le vide.</p>
     <div class="why"><b>Rejoindre une salle est un acte d&rsquo;autorisation</b><code>canJoin</code> v&eacute;rifie soit le jeton d&rsquo;acc&egrave;s d&rsquo;un h&ocirc;te et sa propri&eacute;t&eacute; de l&rsquo;&eacute;v&eacute;nement, soit le cookie d&rsquo;appareil d&rsquo;un invit&eacute; et l&rsquo;appartenance de sa pellicule. Sans ce contr&ocirc;le, conna&icirc;tre un identifiant d&rsquo;&eacute;v&eacute;nement suffirait &agrave; recevoir le tableau de bord et les notifications de quelqu&rsquo;un d&rsquo;autre.</div>
     <p>Les clients n&rsquo;&eacute;mettent jamais rien qui modifie l&rsquo;&eacute;tat&nbsp;: Socket.io ne sert qu&rsquo;&agrave; la diffusion descendante. Toute action passe par l&rsquo;API HTTP, o&ugrave; les m&ecirc;mes contr&ocirc;les s&rsquo;appliquent.</p>
+    <div class="why"><b>Second d&eacute;faut, trouv&eacute; en branchant le client</b>La v&eacute;rification lisait le jeton d&rsquo;appareil dans la charge utile envoy&eacute;e par le navigateur. Or ce jeton vit dans un cookie <code>httpOnly</code>&nbsp;: la page ne peut pas le lire, donc <b>aucun invit&eacute; n&rsquo;aurait jamais pu entrer dans la salle</b>. Le serveur le lit d&eacute;sormais lui-m&ecirc;me dans l&rsquo;en-t&ecirc;te <code>Cookie</code> de la poign&eacute;e de main, que le navigateur joint automatiquement. La faille est corrig&eacute;e sans rien c&eacute;der&nbsp;: le jeton reste invisible au JavaScript.</div>
   </div></details>
 </section>
 
@@ -502,6 +506,70 @@ app.use(express.json({ limit: '1mb' }));      // puis seulement JSON</pre>
     <p>Quatre &eacute;tapes bloquantes&nbsp;: types, analyse, tests, couverture — avec PostgreSQL et Redis d&eacute;marr&eacute;s en services. Plus un travail s&eacute;par&eacute; pour l&rsquo;audit des d&eacute;pendances et la d&eacute;tection de secrets commit&eacute;s.</p>
     <div class="why"><b>Moins de cinq minutes</b>Contrainte volontaire. Au-del&agrave;, l&rsquo;exp&eacute;rience montre qu&rsquo;on prend l&rsquo;habitude de contourner la cha&icirc;ne.</div>
     <div class="why"><b>L&rsquo;audit &eacute;choue sur haut et critique seulement</b>Bloquer sur une alerte mineure reviendrait &agrave; d&eacute;sactiver l&rsquo;&eacute;tape au bout de deux semaines.</div>
+  </div></details>
+</section>
+
+
+<section id="client">
+  <div class="lot"><span class="n">Lot 16</span><h2>Client invit&eacute;</h2></div>
+  <p class="lead">React 19, Vite, application web installable. Douze tests, construction v&eacute;rifi&eacute;e.</p>
+
+  <p><a href="https://claude.ai/code/artifact/65c42911-124c-44fb-acd1-d76911b2bc36">Maquettes interactives</a>&nbsp;&mdash; les huit &eacute;crans jouables, et l&rsquo;espace h&ocirc;te dans les deux directions &agrave; d&eacute;partager.</p>
+
+  <div id="client-lib"></div>
+  <h3 style="margin-top:26px">Le socle du client</h3>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>lib/api.ts</summary><div class="body-in">
+    <p>Un seul point de sortie HTTP. Les types des charges utiles viennent de <code>@memora/types</code>, le paquet que le serveur utilise pour valider&nbsp;: appeler une route avec un corps invalide &eacute;choue &agrave; la compilation, pas en production.</p>
+    <div class="why"><b>Le jeton d&rsquo;acc&egrave;s vit en m&eacute;moire, pas dans le stockage local</b>Une faille d&rsquo;injection de script sait lire <code>localStorage</code>&nbsp;; elle ne sait pas lire une variable de module. Le jeton est perdu au rechargement et retrouv&eacute; par la route de renouvellement, dont le cookie est <code>httpOnly</code>.</div>
+    <div class="why"><b>Le d&eacute;p&ocirc;t du fichier ne passe pas par <code>call()</code></b>Le <code>PUT</code> part directement vers le stockage objet avec l&rsquo;adresse sign&eacute;e&nbsp;: ni cookie, ni jeton, ni en-t&ecirc;te d&rsquo;autorisation. Y joindre nos identifiants les enverrait &agrave; un tiers pour rien.</div>
+    <div class="why"><b>Distinguer la panne r&eacute;seau du refus serveur</b><code>isNetworkError</code> s&eacute;pare les deux&nbsp;: une panne r&eacute;seau met la pose en file d&rsquo;attente, un refus la fait remonter. Rejouer un quota &eacute;puis&eacute; ne donnerait rien.</div>
+    <p>Point de m&eacute;thode&nbsp;: <code>RequestInit &amp; { body?: unknown }</code> ne compilait pas. Une intersection <b>ajoute</b> une contrainte, elle ne la remplace pas&nbsp;: <code>body</code> restait un <code>BodyInit</code>. Corrig&eacute; avec <code>Omit&lt;RequestInit, 'body'&gt;</code>.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>lib/theme.ts</summary><div class="body-in">
+    <p>Le principe cam&eacute;l&eacute;on, rendu litt&eacute;ral&nbsp;: la marque est neutre, la couleur appartient &agrave; l&rsquo;&eacute;v&eacute;nement. Un seul point d&rsquo;injection, sur l&rsquo;&eacute;l&eacute;ment racine, et toute l&rsquo;interface suit.</p>
+    <div class="why"><b>La couleur du texte est calcul&eacute;e, jamais &eacute;crite en dur</b><code>relativeLuminance</code> applique la formule des crit&egrave;res WCAG et fait basculer le texte au noir sur une couleur claire. Sans cela, un h&ocirc;te choisissant un jaune vif obtiendrait du blanc sur jaune&nbsp;: illisible, et non conforme.</div>
+    <p>Cinq tests couvrent les cinq couleurs propos&eacute;es &agrave; l&rsquo;h&ocirc;te&nbsp;: aucune ne doit produire un texte illisible.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">cl&eacute;</span>lib/queue.ts</summary><div class="body-in">
+    <p>File d&rsquo;attente hors ligne, en IndexedDB.</p>
+    <div class="why"><b>Pourquoi pas <code>localStorage</code></b>On y stocke des fichiers binaires de plusieurs m&eacute;gaoctets. <code>localStorage</code> ne conserve que des cha&icirc;nes, et plafonne autour de cinq m&eacute;gaoctets pour tout le domaine.</div>
+    <div class="why"><b>Un plafond de cinq tentatives</b>Sans lui, une pose d&eacute;finitivement rejet&eacute;e serait rejou&eacute;e &agrave; chaque retour de r&eacute;seau, pour toujours.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>lib/image.ts</summary><div class="body-in">
+    <div class="why"><b>L&rsquo;effacement des m&eacute;tadonn&eacute;es n&rsquo;est pas une op&eacute;ration explicite</b>Le canvas ne conna&icirc;t que des pixels. Tout ce qui n&rsquo;est pas un pixel &mdash; coordonn&eacute;es GPS, mod&egrave;le d&rsquo;appareil, date du capteur &mdash; dispara&icirc;t &agrave; la reconstruction. C&rsquo;est la minimisation du RGPD obtenue par construction, et <b>avant</b> que la donn&eacute;e ne quitte le t&eacute;l&eacute;phone.</div>
+    <p>R&eacute;duction au c&ocirc;t&eacute; le plus long de 2048 pixels&nbsp;: suffisant pour un tirage 10&times;15, et divise par dix le volume transf&eacute;r&eacute; sur un r&eacute;seau de salle des f&ecirc;tes.</p>
+  </div></details>
+
+  <div id="client-ecrans"></div>
+  <h3 style="margin-top:26px">Les &eacute;crans</h3>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>features/guest/useShot.ts</summary><div class="body-in">
+    <p>Le c&oelig;ur du parcours. Trois appels s&rsquo;encha&icirc;nent&nbsp;: <code>reserve</code> d&eacute;cr&eacute;mente le quota et rend une adresse sign&eacute;e, le <code>PUT</code> d&eacute;pose le fichier, <code>confirm</code> pr&eacute;vient l&rsquo;API.</p>
+    <div class="why"><b>Le compteur descend avant la r&eacute;ponse du serveur, hors ligne</b>Sinon l&rsquo;invit&eacute; croirait sa pose perdue et la reprendrait&nbsp;: deux poses consomm&eacute;es pour une seule image. La cl&eacute; d&rsquo;idempotence, g&eacute;n&eacute;r&eacute;e <b>avant</b> le premier appel, rend le rejeu inoffensif.</div>
+    <div class="why"><b>Le d&eacute;compte local suit l&rsquo;ordre du script Lua</b>Poses offertes d&rsquo;abord, quota principal ensuite. Un ordre diff&eacute;rent ferait diverger les deux compteurs au retour du r&eacute;seau. C&rsquo;est la seule r&egrave;gle m&eacute;tier du client, et elle est test&eacute;e comme telle.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>features/guest/GuestJourney.tsx</summary><div class="body-in">
+    <div class="why"><b>L&rsquo;&eacute;tape n&rsquo;est pas stock&eacute;e, elle se d&eacute;duit</b>Consentement donn&eacute;&nbsp;? quota &eacute;puis&eacute;&nbsp;? L&rsquo;&eacute;cran d&eacute;coule de l&rsquo;&eacute;tat de la pellicule. Un invit&eacute; qui ferme son navigateur retombe donc exactement o&ugrave; il en &eacute;tait, sans rien &agrave; m&eacute;moriser &mdash; et sauter le consentement en manipulant l&rsquo;adresse devient impossible.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>features/guest/useCamera.ts</summary><div class="body-in">
+    <div class="why"><b>Le flux est ouvert une fois, gard&eacute; tant que le viseur est affich&eacute;</b>Le rouvrir &agrave; chaque pose provoquerait une seconde d&rsquo;&eacute;cran noir entre deux photographies. Inacceptable en soir&eacute;e.</div>
+    <p>Trois &eacute;checs distingu&eacute;s&nbsp;: refus de l&rsquo;invit&eacute; (<code>NotAllowedError</code>), mat&eacute;riel absent, navigateur sans <code>getUserMedia</code>. Le premier est le plus fr&eacute;quent&nbsp;: on refuse par r&eacute;flexe.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>screens/CameraDeniedScreen.tsx</summary><div class="body-in">
+    <p>&Eacute;cran absent des maquettes du dossier, et pourtant le cas le plus courant.</p>
+    <div class="why"><b>Le s&eacute;lecteur de fichier natif sauve la soir&eacute;e</b><code>capture="environment"</code> ouvre l&rsquo;appareil photo du syst&egrave;me. L&rsquo;invit&eacute; tient toute sa pellicule sans jamais accorder la permission au site.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>screens/InstallPrompt.tsx</summary><div class="body-in">
+    <div class="why"><b>Propos&eacute; en fin de pellicule, pas &agrave; l&rsquo;arriv&eacute;e</b>Demander d&rsquo;installer une application avant d&rsquo;avoir rien vu fait fuir. En fin de pellicule, l&rsquo;invit&eacute; a une raison&nbsp;: &ecirc;tre pr&eacute;venu de la publication.</div>
+    <div class="why"><b>Deux chemins, parce que les syst&egrave;mes diff&egrave;rent</b>Android expose <code>beforeinstallprompt</code>, un vrai bouton est possible. iOS n&rsquo;expose rien&nbsp;: il faut d&eacute;crire le geste. Sur iOS l&rsquo;ajout n&rsquo;est pas cosm&eacute;tique &mdash; sans lui, aucune notification.</div>
   </div></details>
 </section>
 

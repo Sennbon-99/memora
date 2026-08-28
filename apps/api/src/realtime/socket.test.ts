@@ -13,8 +13,12 @@ vi.mock('../config/prisma.js', () => ({
 const { setupRealtime, eventRoom } = await import('./socket.js');
 const { signAccessToken, signDeviceToken } = await import('../utils/jwt.js');
 
-/** Double minimal de Socket.io : on capte le gestionnaire de connexion. */
-function fakeIo() {
+/**
+ * Double minimal de Socket.io : on capte le gestionnaire de connexion.
+ * cookie simule l'en-tete que le navigateur joint a la poignee de main —
+ * c'est de la que vient le jeton d'appareil de l'invite.
+ */
+function fakeIo(cookie?: string) {
   let onConnection: ((socket: unknown) => void) | undefined;
   const io = { on: (event: string, cb: (s: unknown) => void) => { if (event === 'connection') onConnection = cb; } };
   setupRealtime(io as never);
@@ -27,6 +31,7 @@ function fakeIo() {
     emit: (event: string, payload: unknown) => emitted.push({ event, payload }),
     join: async (room: string) => { joined.push(room); },
     leave: async () => {},
+    handshake: { headers: cookie ? { cookie } : {} },
   };
   onConnection!(socket);
   return { handlers, emitted, joined };
@@ -50,23 +55,33 @@ describe('event:join', () => {
     expect(joined).toEqual([eventRoom('e1')]);
   });
 
-  it("laisse entrer un invite dont la pellicule appartient a l'evenement", async () => {
+  it("laisse entrer un invite dont le cookie d'appareil vise l'evenement", async () => {
     rollFindFirst.mockResolvedValue({ id: 'r1' });
-    const { handlers, joined } = fakeIo();
+    // C'est le seul chemin dont dispose un invite : son jeton est httpOnly,
+    // la page ne peut pas le lire pour le mettre dans la charge utile.
+    const { handlers, joined } = fakeIo(`memora_device=${signDeviceToken('r1')}`);
 
-    await handlers.get('event:join')!({
-      eventId: 'e1',
-      deviceToken: signDeviceToken('r1'),
-    });
+    await handlers.get('event:join')!({ eventId: 'e1' });
+
+    expect(joined).toEqual([eventRoom('e1')]);
+  });
+
+  it("lit le cookie d'appareil au milieu des autres cookies", async () => {
+    rollFindFirst.mockResolvedValue({ id: 'r1' });
+    const { handlers, joined } = fakeIo(
+      `_ga=GA1.2.3; memora_device=${signDeviceToken('r1')}; theme=dark`,
+    );
+
+    await handlers.get('event:join')!({ eventId: 'e1' });
 
     expect(joined).toEqual([eventRoom('e1')]);
   });
 
   it("refuse un invite dont la pellicule est sur un autre evenement", async () => {
     rollFindFirst.mockResolvedValue(null);
-    const { handlers, joined, emitted } = fakeIo();
+    const { handlers, joined, emitted } = fakeIo(`memora_device=${signDeviceToken('r1')}`);
 
-    await handlers.get('event:join')!({ eventId: 'e1', deviceToken: signDeviceToken('r1') });
+    await handlers.get('event:join')!({ eventId: 'e1' });
 
     // Sans ce controle, connaitre un identifiant suffirait a recevoir le
     // tableau de bord et les notifications de moments.

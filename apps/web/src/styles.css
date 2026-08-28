@@ -1,0 +1,55 @@
+/* apps/web/src/styles.css
+   Jetons de style et reglages propres au telephone.
+   La couleur --accent est vide ici : elle est posee au chargement par
+   applyEventTheme(), avec la couleur choisie par l'hote. */
+
+@import 'tailwindcss';
+
+@theme {
+  --color-ink: #131313;
+  --color-paper: #f7f5f2;
+  --color-film: #1c1a18;
+  --color-muted: #8a8580;
+  --font-sans: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root {
+  /* Valeur de repli avant que l'evenement ne soit connu. */
+  --accent: #b0741c;
+  --accent-text: #ffffff;
+  --accent-soft: rgb(176 116 28 / 0.12);
+  --accent-border: rgb(176 116 28 / 0.35);
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-film);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+  /* Sur telephone, un appui long selectionne du texte par accident dans
+     un viseur. On le desactive, sauf la ou l'on saisit vraiment du texte. */
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Le pouce doit toujours atteindre les commandes, y compris sur un ecran
+   a encoche. Ces variables suivent les zones sures du systeme. */
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

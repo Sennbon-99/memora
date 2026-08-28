@@ -1,0 +1,59 @@
+// apps/web/src/features/guest/screens/ConsentScreen.tsx
+// Droit a l'image. C'est le premier ecran, et il ne peut pas etre saute.
+//
+// La regle RG-04 du dossier est appliquee des le client : sans acceptation,
+// le viseur n'est pas monte. Le serveur la revalide de toute facon a chaque
+// reservation, un client modifie ne contournerait rien.
+
+import { Button } from '../../../ui/Button.js';
+import { Screen } from '../../../ui/Screen.js';
+import { useConsent } from '../useGuestSession.js';
+
+interface ConsentScreenProps {
+  slug: string;
+  eventName: string;
+  welcomeMessage: string | null;
+}
+
+export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreenProps) {
+  const consent = useConsent(slug);
+
+  return (
+    <Screen
+      title={eventName}
+      subtitle={welcomeMessage ?? 'Vous etes le photographe de la soiree.'}
+      footer={
+        <div className="flex flex-col gap-3">
+          <Button full onClick={() => consent.mutate()} disabled={consent.isPending}>
+            {consent.isPending ? 'Un instant...' : "J'accepte, je prends mes photos"}
+          </Button>
+          <p className="text-center text-xs text-white/40">
+            Refuser ferme simplement cette page. Aucune donnee n'est conservee.
+          </p>
+        </div>
+      }
+    >
+      <div className="mt-10 space-y-5 text-[15px] leading-relaxed text-white/70">
+        <p>
+          Vos photographies sont visibles par l'organisateur de l'evenement, puis
+          par les invites si l'organisateur decide de les publier.
+        </p>
+        <p>
+          Elles sont conservees trente jours, puis supprimees automatiquement.
+          Vous pouvez demander le retrait de l'une d'elles a tout moment.
+        </p>
+        <p className="text-white/50">
+          Aucun compte, aucun nom, aucune adresse electronique ne vous est
+          demande. La position et le modele de votre telephone sont effaces
+          avant l'envoi.
+        </p>
+      </div>
+
+      {consent.isError && (
+        <p role="alert" className="mt-6 rounded-xl bg-red-500/10 p-4 text-sm text-red-300">
+          L'enregistrement n'a pas abouti. Verifiez votre connexion et reessayez.
+        </p>
+      )}
+    </Screen>
+  );
+}

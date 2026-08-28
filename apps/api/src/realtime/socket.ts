@@ -10,9 +10,31 @@ import type { Server, Socket } from 'socket.io';
 import { prisma } from '../config/prisma.js';
 import { verifyAccessToken } from '../utils/jwt.js';
 import { verifyDeviceToken } from '../utils/jwt.js';
+import { DEVICE_COOKIE } from '../middlewares/requireGuest.js';
 
 /** Nom de la salle d'un evenement. Un seul endroit le decide. */
 export const eventRoom = (eventId: string) => `event:${eventId}`;
+
+/**
+ * Extrait le jeton d'appareil de l'en-tete Cookie de la poignee de main.
+ *
+ * Le client ne peut pas le fournir lui-meme : le cookie est httpOnly, donc
+ * invisible au JavaScript de la page. C'est voulu — une faille d'injection
+ * ne doit pas pouvoir voler une pellicule. On le lit donc ici, cote serveur,
+ * dans l'en-tete que le navigateur joint automatiquement a la connexion.
+ */
+export function deviceTokenFromCookies(header: string | undefined): string | undefined {
+  if (!header) return undefined;
+
+  for (const part of header.split(';')) {
+    const separator = part.indexOf('=');
+    if (separator === -1) continue;
+    if (part.slice(0, separator).trim() === DEVICE_COOKIE) {
+      return decodeURIComponent(part.slice(separator + 1).trim());
+    }
+  }
+  return undefined;
+}
 
 /**
  * Verifie qu'un client a le droit de suivre un evenement.
@@ -75,7 +97,12 @@ export function setupRealtime(io: Server): void {
         return;
       }
 
-      const allowed = await canJoin(eventId, { accessToken, deviceToken });
+      // Le cookie de la poignee de main fait foi pour l'invite ; la charge
+      // utile ne sert qu'a l'hote, dont le jeton vit en memoire.
+      const allowed = await canJoin(eventId, {
+        accessToken,
+        deviceToken: deviceTokenFromCookies(socket.handshake.headers.cookie) ?? deviceToken,
+      });
       if (!allowed) {
         socket.emit('event:join:error', { reason: 'FORBIDDEN' });
         return;
