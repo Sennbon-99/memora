@@ -99,7 +99,7 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--p
 <div class="hero"><div class="hero-in">
   <div class="kicker">Titre professionnel CDA &mdash; promotion Rho</div>
   <h1>Carnet de bord<br>Memora</h1>
-  <p>Chaque fichier du projet, ce qu&rsquo;il fait et pourquoi il est &eacute;crit ainsi. R&eacute;dig&eacute; au fil de la construction pour servir de r&eacute;vision avant la soutenance.</p>
+  <p>Chaque fichier du projet, ce qu&rsquo;il fait et pourquoi il est &eacute;crit ainsi. R&eacute;dig&eacute; au fil de la construction pour servir de r&eacute;vision avant la soutenance. <b>52 fichiers TypeScript, 83 tests, sept domaines m&eacute;tier.</b></p>
   <div class="strip"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </div></div>
 
@@ -114,6 +114,12 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--p
   <a href="#transverse">3 &middot; Transverse</a>
   <a href="#auth">4 &middot; Authentification</a>
   <a href="#events">5 &middot; &Eacute;v&eacute;nements</a>
+  <a href="#guests">6 &middot; Invit&eacute;s</a>
+  <a href="#photos">7 &middot; Photographies</a>
+  <a href="#publication">8 &middot; Publication</a>
+  <a href="#moments">9 &middot; Moments forts</a>
+  <a href="#payments">10 &middot; Paiement</a>
+  <a href="#jobs">11 &middot; T&acirc;ches planifi&eacute;es</a>
   <a href="#concepts">Concepts &agrave; ma&icirc;triser</a>
   <a href="#jury">Questions de jury</a>
 </nav>
@@ -301,6 +307,118 @@ path: '/api/auth/refresh',  // et seulement sur cette route</pre>
   <details class="file"><summary><span class="tag t">tests</span>event.service.test.ts</summary><div class="body-in">
     <p>Douze tests : droits de l&rsquo;h&ocirc;te, du co-h&ocirc;te et d&rsquo;un &eacute;tranger&nbsp;; bridage du premier &eacute;v&eacute;nement&nbsp;; exigence de paiement au deuxi&egrave;me&nbsp;; verrouillage du quota apr&egrave;s ouverture&nbsp;; couleur toujours modifiable&nbsp;; transitions d&rsquo;&eacute;tat refus&eacute;es.</p>
     <div class="why"><b>Un test qui va plus loin</b>Celui de l&rsquo;ouverture gratuite v&eacute;rifie en plus qu&rsquo;<i>aucune</i> requ&ecirc;te de paiement n&rsquo;a &eacute;t&eacute; faite. Il ne se contente pas de constater que &ccedil;a passe&nbsp;: il v&eacute;rifie que &ccedil;a passe pour la bonne raison.</div>
+  </div></details>
+</section>
+
+
+<section id="guests">
+  <div class="lot"><span class="n">Lot 6</span><h2>Invit&eacute;s</h2></div>
+  <p class="lead">Le scan, la session anonyme, le consentement. Onze tests.</p>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>guest.service.ts</summary><div class="body-in">
+    <p><code>joinEvent</code> ouvre une pellicule, ou restaure celle qui existe d&eacute;j&agrave; sur cet appareil.</p>
+    <div class="why"><b>Un cookie invalide n&rsquo;est pas une erreur</b>Un invit&eacute; qui arrive pour la premi&egrave;re fois et un invit&eacute; dont le cookie a &eacute;t&eacute; bricol&eacute; sont indiscernables du point de vue du produit. Les deux obtiennent une pellicule neuve, aucun ne voit de message d&rsquo;erreur.</div>
+    <div class="why"><b>Redis fait foi pendant l&rsquo;&eacute;v&eacute;nement</b>&Agrave; la restauration, le quota est lu dans Redis et non dans la colonne <code>shotsLeft</code>. La base n&rsquo;est mise &agrave; jour qu&rsquo;&agrave; chaque r&eacute;servation confirm&eacute;e&nbsp;: Redis est la source vive, la base la trace.</div>
+    <div class="why"><b>Un brouillon est &laquo;&nbsp;introuvable&nbsp;&raquo;, pas &laquo;&nbsp;pas encore ouvert&nbsp;&raquo;</b>R&eacute;pondre &laquo;&nbsp;cet &eacute;v&eacute;nement n&rsquo;est pas encore ouvert&nbsp;&raquo; r&eacute;v&eacute;lerait son existence &agrave; quelqu&rsquo;un qui a devin&eacute; l&rsquo;adresse.</div>
+    <div class="why"><b>Le consentement n&rsquo;est jamais r&eacute;horodat&eacute;</b>Si l&rsquo;invit&eacute; revient et r&eacute;accepte, c&rsquo;est la date du premier accord qui reste. La preuve porte sur le moment o&ugrave; il a &eacute;t&eacute; donn&eacute;, pas sur le dernier clic.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">s&eacute;curit&eacute;</span>middlewares/requireGuest.ts</summary><div class="body-in">
+    <p>Charge la pellicule depuis le cookie. Diff&eacute;rence de fond avec <code>requireAuth</code>&nbsp;: ici il n&rsquo;y a pas d&rsquo;identit&eacute;, seulement un appareil. Le cookie ne prouve pas qui est la personne, il prouve que cet appareil a ouvert cette pellicule.</p>
+    <p><code>requireConsent</code> se cha&icirc;ne ensuite sur toute route touchant &agrave; une photographie&nbsp;: c&rsquo;est la r&egrave;gle RG-04 du dossier, appliqu&eacute;e c&ocirc;t&eacute; serveur.</p>
+  </div></details>
+</section>
+
+<section id="photos">
+  <div class="lot"><span class="n">Lot 7</span><h2>Photographies</h2></div>
+  <p class="lead">Le focus du dossier. Dix-huit tests, les plus importants du projet.</p>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>photo.service.ts &mdash; reserveShot</summary><div class="body-in">
+    <p>Cinq d&eacute;cisions, dans cet ordre pr&eacute;cis.</p>
+    <div class="why"><b>1. L&rsquo;idempotence d&rsquo;abord</b>Un rejeu retrouve la r&eacute;servation existante, reg&eacute;n&egrave;re une adresse sign&eacute;e &mdash; la pr&eacute;c&eacute;dente a pu expirer &mdash; et ne d&eacute;cr&eacute;mente rien.</div>
+    <div class="why"><b>2. Cl&eacute; d&rsquo;une autre pellicule refus&eacute;e</b>Sans ce contr&ocirc;le, un invit&eacute; pourrait deviner une cl&eacute; et s&rsquo;approprier la r&eacute;servation d&rsquo;un autre.</div>
+    <div class="why"><b>3. L&rsquo;&eacute;tat est v&eacute;rifi&eacute; AVANT le d&eacute;cr&eacute;ment</b>Dans l&rsquo;autre sens, un invit&eacute; qui d&eacute;clenche &agrave; l&rsquo;instant de la fermeture perdrait une pose sans obtenir de photographie.</div>
+    <div class="why"><b>4. La pose est restitu&eacute;e si l&rsquo;&eacute;criture &eacute;choue</b>Le d&eacute;cr&eacute;ment Redis et l&rsquo;&eacute;criture en base ne peuvent pas &ecirc;tre dans la m&ecirc;me transaction&nbsp;: ce sont deux syst&egrave;mes. Le <code>try/catch</code> qui rend la pose compense cette limite. C&rsquo;est le genre de d&eacute;tail qu&rsquo;un jury creuse.</div>
+    <div class="why"><b>5. Rattachement au moment fort</b>Calcul&eacute; &agrave; la r&eacute;servation, en v&eacute;rifiant que la fen&ecirc;tre n&rsquo;est pas expir&eacute;e. L&rsquo;album de l&rsquo;h&ocirc;te se retrouve d&eacute;coup&eacute; en chapitres sans qu&rsquo;il fasse rien.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">cl&eacute;</span>acceptsPhotos &mdash; le d&eacute;lai de gr&acirc;ce</summary><div class="body-in">
+    <p>Une photographie prise avant la fermeture reste d&eacute;posable pendant deux heures.</p>
+    <pre>if (event.state === 'OPEN') return true;
+if (event.state !== 'CLOSED') return false;
+const takenBeforeClosing = takenAt &lt;= event.closesAt;
+const withinGrace = Date.now() &lt;= event.closesAt + 2h;
+return takenBeforeClosing &amp;&amp; withinGrace;</pre>
+    <div class="why"><b>Ce que &ccedil;a r&eacute;sout</b>Un invit&eacute; photographie &agrave; 2&nbsp;h&nbsp;55 sans r&eacute;seau, retrouve du signal &agrave; 3&nbsp;h&nbsp;05 alors que l&rsquo;&eacute;v&eacute;nement a ferm&eacute; &agrave; 3&nbsp;h. Sans ce d&eacute;lai, ses photographies seraient perdues. C&rsquo;est l&rsquo;horodatage de <b>prise de vue</b> qui fait foi, jamais celui de l&rsquo;envoi.</div>
+  </div></details>
+</section>
+
+<section id="publication">
+  <div class="lot"><span class="n">Lot 8</span><h2>Publication</h2></div>
+  <p class="lead">Le tri par l&rsquo;h&ocirc;te et les quatre port&eacute;es de visibilit&eacute;. Quatorze tests.</p>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>visibility.ts</summary><div class="body-in">
+    <p>Une <b>fonction pure</b>&nbsp;: ni base, ni r&eacute;seau, ni horloge. Elle re&ccedil;oit l&rsquo;&eacute;tat de l&rsquo;&eacute;v&eacute;nement, celui de la photographie et l&rsquo;identit&eacute; de l&rsquo;observateur, et renvoie un bool&eacute;en.</p>
+    <div class="why"><b>Pourquoi c&rsquo;est important</b>La r&egrave;gle la plus sensible du produit est aussi la plus simple &agrave; prouver. Ses quatorze tests couvrent toutes les combinaisons en quelques millisecondes, sans infrastructure.</div>
+    <p>L&rsquo;ordre des r&egrave;gles fait la s&ucirc;ret&eacute; de la fonction&nbsp;: l&rsquo;h&ocirc;te passe en premier, puis les <b>interdictions absolues</b> &mdash; masquage, non-publication, non-s&eacute;lection &mdash; sont &eacute;valu&eacute;es avant la port&eacute;e. Aucune port&eacute;e ne peut donc contourner un masquage.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>publication.service.ts</summary><div class="body-in">
+    <div class="why"><b>Jeton d&rsquo;album distinct de l&rsquo;identifiant</b>R&eacute;vocable sans toucher &agrave; l&rsquo;&eacute;v&eacute;nement, et impossible &agrave; deviner depuis son adresse.</div>
+    <div class="why"><b>Republier repart d&rsquo;une ardoise vierge</b>Un <code>updateMany</code> remet tout &agrave; <code>published: false</code> avant de marquer la nouvelle s&eacute;lection. Une photographie retir&eacute;e du tri cesse imm&eacute;diatement d&rsquo;&ecirc;tre accessible.</div>
+    <div class="why"><b>L&rsquo;observateur est d&eacute;duit du cookie</b>Sur la route publique, si l&rsquo;appareil porte une pellicule valide, la personne est trait&eacute;e comme invit&eacute;e et voit ses propres photographies en mode &laquo;&nbsp;chacun les siennes&nbsp;&raquo;. Sinon, c&rsquo;est un simple porteur du lien.</div>
+  </div></details>
+</section>
+
+<section id="moments">
+  <div class="lot"><span class="n">Lot 9</span><h2>Moments forts</h2></div>
+  <p class="lead">Fen&ecirc;tre de capture, poses bonus, notification temps r&eacute;el. Onze tests.</p>
+
+  <details class="file" open><summary><span class="tag">m&eacute;tier</span>moment.service.ts</summary><div class="body-in">
+    <div class="why"><b>D&eacute;clenchement manuel par d&eacute;faut</b>Aucun mariage ne suit son planning. Un moment programm&eacute; qui se d&eacute;clenche pendant que la mari&eacute;e est aux toilettes ne rattrape rien.</div>
+    <div class="why"><b>Les poses bonus expirent seules</b>&Eacute;crites dans Redis avec un TTL &eacute;gal &agrave; la dur&eacute;e du moment. Aucune t&acirc;che de nettoyage, aucun risque d&rsquo;oubli&nbsp;: &agrave; la seconde o&ugrave; la fen&ecirc;tre se ferme, elles n&rsquo;existent plus.</div>
+    <div class="why"><b>Cr&eacute;dit pos&eacute; en parall&egrave;le</b>Pour deux cents invit&eacute;s, une boucle s&eacute;quentielle prendrait plusieurs secondes pendant lesquelles les premiers auraient de l&rsquo;avance sur les derniers.</div>
+    <div class="why"><b>Chevauchement refus&eacute;</b>Les poses bonus tiennent dans un seul compteur par pellicule&nbsp;: deux fen&ecirc;tres simultan&eacute;es rendraient le d&eacute;compte incompr&eacute;hensible pour l&rsquo;invit&eacute;.</div>
+  </div></details>
+</section>
+
+<section id="payments">
+  <div class="lot"><span class="n">Lot 10</span><h2>Paiement</h2></div>
+  <p class="lead">Session Stripe et webhook idempotent. Huit tests.</p>
+
+  <details class="file" open><summary><span class="tag">s&eacute;curit&eacute;</span>L&rsquo;ordre dans app.ts</summary><div class="body-in">
+    <pre>app.use('/api/stripe', stripeWebhookRouter);  // corps BRUT
+app.use(express.json({ limit: '1mb' }));      // puis seulement JSON</pre>
+    <div class="why"><b>Non n&eacute;gociable</b>Le webhook est mont&eacute; avec <code>express.raw()</code>. Si <code>express.json()</code> passait avant, le corps serait transform&eacute; en objet et la signature deviendrait inv&eacute;rifiable. C&rsquo;est la note que tu avais laiss&eacute;e dans ton <code>server.js</code> de MSBACK, appliqu&eacute;e ici.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>payment.service.ts</summary><div class="body-in">
+    <div class="why"><b>Aucune donn&eacute;e bancaire ne transite</b>La saisie a lieu sur la page h&eacute;berg&eacute;e par le prestataire. La surface de responsabilit&eacute; du projet s&rsquo;arr&ecirc;te l&agrave;.</div>
+    <div class="why"><b>Le paiement d&eacute;verrouille, il n&rsquo;ouvre pas</b><code>handleWebhook</code> marque le paiement comme r&eacute;gl&eacute;, et c&rsquo;est tout. Payer trois semaines avant son mariage ne veut pas dire vouloir ouvrir l&rsquo;&eacute;v&eacute;nement trois semaines avant.</div>
+    <div class="why"><b>V&eacute;rification diff&eacute;r&eacute;e</b>Si la notification n&rsquo;arrive jamais, <code>syncPayment</code> interroge le prestataire quand l&rsquo;h&ocirc;te revient sur la page. On ne fait jamais confiance au retour de navigateur, qui est manipulable&nbsp;: seule la notification sign&eacute;e ou l&rsquo;interrogation directe font foi.</div>
+  </div></details>
+</section>
+
+<section id="jobs">
+  <div class="lot"><span class="n">Lot 11</span><h2>T&acirc;ches planifi&eacute;es</h2></div>
+  <p class="lead">Fermeture automatique et purge RGPD, dans un processus s&eacute;par&eacute;. Dix tests.</p>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>purge.job.ts</summary><div class="body-in">
+    <p>Supprime les m&eacute;dias trente jours apr&egrave;s la fermeture. C&rsquo;est la mise en &oelig;uvre concr&egrave;te de la limitation de conservation.</p>
+    <div class="why"><b>Les fichiers AVANT les enregistrements</b>Dans l&rsquo;autre sens, un &eacute;chec entre les deux laisserait des fichiers orphelins dans le stockage, sans plus aucune trace en base permettant de les retrouver &mdash; donc impossibles &agrave; supprimer ensuite.</div>
+    <div class="why"><b>Suppression par lots de cinq cents</b>Le stockage objet limite le nombre de cl&eacute;s supprimables par requ&ecirc;te.</div>
+    <div class="why"><b>Jeton d&rsquo;album et code effac&eacute;s</b>Un lien de partage encore valide vers un album vide serait trompeur.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">infra</span>worker.ts</summary><div class="body-in">
+    <p>Processus distinct du serveur HTTP.</p>
+    <div class="why"><b>Pourquoi s&eacute;par&eacute;</b>Une purge portant sur plusieurs milliers de fichiers occupe la boucle d&rsquo;&eacute;v&eacute;nements plusieurs secondes. Dans le m&ecirc;me processus, elle d&eacute;graderait le temps de r&eacute;ponse d&rsquo;un invit&eacute; en train de photographier.</div>
+    <p>Chaque t&acirc;che est isol&eacute;e dans un <code>try/catch</code>&nbsp;: une purge qui &eacute;choue n&rsquo;emp&ecirc;che pas la fermeture des &eacute;v&eacute;nements suivants.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">infra</span>qrkit.service.ts</summary><div class="body-in">
+    <p>Kit PDF au format A5 paysage, qui se plie en chevalet une fois imprim&eacute;. Une carte par table, ou une seule &agrave; l&rsquo;entr&eacute;e.</p>
+    <div class="why"><b>Correction d&rsquo;erreur M</b>Tol&egrave;re trente pour cent de dommage&nbsp;: un chevalet tach&eacute; de vin ou pli&eacute; reste scannable. La marge de quatre modules est le minimum requis pour que les scanners d&eacute;tectent le code.</div>
   </div></details>
 </section>
 
