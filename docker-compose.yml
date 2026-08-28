@@ -1,0 +1,42 @@
+# 🐳 docker-compose.yml
+# Les trois services d'infrastructure, en developpement comme en production.
+# On les demarre en local avec exactement les memes images qu'en production :
+# c'est ce qui evite la classe d'anomalies qui n'apparait qu'apres deploiement.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: memora-postgres
+    environment:
+      POSTGRES_USER: memora
+      POSTGRES_PASSWORD: memora
+      POSTGRES_DB: memora
+    ports: ['5432:5432']
+    volumes: ['memora-db:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U memora']
+      interval: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: memora-redis
+    # --appendonly : les compteurs de poses survivent a un redemarrage.
+    command: redis-server --appendonly yes
+    ports: ['6379:6379']
+    volumes: ['memora-redis:/data']
+
+  minio:
+    image: minio/minio:latest
+    container_name: memora-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: memora
+      MINIO_ROOT_PASSWORD: memora-secret
+    ports: ['9000:9000', '9001:9001']
+    volumes: ['memora-photos:/data']
+
+volumes:
+  memora-db:
+  memora-redis:
+  memora-photos:
