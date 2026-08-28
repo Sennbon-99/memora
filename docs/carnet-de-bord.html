@@ -1,0 +1,382 @@
+<title>Carnet de bord Memora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#FAF8F5; --paper-2:#F2EDE6; --card:#FFFFFF;
+  --ink:#231C14; --ink-2:#5C5145; --ink-3:#8A7F72;
+  --amber:#B0741C; --amber-soft:#F4E7D2; --cuve:#3F6B52; --cuve-soft:#E2EDE6;
+  --rule:#E0D8CD; --rule-strong:#C9BEAF;
+  --display:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Source Serif 4',Georgia,serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --measure:66ch;
+}
+:root:not([data-theme="light"]){ @media (prefers-color-scheme:dark){
+  --paper:#16130F; --paper-2:#1E1A15; --card:#221D17;
+  --ink:#F2EBE0; --ink-2:#BCB0A0; --ink-3:#8E8375;
+  --amber:#E0A33A; --amber-soft:#3A2C15; --cuve:#7FB795; --cuve-soft:#1D2E24;
+  --rule:#332B23; --rule-strong:#4A4036;
+}}
+:root[data-theme="dark"]{
+  --paper:#16130F; --paper-2:#1E1A15; --card:#221D17;
+  --ink:#F2EBE0; --ink-2:#BCB0A0; --ink-3:#8E8375;
+  --amber:#E0A33A; --amber-soft:#3A2C15; --cuve:#7FB795; --cuve-soft:#1D2E24;
+  --rule:#332B23; --rule-strong:#4A4036;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;margin:0}
+a{color:var(--amber)}
+code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.12em .38em;border-radius:3px;color:var(--ink)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:230px 1fr;gap:56px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}.side{position:static!important;border-right:0;padding-top:0}}
+
+/* --- bandeau --- */
+.hero{border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.hero-in{max-width:1180px;margin:0 auto;padding:52px 24px 40px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:18px}
+.hero h1{font-size:clamp(38px,6vw,62px);font-weight:800;letter-spacing:-.035em;line-height:.98}
+.hero p{max-width:var(--measure);color:var(--ink-2);margin:16px 0 0;font-size:19px}
+.strip{display:flex;gap:5px;margin-top:26px}
+.strip i{width:26px;height:14px;border-radius:2px;background:var(--rule-strong);display:block}
+.strip i:nth-child(3),.strip i:nth-child(7){background:var(--amber)}
+
+/* --- sommaire --- */
+.side{position:sticky;top:24px;padding:36px 0;border-right:1px solid var(--rule);padding-right:20px;max-height:100vh;overflow-y:auto}
+.side h2{font-size:11px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+.side a{display:block;padding:5px 0 5px 12px;font-family:var(--display);font-size:14px;color:var(--ink-2);text-decoration:none;border-left:2px solid transparent;line-height:1.35}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--amber);border-left-color:var(--amber);font-weight:600}
+.side .sub{padding-left:26px;font-size:13px}
+
+/* --- contenu --- */
+main{padding:36px 0 90px;min-width:0}
+section{margin-bottom:64px;scroll-margin-top:24px}
+.lot{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+.lot .n{font-family:var(--mono);font-size:12px;color:var(--amber);border:1px solid var(--amber);border-radius:2px;padding:2px 7px;flex:none}
+.lot h2{font-size:29px;font-weight:800;letter-spacing:-.02em}
+.lead{max-width:var(--measure);color:var(--ink-2);margin:0 0 26px}
+p{max-width:var(--measure)}
+
+/* --- fiche fichier --- */
+.file{border:1px solid var(--rule);background:var(--card);border-radius:9px;margin-bottom:14px;overflow:hidden}
+.file>summary{cursor:pointer;padding:14px 18px;display:flex;align-items:center;gap:12px;list-style:none;font-family:var(--mono);font-size:13.5px;color:var(--ink)}
+.file>summary::-webkit-details-marker{display:none}
+.file>summary::after{content:'+';margin-left:auto;color:var(--ink-3);font-family:var(--mono);font-size:17px;line-height:1}
+.file[open]>summary::after{content:'\2212'}
+.file[open]>summary{border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.file summary:hover{background:var(--paper-2)}
+.tag{font-family:var(--display);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:var(--amber-soft);color:var(--amber);flex:none;font-weight:600}
+.tag.t{background:var(--cuve-soft);color:var(--cuve)}
+.body-in{padding:18px 18px 6px}
+.body-in p{margin:0 0 12px}
+.why{border-left:2px solid var(--amber);padding:2px 0 2px 14px;margin:14px 0;color:var(--ink-2);font-size:16px;max-width:var(--measure)}
+.why b{font-family:var(--display);color:var(--ink);display:block;font-size:13px;letter-spacing:.02em;margin-bottom:3px}
+
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--paper-2);border:1px solid var(--rule);border-radius:7px;padding:14px 16px;overflow-x:auto;margin:14px 0;color:var(--ink)}
+.tree{font-family:var(--mono);font-size:13px;line-height:1.75;background:var(--card);border:1px solid var(--rule);border-radius:9px;padding:18px 20px;overflow-x:auto;margin:18px 0}
+.tree .c{color:var(--ink-3)}
+.tree .h{color:var(--amber);font-weight:600}
+
+/* --- revision --- */
+.quiz{border:1px solid var(--rule);border-radius:9px;background:var(--card);padding:16px 18px;margin-bottom:12px}
+.quiz .q{font-family:var(--display);font-weight:600;font-size:16.5px;margin-bottom:10px;max-width:var(--measure)}
+.quiz button{font-family:var(--display);font-size:12.5px;font-weight:600;letter-spacing:.02em;background:transparent;color:var(--amber);border:1px solid var(--amber);border-radius:20px;padding:5px 14px;cursor:pointer}
+.quiz button:hover{background:var(--amber);color:var(--paper)}
+.quiz .a{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--rule-strong);color:var(--ink-2);max-width:var(--measure)}
+.quiz.open .a{display:block}
+.quiz.open button{display:none}
+
+.note{background:var(--cuve-soft);border-radius:9px;padding:15px 18px;margin:18px 0;max-width:var(--measure);font-size:16px;color:var(--ink)}
+.note b{font-family:var(--display);color:var(--cuve)}
+</style>
+
+<div class="hero"><div class="hero-in">
+  <div class="kicker">Titre professionnel CDA &mdash; promotion Rho</div>
+  <h1>Carnet de bord<br>Memora</h1>
+  <p>Chaque fichier du projet, ce qu&rsquo;il fait et pourquoi il est &eacute;crit ainsi. R&eacute;dig&eacute; au fil de la construction pour servir de r&eacute;vision avant la soutenance.</p>
+  <div class="strip"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div></div>
+
+<div class="wrap">
+<nav class="side">
+  <h2>Sommaire</h2>
+  <a href="#vue">Vue d&rsquo;ensemble</a>
+  <a href="#socle">1 &middot; Le socle</a>
+  <a href="#types" class="sub">Types partag&eacute;s</a>
+  <a href="#donnees" class="sub">Sch&eacute;ma de donn&eacute;es</a>
+  <a href="#config">2 &middot; Configuration</a>
+  <a href="#transverse">3 &middot; Transverse</a>
+  <a href="#auth">4 &middot; Authentification</a>
+  <a href="#events">5 &middot; &Eacute;v&eacute;nements</a>
+  <a href="#concepts">Concepts &agrave; ma&icirc;triser</a>
+  <a href="#jury">Questions de jury</a>
+</nav>
+
+<main>
+
+<section id="vue">
+  <div class="lot"><h2>Vue d&rsquo;ensemble</h2></div>
+  <p class="lead">Memora est un monorepo : une seule base de code r&eacute;unit l&rsquo;API, le client web, l&rsquo;application mobile et les paquets partag&eacute;s. C&rsquo;est le premier &eacute;cart avec MSBACK et MSFRONT, qui vivaient dans deux d&eacute;p&ocirc;ts s&eacute;par&eacute;s.</p>
+
+  <div class="why"><b>Pourquoi un monorepo</b>Avec deux d&eacute;p&ocirc;ts, le contrat entre le client et le serveur est recopi&eacute; &agrave; la main des deux c&ocirc;t&eacute;s, et il d&eacute;rive silencieusement. Ici, les types et les sch&eacute;mas de validation vivent dans <code>packages/types</code> : le client ne peut plus appeler une route avec une charge utile invalide sans que la compilation &eacute;choue.</div>
+
+  <div class="tree"><span class="c">memora/</span>
+&#9500;&#9472;&#9472; <span class="h">apps/api/</span>            <span class="c">l'interface de programmation</span>
+&#9474;   &#9500;&#9472;&#9472; prisma/schema/    <span class="c">un fichier par modele</span>
+&#9474;   &#9492;&#9472;&#9472; src/
+&#9474;       &#9500;&#9472;&#9472; server.ts     <span class="c">demarrage, Socket.io, arret propre</span>
+&#9474;       &#9500;&#9472;&#9472; app.ts        <span class="c">construction Express, exportee pour les tests</span>
+&#9474;       &#9500;&#9472;&#9472; router.ts     <span class="c">assemble les features sous /api</span>
+&#9474;       &#9500;&#9472;&#9472; config/       <span class="c">env, prisma, redis, storage</span>
+&#9474;       &#9500;&#9472;&#9472; middlewares/  <span class="c">validate, requireAuth, rateLimiter, errorHandler</span>
+&#9474;       &#9500;&#9472;&#9472; utils/        <span class="c">errors, jwt, hash, slug</span>
+&#9474;       &#9492;&#9472;&#9472; features/
+&#9474;           &#9500;&#9472;&#9472; auth/     <span class="c">routes, controleur, service, tests</span>
+&#9474;           &#9492;&#9472;&#9472; events/
+&#9492;&#9472;&#9472; <span class="h">packages/types/</span>       <span class="c">enums et schemas Zod partages</span></div>
+
+  <div class="note"><b>&Agrave; retenir pour l&rsquo;oral.</b> L&rsquo;arborescence suit le m&eacute;tier, les responsabilit&eacute;s suivent les couches. Dans chaque dossier de <code>features/</code> on retrouve la m&ecirc;me cha&icirc;ne : route &rarr; contr&ocirc;leur &rarr; service &rarr; acc&egrave;s aux donn&eacute;es. La comp&eacute;tence 6 du r&eacute;f&eacute;rentiel parle d&rsquo;application organis&eacute;e en couches : elles sont bien l&agrave;, simplement regroup&eacute;es par domaine.</div>
+</section>
+
+<section id="socle">
+  <div class="lot"><span class="n">Lot 1</span><h2>Le socle</h2></div>
+  <p class="lead">Les fichiers de configuration du d&eacute;p&ocirc;t. Aucun code m&eacute;tier, mais ce sont eux qui d&eacute;terminent la rigueur de tout le reste.</p>
+
+  <details class="file"><summary><span class="tag">config</span>pnpm-workspace.yaml</summary><div class="body-in">
+    <p>D&eacute;clare que le d&eacute;p&ocirc;t contient plusieurs paquets : tout ce qui se trouve dans <code>apps/</code> et <code>packages/</code>. C&rsquo;est ce fichier qui remplace tes deux d&eacute;p&ocirc;ts s&eacute;par&eacute;s.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">config</span>turbo.json</summary><div class="body-in">
+    <p>D&eacute;crit les t&acirc;ches et leurs d&eacute;pendances.</p>
+    <pre>"type-check": { "dependsOn": ["^build"] }</pre>
+    <p>Le circonflexe signifie &laquo;&nbsp;les d&eacute;pendances de ce paquet&nbsp;&raquo;. Avant de v&eacute;rifier les types de l&rsquo;API, Turbo compile donc d&rsquo;abord <code>@memora/types</code>. Sans cette ligne, l&rsquo;API pourrait &ecirc;tre v&eacute;rifi&eacute;e contre une version p&eacute;rim&eacute;e des contrats.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">config</span>tsconfig.base.json</summary><div class="body-in">
+    <p>Le TypeScript strict pour tout le d&eacute;p&ocirc;t. Trois options vont plus loin que le <code>strict</code> par d&eacute;faut :</p>
+    <div class="why"><b>noUncheckedIndexedAccess</b><code>tableau[0]</code> est typ&eacute; <code>T | undefined</code>, ce qui oblige &agrave; v&eacute;rifier avant d&rsquo;utiliser. C&rsquo;est la source d&rsquo;erreur num&eacute;ro un en production.</div>
+    <div class="why"><b>exactOptionalPropertyTypes</b>Distingue &laquo;&nbsp;propri&eacute;t&eacute; absente&nbsp;&raquo; de &laquo;&nbsp;propri&eacute;t&eacute; pr&eacute;sente valant <code>undefined</code>&nbsp;&raquo;, deux choses que Prisma traite diff&eacute;remment.</div>
+    <div class="why"><b>verbatimModuleSyntax</b>Impose <code>import type</code> quand on n&rsquo;importe qu&rsquo;un type. Les imports de types dispara&icirc;ssent alors compl&egrave;tement du code compil&eacute;.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">infra</span>docker-compose.yml</summary><div class="body-in">
+    <p>PostgreSQL 16, Redis 7.4 et MinIO, avec les images exactes de la production.</p>
+    <div class="why"><b>Le d&eacute;tail qui compte</b>Redis tourne avec <code>--appendonly yes</code>. Sans cette option, un red&eacute;marrage viderait les compteurs de poses&nbsp;&mdash; en pleine soir&eacute;e, tous les invit&eacute;s r&eacute;cup&eacute;reraient un quota neuf.</div>
+  </div></details>
+
+  <div id="types"></div>
+  <details class="file" open><summary><span class="tag">m&eacute;tier</span>packages/types/src/enums.ts</summary><div class="body-in">
+    <p>Les valeurs m&eacute;tier et les bornes chiffr&eacute;es, d&eacute;clar&eacute;es une seule fois : types d&rsquo;&eacute;v&eacute;nement, &eacute;tats, modes d&rsquo;aper&ccedil;u, port&eacute;es de publication, r&ocirc;les. Puis le quota entre 5 et 60, 24 par d&eacute;faut, 200 invit&eacute;s maximum, 30 jours de r&eacute;tention, 3 poses bonus, fen&ecirc;tre de 10 minutes.</p>
+    <pre>export const EVENT_STATES = ['DRAFT','OPEN','CLOSED','PUBLISHED','PURGED'] as const;
+export type EventState = (typeof EVENT_STATES)[number];</pre>
+    <p>Le <code>as const</code> fige le tableau, et l&rsquo;indexation par <code>[number]</code> en d&eacute;rive le type union. R&eacute;sultat : une seule source, un tableau utilisable &agrave; l&rsquo;ex&eacute;cution et un type v&eacute;rifi&eacute; &agrave; la compilation.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>packages/types/src/schemas.ts</summary><div class="body-in">
+    <p>Le contrat de chaque route, &eacute;crit avec Zod. Le serveur valide ce qu&rsquo;il re&ccedil;oit, le client valide avant d&rsquo;envoyer, avec les m&ecirc;mes sch&eacute;mas.</p>
+    <pre>closesAt: z.coerce.date().refine((d) =&gt; d.getTime() &gt; Date.now(), {
+  message: "L'heure de fermeture doit etre posterieure a maintenant",
+}),</pre>
+    <div class="why"><b>Ce que fait <code>z.infer</code></b>Le type TypeScript est d&eacute;riv&eacute; du sch&eacute;ma, pas &eacute;crit &agrave; c&ocirc;t&eacute;. Modifier une r&egrave;gle de validation modifie le type au m&ecirc;me instant : ils ne peuvent pas diverger.</div>
+  </div></details>
+
+  <div id="donnees"></div>
+  <details class="file"><summary><span class="tag">donn&eacute;es</span>prisma/schema/ &mdash; huit fichiers</summary><div class="body-in">
+    <p>Un fichier par mod&egrave;le, assembl&eacute;s automatiquement gr&acirc;ce &agrave; <code>"prisma": { "schema": "./prisma/schema" }</code> dans le <code>package.json</code>. Les enums sont plac&eacute;s dans le fichier du mod&egrave;le auquel ils appartiennent.</p>
+    <p>Les noms passent en anglais, les commentaires restent en fran&ccedil;ais. La correspondance avec le MCD du dossier : <code>EVENEMENT</code> devient <code>Event</code>, <code>PELLICULE</code> devient <code>Roll</code>, <code>TABLE_SALLE</code> devient <code>EventTable</code>, <code>DEMANDE_RETRAIT</code> devient <code>RemovalRequest</code>.</p>
+    <div class="why"><b>Trois contraintes qui portent des r&egrave;gles m&eacute;tier</b><code>@@unique([eventId, deviceToken])</code> sur <code>Roll</code> interdit &agrave; un m&ecirc;me appareil d&rsquo;ouvrir deux pellicules sur le m&ecirc;me &eacute;v&eacute;nement. <code>@unique</code> sur <code>idempotencyKey</code> rend le rejeu impossible au niveau de la base, pas seulement du code. <code>@unique</code> sur <code>externalRef</code> emp&ecirc;che qu&rsquo;une notification Stripe re&ccedil;ue deux fois cr&eacute;dite l&rsquo;&eacute;v&eacute;nement deux fois.</div>
+    <p><code>Roll</code> repr&eacute;sente <b>un appareil pour un &eacute;v&eacute;nement</b>, pas une personne. C&rsquo;est la traduction exacte du choix d&rsquo;identification par appareil d&eacute;crit dans le dossier.</p>
+  </div></details>
+</section>
+
+<section id="config">
+  <div class="lot"><span class="n">Lot 2</span><h2>Configuration</h2></div>
+  <p class="lead">Quatre fichiers transverses, dont aucun ne contient de r&egrave;gle m&eacute;tier, mais dont deux portent des garanties techniques d&eacute;terminantes.</p>
+
+  <details class="file"><summary><span class="tag">config</span>config/env.ts</summary><div class="body-in">
+    <p>Valide toutes les variables d&rsquo;environnement au d&eacute;marrage avec Zod, et arr&ecirc;te le processus si l&rsquo;une manque.</p>
+    <div class="why"><b>L&rsquo;&eacute;cart avec MSBACK</b>Un simple <code>dotenv.config()</code> laisse d&eacute;couvrir qu&rsquo;une variable est absente au premier appel qui en a besoin, souvent en production. Ici, le serveur refuse de d&eacute;marrer, avec la liste des champs fautifs.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">config</span>config/prisma.ts</summary><div class="body-in">
+    <p>Instance unique, mise en cache sur <code>globalThis</code> en d&eacute;veloppement.</p>
+    <div class="why"><b>Pourquoi ce cache</b><code>tsx watch</code> recharge les modules &agrave; chaque sauvegarde. Sans lui, chaque sauvegarde ouvrirait une connexion suppl&eacute;mentaire jusqu&rsquo;&agrave; saturer PostgreSQL.</div>
+  </div></details>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>config/redis.ts</summary><div class="body-in">
+    <p>La connexion Redis, et le script dont d&eacute;pend toute la garantie de quota.</p>
+    <pre>local left = tonumber(redis.call('GET', KEYS[1]) or '0')
+if left &lt;= 0 then return -1 end
+return redis.call('DECR', KEYS[1])</pre>
+    <div class="why"><b>Pourquoi un script Lua et pas deux commandes</b>Redis ex&eacute;cute un script d&rsquo;un seul tenant&nbsp;: aucune autre commande ne peut s&rsquo;intercaler. Une s&eacute;quence <code>GET</code> puis <code>DECR</code> laisserait deux requ&ecirc;tes simultan&eacute;es lire la m&ecirc;me valeur avant qu&rsquo;aucune n&rsquo;ait &eacute;crit, et le quota deviendrait n&eacute;gatif. C&rsquo;est exactement l&rsquo;anomalie racont&eacute;e dans le dossier au sprint 4.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">cl&eacute;</span>config/storage.ts</summary><div class="body-in">
+    <p>Ne sert qu&rsquo;&agrave; signer des adresses. <code>signUpload</code> en produit une valable 5 minutes pour d&eacute;poser, <code>signRead</code> une valable 15 minutes pour consulter.</p>
+    <div class="why"><b>Le principe &agrave; savoir expliquer</b>Le fichier ne transite jamais par l&rsquo;API. Celle-ci autorise, puis elle constate. Trois cons&eacute;quences&nbsp;: le processus applicatif ne sature pas pendant un pic de d&eacute;clenchements, la m&eacute;moire du serveur reste stable, et l&rsquo;API n&rsquo;expose aucune surface de traitement de contenu binaire.</div>
+    <p><code>forcePathStyle: true</code> est obligatoire avec MinIO, dont les adresses sont de la forme <code>host/bucket/objet</code> et non <code>bucket.host/objet</code>.</p>
+  </div></details>
+</section>
+
+<section id="transverse">
+  <div class="lot"><span class="n">Lot 3</span><h2>Fondations transverses</h2></div>
+  <p class="lead">Les utilitaires et les middlewares dont toutes les features d&eacute;pendent.</p>
+
+  <details class="file"><summary><span class="tag">utils</span>utils/errors.ts</summary><div class="body-in">
+    <p><code>AppError</code> et ses sous-classes typ&eacute;es, chacune portant son code m&eacute;tier et son statut HTTP : <code>QuotaExhaustedError</code>, <code>ConsentRequiredError</code>, <code>EventClosedError</code>, <code>EventFullError</code>, <code>UnauthorizedError</code>, <code>ForbiddenError</code>, <code>NotFoundError</code>.</p>
+    <p>Tout ce qui n&rsquo;h&eacute;rite pas d&rsquo;<code>AppError</code> est trait&eacute; comme une erreur interne dont la cause ne sort jamais du serveur.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">s&eacute;curit&eacute;</span>utils/jwt.ts</summary><div class="body-in">
+    <p>Trois sortes de jetons : acc&egrave;s (15 minutes), renouvellement (30 jours), et le jeton d&rsquo;appareil de l&rsquo;invit&eacute;.</p>
+    <div class="why"><b>Le d&eacute;tail &agrave; remarquer</b><code>verifyDeviceToken</code> renvoie <code>null</code> au lieu de lever une exception. Un cookie invalide n&rsquo;est pas une erreur&nbsp;: on ouvre simplement une nouvelle pellicule, comme pour un appareil qui arrive pour la premi&egrave;re fois.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">s&eacute;curit&eacute;</span>middlewares/requireAuth.ts</summary><div class="body-in">
+    <p>V&eacute;rifie le jeton, puis <b>recharge l&rsquo;utilisateur depuis la base</b> au lieu de faire confiance au contenu du jeton&nbsp;&mdash; exactement comme ton <code>authMiddleware.js</code> de MSBACK.</p>
+    <div class="why"><b>Pourquoi recharger</b>Un compte supprim&eacute;, ou dont le r&ocirc;le a chang&eacute;, ne doit pas continuer &agrave; passer parce qu&rsquo;il d&eacute;tient un jeton &eacute;mis quinze minutes plus t&ocirc;t.</div>
+    <p><code>requireRole('ADMIN')</code> se cha&icirc;ne apr&egrave;s <code>requireAuth</code> pour restreindre une route.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">utils</span>middlewares/validate.ts</summary><div class="body-in">
+    <p>Applique un sch&eacute;ma Zod au corps de la requ&ecirc;te avant le contr&ocirc;leur. Celui-ci re&ccedil;oit donc des donn&eacute;es d&eacute;j&agrave; valid&eacute;es <i>et</i> d&eacute;j&agrave; typ&eacute;es : il n&rsquo;a plus rien &agrave; v&eacute;rifier.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">utils</span>middlewares/errorHandler.ts</summary><div class="body-in">
+    <p>Attribue un identifiant de corr&eacute;lation &agrave; chaque incident, le journalise, et le renvoie au client. Quand un utilisateur signale un probl&egrave;me avec cet identifiant, on retrouve la ligne exacte du journal.</p>
+    <p>Trois cas : erreur de validation Zod (422 avec le d&eacute;tail des champs), erreur applicative pr&eacute;vue (son statut et son message), et tout le reste (500, cause gard&eacute;e au serveur).</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">utils</span>utils/slug.ts</summary><div class="body-in">
+    <p>Fabrique l&rsquo;identifiant public d&rsquo;un &eacute;v&eacute;nement : partie lisible plus suffixe al&eacute;atoire.</p>
+    <pre>mariage-de-lea-et-sam-7f3a9c</pre>
+    <div class="why"><b>Pourquoi le suffixe</b>Sans lui, l&rsquo;adresse d&rsquo;un mariage serait devinable &agrave; partir des pr&eacute;noms des mari&eacute;s, et n&rsquo;importe qui pourrait rejoindre l&rsquo;&eacute;v&eacute;nement sans avoir jamais vu le QR code.</div>
+  </div></details>
+</section>
+
+<section id="auth">
+  <div class="lot"><span class="n">Lot 4</span><h2>Authentification</h2></div>
+  <p class="lead">Premi&egrave;re feature compl&egrave;te. Quatre fichiers dans <code>features/auth/</code>.</p>
+
+  <details class="file" open><summary><span class="tag">m&eacute;tier</span>auth.service.ts</summary><div class="body-in">
+    <p>Les r&egrave;gles, sans conna&icirc;tre Express. Le service re&ccedil;oit des donn&eacute;es et renvoie des donn&eacute;es, ce qui le rend testable seul.</p>
+    <pre>const hash = user?.passwordHash ?? '$2b$12$invalid...';
+const valid = await verifyPassword(password, hash);
+if (!user || !valid) throw new UnauthorizedError('Identifiants incorrects');</pre>
+    <div class="why"><b>Le point le plus important de ce fichier</b>Quand le compte n&rsquo;existe pas, on appelle quand m&ecirc;me <code>verifyPassword</code> sur une empreinte factice. Sans cela, la r&eacute;ponse serait plus rapide pour une adresse inconnue, et ce simple &eacute;cart de temps permettrait d&rsquo;&eacute;num&eacute;rer les comptes. C&rsquo;est une d&eacute;fense contre une attaque temporelle.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">s&eacute;curit&eacute;</span>auth.controller.ts</summary><div class="body-in">
+    <p>Traduit HTTP : lire, appeler le service, poser le cookie, choisir le statut. Les erreurs partent vers l&rsquo;intercepteur par <code>next(err)</code>.</p>
+    <pre>httpOnly: true,             // inaccessible au JavaScript de la page
+secure: isProduction,       // uniquement en HTTPS en production
+sameSite: 'strict',         // jamais envoye depuis un autre site
+path: '/api/auth/refresh',  // et seulement sur cette route</pre>
+    <div class="why"><b>Pourquoi c&rsquo;est une d&eacute;fense CSRF</b>Le jeton d&rsquo;acc&egrave;s voyage dans l&rsquo;en-t&ecirc;te <code>Authorization</code>, que le navigateur n&rsquo;ajoute jamais de lui-m&ecirc;me. Une requ&ecirc;te forg&eacute;e depuis un autre site part donc sans jeton. Le seul cookie utilis&eacute; porte <code>SameSite=Strict</code> et n&rsquo;est accept&eacute; que sur la route de renouvellement.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag t">tests</span>auth.service.test.ts</summary><div class="body-in">
+    <p>Prisma est remplac&eacute; par un double : ces tests portent sur la r&egrave;gle m&eacute;tier, pas sur la base.</p>
+    <p>Le test qui compte v&eacute;rifie que la r&eacute;ponse est <b>rigoureusement identique</b> selon que le compte existe ou non&nbsp;: m&ecirc;me code, m&ecirc;me message. C&rsquo;est une propri&eacute;t&eacute; de s&eacute;curit&eacute;, pas une propri&eacute;t&eacute; fonctionnelle.</p>
+  </div></details>
+</section>
+
+<section id="events">
+  <div class="lot"><span class="n">Lot 5</span><h2>&Eacute;v&eacute;nements</h2></div>
+  <p class="lead">Cr&eacute;ation, configuration, ouverture, fermeture, tables de salle. Douze tests.</p>
+
+  <details class="file" open><summary><span class="tag">m&eacute;tier</span>event.service.ts</summary><div class="body-in">
+    <p>Cinq r&egrave;gles portent tout le module.</p>
+    <div class="why"><b>assertCanManage</b>La matrice des r&ocirc;les du dossier, appliqu&eacute;e c&ocirc;t&eacute; serveur. Elle distingue l&rsquo;h&ocirc;te du co-h&ocirc;te en renvoyant <code>isOwner</code>, ce qui permet ensuite de r&eacute;server certaines actions au seul propri&eacute;taire.</div>
+    <div class="why"><b>R&eacute;glages fig&eacute;s &agrave; l&rsquo;ouverture</b>Le quota, le mode d&rsquo;aper&ccedil;u et le type ne sont plus modifiables une fois l&rsquo;&eacute;v&eacute;nement ouvert. Changer le quota en pleine soir&eacute;e cr&eacute;erait une in&eacute;galit&eacute; entre les invit&eacute;s d&eacute;j&agrave; arriv&eacute;s et les suivants.</div>
+    <div class="why"><b>Offre gratuite</b>Le premier &eacute;v&eacute;nement d&rsquo;un compte est brid&eacute; &agrave; dix poses. <code>openEvent</code> est le seul point de contr&ocirc;le du paiement, et il refuse qu&rsquo;un co-h&ocirc;te ouvre l&rsquo;&eacute;v&eacute;nement.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag t">tests</span>event.service.test.ts</summary><div class="body-in">
+    <p>Douze tests : droits de l&rsquo;h&ocirc;te, du co-h&ocirc;te et d&rsquo;un &eacute;tranger&nbsp;; bridage du premier &eacute;v&eacute;nement&nbsp;; exigence de paiement au deuxi&egrave;me&nbsp;; verrouillage du quota apr&egrave;s ouverture&nbsp;; couleur toujours modifiable&nbsp;; transitions d&rsquo;&eacute;tat refus&eacute;es.</p>
+    <div class="why"><b>Un test qui va plus loin</b>Celui de l&rsquo;ouverture gratuite v&eacute;rifie en plus qu&rsquo;<i>aucune</i> requ&ecirc;te de paiement n&rsquo;a &eacute;t&eacute; faite. Il ne se contente pas de constater que &ccedil;a passe&nbsp;: il v&eacute;rifie que &ccedil;a passe pour la bonne raison.</div>
+  </div></details>
+</section>
+
+<section id="concepts">
+  <div class="lot"><h2>Concepts &agrave; ma&icirc;triser</h2></div>
+  <p class="lead">Les cinq notions sur lesquelles le jury peut creuser, avec la formulation courte &agrave; conna&icirc;tre.</p>
+
+  <details class="file" open><summary><span class="tag">notion</span>Atomicit&eacute;</summary><div class="body-in">
+    <p>Une op&eacute;ration atomique s&rsquo;ex&eacute;cute enti&egrave;rement ou pas du tout, sans qu&rsquo;aucune autre op&eacute;ration puisse s&rsquo;intercaler au milieu.</p>
+    <p>Dans Memora&nbsp;: le script Lua qui d&eacute;cr&eacute;mente le quota. Deux d&eacute;clenchements simultan&eacute;s ne peuvent pas lire la m&ecirc;me valeur avant d&rsquo;&eacute;crire.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">notion</span>Idempotence</summary><div class="body-in">
+    <p>Une op&eacute;ration idempotente produit le m&ecirc;me r&eacute;sultat qu&rsquo;elle soit ex&eacute;cut&eacute;e une ou plusieurs fois.</p>
+    <p>Dans Memora&nbsp;: le client g&eacute;n&egrave;re une cl&eacute; UUID par prise de vue. Un rejeu retrouve la photographie existante au lieu d&rsquo;en cr&eacute;er une seconde. La contrainte <code>@unique</code> en base garantit la propri&eacute;t&eacute; m&ecirc;me si le code se trompe.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">notion</span>Adresse sign&eacute;e</summary><div class="body-in">
+    <p>Une adresse temporaire, sign&eacute;e cryptographiquement, qui autorise une op&eacute;ration pr&eacute;cise sur un objet pr&eacute;cis pendant une dur&eacute;e limit&eacute;e.</p>
+    <p>Dans Memora&nbsp;: 5 minutes pour d&eacute;poser, 15 minutes pour lire. Le seau MinIO n&rsquo;est jamais public.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">notion</span>Jeton d&rsquo;acc&egrave;s et jeton de renouvellement</summary><div class="body-in">
+    <p>Le jeton d&rsquo;acc&egrave;s est court (15 minutes) et voyage dans l&rsquo;en-t&ecirc;te. Le jeton de renouvellement est long (30 jours) et reste dans un cookie inaccessible au script.</p>
+    <p>Pourquoi deux&nbsp;: un jeton d&rsquo;acc&egrave;s vol&eacute; n&rsquo;est exploitable que quinze minutes, et le jeton long ne peut pas &ecirc;tre lu par du JavaScript inject&eacute;.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">notion</span>Minimisation des donn&eacute;es</summary><div class="body-in">
+    <p>Principe du RGPD&nbsp;: ne collecter que ce qui est n&eacute;cessaire &agrave; la finalit&eacute;.</p>
+    <p>Dans Memora&nbsp;: aucune adresse &eacute;lectronique ni compte pour l&rsquo;invit&eacute;, pr&eacute;nom facultatif, et les coordonn&eacute;es GPS retir&eacute;es <b>avant</b> que le fichier ne quitte le t&eacute;l&eacute;phone. Retirer avant l&rsquo;envoi, ce n&rsquo;est pas la m&ecirc;me chose que supprimer apr&egrave;s collecte.</p>
+  </div></details>
+</section>
+
+<section id="jury">
+  <div class="lot"><h2>Questions de jury</h2></div>
+  <p class="lead">Questions probables sur ce qui est d&eacute;j&agrave; &eacute;crit. R&eacute;ponds &agrave; voix haute avant d&rsquo;afficher la r&eacute;ponse.</p>
+
+  <div class="quiz"><div class="q">Pourquoi avoir choisi Redis plut&ocirc;t que PostgreSQL pour compter les poses&nbsp;?</div>
+    <button onclick="this.parentElement.classList.add('open')">Afficher la r&eacute;ponse</button>
+    <div class="a">Lors d&rsquo;un moment fort, plusieurs dizaines de d&eacute;clenchements arrivent en quelques secondes sur le m&ecirc;me &eacute;v&eacute;nement. Un <code>UPDATE</code> concurrent sur une seule ligne de PostgreSQL serait un point de contention, avec des attentes de verrou. Un compteur en m&eacute;moire, d&eacute;cr&eacute;ment&eacute; par un script atomique, encaisse la charge. La valeur est ensuite report&eacute;e en base dans la m&ecirc;me transaction que la cr&eacute;ation de la photographie.</div>
+  </div>
+
+  <div class="quiz"><div class="q">Que se passe-t-il si un invit&eacute; appuie deux fois tr&egrave;s vite sur le d&eacute;clencheur&nbsp;?</div>
+    <button onclick="this.parentElement.classList.add('open')">Afficher la r&eacute;ponse</button>
+    <div class="a">Deux cas. Si ce sont deux prises de vue distinctes, chacune porte sa propre cl&eacute; d&rsquo;idempotence et consomme une pose&nbsp;: c&rsquo;est le comportement attendu. Si c&rsquo;est la m&ecirc;me requ&ecirc;te rejou&eacute;e &mdash; r&eacute;seau instable, reprise automatique &mdash; la cl&eacute; est identique, le serveur retrouve la photographie d&eacute;j&agrave; cr&eacute;&eacute;e et ne d&eacute;cr&eacute;mente pas une seconde fois.</div>
+  </div>
+
+  <div class="quiz"><div class="q">Un invit&eacute; peut-il contourner son quota&nbsp;?</div>
+    <button onclick="this.parentElement.classList.add('open')">Afficher la r&eacute;ponse</button>
+    <div class="a">Oui, et c&rsquo;est document&eacute; comme une limite assum&eacute;e. En navigation priv&eacute;e ou depuis un autre navigateur, il obtient une nouvelle pellicule. Le d&eacute;tecter supposerait une empreinte de navigateur, que la CNIL assimile &agrave; un tra&ccedil;age soumis &agrave; consentement &mdash; ce qui contredirait la d&eacute;marche de minimisation. Deux garde-fous&nbsp;: le nombre de pellicules est visible par l&rsquo;h&ocirc;te, et le plafond de 200 participants borne l&rsquo;abus.</div>
+  </div>
+
+  <div class="quiz"><div class="q">Pourquoi la photographie ne passe-t-elle pas par l&rsquo;API&nbsp;?</div>
+    <button onclick="this.parentElement.classList.add('open')">Afficher la r&eacute;ponse</button>
+    <div class="a">Trois raisons. La charge&nbsp;: cent invit&eacute;s envoyant 2&nbsp;Mo chacun satureraient le processus applicatif. La m&eacute;moire&nbsp;: Node devrait tamponner chaque fichier. La s&eacute;curit&eacute;&nbsp;: l&rsquo;API n&rsquo;expose aucune surface de traitement de contenu binaire. Elle d&eacute;livre une adresse sign&eacute;e valable cinq minutes, le navigateur transf&egrave;re directement, puis confirme.</div>
+  </div>
+
+  <div class="quiz"><div class="q">Comment garantissez-vous qu&rsquo;une photo n&rsquo;est pas visible avant publication&nbsp;?</div>
+    <button onclick="this.parentElement.classList.add('open')">Afficher la r&eacute;ponse</button>
+    <div class="a">Le seau de stockage n&rsquo;est jamais public&nbsp;: aucune adresse n&rsquo;est exploitable sans signature. La signature n&rsquo;est d&eacute;livr&eacute;e qu&rsquo;apr&egrave;s contr&ocirc;le des droits c&ocirc;t&eacute; serveur, en fonction de la port&eacute;e de publication choisie par l&rsquo;h&ocirc;te. Les cl&eacute;s d&rsquo;objet contiennent un UUID, donc rien n&rsquo;est devinable. Et l&rsquo;interface ne d&eacute;cide jamais&nbsp;: elle masque, le serveur autorise.</div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// Sommaire : marque la section visible pendant le defilement.
+const links = [...document.querySelectorAll('.side a')];
+const targets = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    const id = '#' + e.target.id;
+    links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === id));
+  });
+}, { rootMargin: '-10% 0px -75% 0px' });
+targets.forEach(t => io.observe(t));
+</script>
