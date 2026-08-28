@@ -15,6 +15,7 @@ import {
 } from './features/publication/publication.routes.js';
 import { momentRouter } from './features/moments/moment.routes.js';
 import { paymentRouter } from './features/payments/payment.routes.js';
+import { qrkitRouter } from './features/qrkit/qrkit.routes.js';
 
 export const apiRouter = Router();
 
@@ -27,6 +28,7 @@ apiRouter.use('/photos', photoRouter);
 apiRouter.use('/events/:id', hostAlbumRouter);
 apiRouter.use('/events/:id/moments', momentRouter);
 apiRouter.use('/events/:id', paymentRouter);
+apiRouter.use('/events/:id', qrkitRouter);
 // Consultation d'un album publie, par son lien de partage.
 apiRouter.use('/album', publicAlbumRouter);
 apiRouter.use('/removals', removalRouter);
