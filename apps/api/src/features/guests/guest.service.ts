@@ -8,7 +8,7 @@
 import type { JoinEventInput, RecoveryCodeInput } from '@memora/types';
 import { MAX_GUESTS_PER_EVENT } from '@memora/types';
 import { prisma } from '../../config/prisma.js';
-import { initQuota, redis, quotaKey } from '../../config/redis.js';
+import { initQuota, readQuota } from '../../config/redis.js';
 import { signDeviceToken, verifyDeviceToken } from '../../utils/jwt.js';
 import { hashRecoveryCode, verifyRecoveryCode } from '../../utils/hash.js';
 import { buildToken } from '../../utils/slug.js';
@@ -72,10 +72,10 @@ export async function joinEvent(
     });
     if (existing) {
       // On lit le quota dans Redis, qui fait foi pendant l'evenement.
-      const live = await redis.get(quotaKey(existing.id));
+      const live = await readQuota(existing.id);
       return buildSession(existingToken!, {
         ...existing,
-        shotsLeft: live !== null ? Number(live) : existing.shotsLeft,
+        shotsLeft: live ?? existing.shotsLeft,
       }, event);
     }
   }
