@@ -26,6 +26,11 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(32),
   GUEST_SESSION_SECRET: z.string().min(32),
 
+  // Notifications push : facultatives, l'API tourne sans.
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().default('contact@memora.app'),
+
   STRIPE_SECRET_KEY: z.string().min(1),
   STRIPE_WEBHOOK_SECRET: z.string().min(1),
 });

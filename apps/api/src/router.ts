@@ -18,6 +18,8 @@ import { paymentRouter } from './features/payments/payment.routes.js';
 import { qrkitRouter } from './features/qrkit/qrkit.routes.js';
 import { teamRouter, photographerRouter } from './features/team/team.routes.js';
 import { dashboardRouter } from './features/dashboard/dashboard.routes.js';
+import { downloadRouter } from './features/download/download.routes.js';
+import { pushRouter } from './features/notifications/push.routes.js';
 
 export const apiRouter: Router = Router();
 
@@ -33,8 +35,10 @@ apiRouter.use('/events/:id', paymentRouter);
 apiRouter.use('/events/:id', qrkitRouter);
 apiRouter.use('/events/:id', teamRouter);
 apiRouter.use('/events/:id', dashboardRouter);
+apiRouter.use('/events/:id', downloadRouter);
 // Acces du photographe officiel par son lien dedie, sans compte.
 apiRouter.use('/p', photographerRouter);
+apiRouter.use('/push', pushRouter);
 // Consultation d'un album publie, par son lien de partage.
 apiRouter.use('/album', publicAlbumRouter);
 apiRouter.use('/removals', removalRouter);

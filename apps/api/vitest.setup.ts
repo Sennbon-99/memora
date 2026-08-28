@@ -24,5 +24,10 @@ process.env.JWT_ACCESS_SECRET = 'secret-de-test-access-32-caracteres-min';
 process.env.JWT_REFRESH_SECRET = 'secret-de-test-refresh-32-caracteres-min';
 process.env.GUEST_SESSION_SECRET = 'secret-de-test-guest-32-caracteres-min';
 
+// Notifications push : web-push est remplace par un double, les cles ne
+// servent qu'a franchir la verification de configuration.
+process.env.VAPID_PUBLIC_KEY = 'cle-publique-de-test';
+process.env.VAPID_PRIVATE_KEY = 'cle-privee-de-test';
+
 process.env.STRIPE_SECRET_KEY = 'sk_test_faux';
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_faux';

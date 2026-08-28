@@ -9,6 +9,7 @@ import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { prisma } from './config/prisma.js';
 import { redis } from './config/redis.js';
+import { setupRealtime } from './realtime/socket.js';
 
 const app = createApp();
 const server = http.createServer(app);
@@ -17,6 +18,11 @@ const server = http.createServer(app);
 export const io = new SocketServer(server, {
   cors: { origin: env.CLIENT_URL, credentials: true },
 });
+
+// Les clients rejoignent la salle de leur evenement, apres verification
+// de leurs droits : sans cela, les emissions des controleurs partiraient
+// dans le vide.
+setupRealtime(io);
 
 // Injection de io dans chaque requete, pour que les controleurs emettent.
 app.use((req, _res, next) => {

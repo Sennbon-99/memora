@@ -3,6 +3,7 @@
 import type { RequestHandler } from 'express';
 import { createMomentSchema } from '@memora/types';
 import * as momentService from './moment.service.js';
+import { notifyEvent } from '../notifications/push.service.js';
 import { currentUserId, routeParam } from '../../utils/http.js';
 import { UnauthorizedError } from '../../utils/errors.js';
 
@@ -40,6 +41,14 @@ export const trigger: RequestHandler = async (req, res, next) => {
       label: moment.label,
       endsAt: moment.endsAt,
       bonusShots: moment.bonusShots,
+    });
+
+    // Notification push pour ceux qui l'ont acceptee. Les autres verront
+    // le bandeau a la reouverture, tant que la fenetre n'est pas expiree.
+    void notifyEvent(routeParam(req, 'id'), {
+      title: moment.label,
+      body: `Vous avez ${moment.bonusShots} poses en plus pendant 10 minutes`,
+      url: `/e/${routeParam(req, 'id')}`,
     });
 
     res.status(200).json({ moment });

@@ -5,6 +5,7 @@ import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import { publishEventSchema } from '@memora/types';
 import * as publicationService from './publication.service.js';
+import { notifyEvent } from '../notifications/push.service.js';
 import { currentUserId, routeParam } from '../../utils/http.js';
 import type { Viewer } from './visibility.js';
 import { verifyDeviceToken } from '../../utils/jwt.js';
@@ -29,6 +30,14 @@ export const publish: RequestHandler = async (req, res, next) => {
 
     // Les invites connectes sont prevenus que l'album est en ligne.
     req.io.to(`event:${routeParam(req, 'id')}`).emit('album:published', { scope: result.scope });
+
+    // La notification qui fait revenir l'invite : c'est le seul moment ou
+    // il decouvre ce qu'il a photographie.
+    void notifyEvent(routeParam(req, 'id'), {
+      title: "L'album est en ligne",
+      body: 'Vos photographies sont disponibles',
+      url: `/album/${result.albumToken}`,
+    });
 
     res.status(200).json(result);
   } catch (err) {

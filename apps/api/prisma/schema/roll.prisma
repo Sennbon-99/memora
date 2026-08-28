@@ -27,6 +27,7 @@ model Roll {
   table        EventTable?      @relation(fields: [tableId], references: [id], onDelete: SetNull)
   photos       Photo[]
   requests     RemovalRequest[]
+  pushSubs     PushSubscription[]
 
   /// Un meme appareil ne peut pas ouvrir deux pellicules sur le meme evenement.
   @@unique([eventId, deviceToken])

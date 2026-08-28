@@ -1,0 +1,21 @@
+// apps/api/prisma/schema/pushSubscription.prisma
+// Abonnement d'un appareil aux notifications web push.
+
+/// Un appareil peut avoir plusieurs abonnements — navigateur et application
+/// installee sur l'ecran d'accueil sont deux contextes distincts.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  /// Adresse fournie par le service de notification du navigateur.
+  /// Unique : c'est elle qui identifie l'abonnement, pas notre identifiant.
+  endpoint  String   @unique @db.Text
+  /// Cles de chiffrement du navigateur, sans lesquelles le message ne peut
+  /// pas etre dechiffre par l'appareil destinataire.
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  rollId    String
+  roll      Roll     @relation(fields: [rollId], references: [id], onDelete: Cascade)
+
+  @@map("push_subscriptions")
+}
