@@ -1,0 +1,101 @@
+# .github/workflows/ci.yml
+# Chaine d'integration continue.
+#
+# Quatre etapes bloquantes avant toute fusion : types, analyse statique,
+# tests unitaires et tests d'integration. Une branche dont la chaine echoue
+# ne peut pas etre fusionnee — c'est le seul garde-fou d'un projet mene seul.
+#
+# Contrainte que l'on s'impose : moins de cinq minutes au total. Au-dela,
+# l'experience montre qu'on prend l'habitude de contourner la chaine.
+
+name: Integration continue
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  # Une nouvelle poussee annule la verification precedente de la meme branche.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualite:
+    name: Types, analyse et tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: memora
+          POSTGRES_PASSWORD: memora
+          POSTGRES_DB: memora_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U memora"
+          --health-interval 5s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+
+      - name: Generation du client Prisma
+        run: pnpm --filter @memora/api db:generate
+
+      - name: Verification des types
+        run: pnpm build
+
+      - name: Tests et couverture
+        # Le seuil de couverture est declare dans vitest.config.ts :
+        # sous 90 pourcent sur les modules metier, cette etape echoue.
+        run: pnpm --filter @memora/api vitest run --coverage
+        env:
+          DATABASE_URL: postgresql://memora:memora@localhost:5432/memora_test
+          REDIS_URL: redis://localhost:6379
+
+  securite:
+    name: Analyse de securite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Installation
+        run: pnpm install --frozen-lockfile
+
+      - name: Vulnerabilites connues des dependances
+        # Echoue sur les vulnerabilites hautes et critiques uniquement :
+        # bloquer sur une alerte mineure reviendrait a desactiver l'etape.
+        run: pnpm audit --audit-level high
+
+      - name: Recherche de secrets commites
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

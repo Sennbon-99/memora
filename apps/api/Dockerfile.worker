@@ -1,0 +1,7 @@
+# apps/api/Dockerfile.worker
+# Meme image que l'API, autre point d'entree. Le travailleur tourne dans son
+# propre conteneur : une purge de plusieurs milliers de fichiers ne doit pas
+# degrader le temps de reponse d'un invite en train de photographier.
+
+FROM memora-api:latest AS runtime
+CMD ["node", "dist/worker.js"]
