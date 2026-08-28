@@ -29,7 +29,7 @@ vi.mock('../../config/prisma.js', () => ({
   },
 }));
 
-const { createCheckoutSession, handleWebhook, EVENT_PRICE_CENTS } =
+const { createCheckoutSession, handleWebhook, syncPayment, EVENT_PRICE_CENTS } =
   await import('./payment.service.js');
 
 const draftEvent = { id: 'e1', name: 'Mariage', ownerId: 'u1', state: 'DRAFT', coHosts: [] as unknown[] };
@@ -112,5 +112,47 @@ describe('handleWebhook', () => {
 
     const result = await handleWebhook(body, 'sig-valide');
     expect(result).toMatchObject({ handled: false });
+  });
+});
+
+describe('syncPayment', () => {
+  it('renvoie l etat sans interroger le prestataire si le paiement est deja regle', async () => {
+    paymentFindUnique.mockResolvedValue({ state: 'PAID', externalRef: 'cs_1' });
+
+    const result = await syncPayment('e1', 'u1');
+
+    expect(result.state).toBe('PAID');
+    // Inutile d'appeler Stripe pour confirmer ce qu'on sait deja.
+    expect(sessionsRetrieve).not.toHaveBeenCalled();
+  });
+
+  it('rattrape un paiement dont la notification n est jamais arrivee', async () => {
+    paymentFindUnique.mockResolvedValue({ state: 'PENDING', externalRef: 'cs_1' });
+    sessionsRetrieve.mockResolvedValue({ payment_status: 'paid' });
+
+    const result = await syncPayment('e1', 'u1');
+
+    expect(result.state).toBe('PAID');
+    expect(paymentUpdate).toHaveBeenCalled();
+  });
+
+  it('laisse le paiement en attente si le prestataire ne l a pas encaisse', async () => {
+    paymentFindUnique.mockResolvedValue({ state: 'PENDING', externalRef: 'cs_1' });
+    sessionsRetrieve.mockResolvedValue({ payment_status: 'unpaid' });
+
+    const result = await syncPayment('e1', 'u1');
+
+    expect(result.state).toBe('PENDING');
+    expect(paymentUpdate).not.toHaveBeenCalled();
+  });
+
+  it("interdit a un co-hote de consulter l'etat du paiement", async () => {
+    eventFindUnique.mockResolvedValue({ ...draftEvent, ownerId: 'autre', coHosts: [{ userId: 'u1' }] });
+    await expect(syncPayment('e1', 'u1')).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  it('renvoie une erreur si aucun paiement n a ete engage', async () => {
+    paymentFindUnique.mockResolvedValue(null);
+    await expect(syncPayment('e1', 'u1')).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });

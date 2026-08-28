@@ -6,6 +6,8 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 const photoFindUnique = vi.fn();
+const photoFindManyMock = vi.fn();
+const removalCreate = vi.fn();
 const photoCreate = vi.fn();
 const photoUpdate = vi.fn();
 const eventFindUnique = vi.fn();
@@ -18,22 +20,24 @@ const signUpload = vi.fn();
 
 vi.mock('../../config/prisma.js', () => ({
   prisma: {
-    photo: { findUnique: photoFindUnique, create: photoCreate, update: photoUpdate, findMany: vi.fn() },
+    photo: { findUnique: photoFindUnique, create: photoCreate, update: photoUpdate, findMany: photoFindManyMock },
     event: { findUnique: eventFindUnique },
     roll: { update: rollUpdate },
     moment: { findMany: momentFindMany },
-    removalRequest: { create: vi.fn() },
+    removalRequest: { create: removalCreate },
     $transaction: transaction,
   },
 }));
 vi.mock('../../config/redis.js', () => ({ consumeShot, refundShot }));
+const signRead = vi.fn();
 vi.mock('../../config/storage.js', () => ({
   buildObjectKey: (e: string, r: string, u: string) => `${e}/${r}/${u}.jpg`,
   signUpload,
-  signRead: vi.fn(),
+  signRead,
 }));
 
-const { reserveShot, confirmUpload, acceptsPhotos } = await import('./photo.service.js');
+const { reserveShot, confirmUpload, acceptsPhotos, listOwnPhotos, requestRemoval } =
+  await import('./photo.service.js');
 
 const roll = {
   id: 'r1', eventId: 'e1', consentedAt: new Date(), shotsLeft: 24, bonusShots: 0, tableId: null,
@@ -45,7 +49,9 @@ const input = {
 
 beforeEach(() => {
   [photoFindUnique, photoCreate, photoUpdate, eventFindUnique, rollUpdate,
-   momentFindMany, transaction, consumeShot, refundShot, signUpload].forEach((m) => m.mockReset());
+   momentFindMany, transaction, consumeShot, refundShot, signUpload,
+   photoFindManyMock, removalCreate, signRead].forEach((m) => m.mockReset());
+  signRead.mockImplementation(async (k: string) => `https://minio.local/${k}?sig=x`);
 
   eventFindUnique.mockResolvedValue({ id: 'e1', state: 'OPEN', closesAt: new Date(Date.now() + 3_600_000) });
   momentFindMany.mockResolvedValue([]);
@@ -215,5 +221,58 @@ describe('confirmUpload', () => {
   it('refuse de confirmer la photographie d une autre pellicule', async () => {
     photoFindUnique.mockResolvedValue({ id: 'p1', rollId: 'AUTRE', status: 'RESERVED' });
     await expect(confirmUpload(roll, KEY)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+});
+
+describe('listOwnPhotos', () => {
+  it("refuse tant que l'album n'a pas ete publie", async () => {
+    eventFindUnique.mockResolvedValue({ state: 'CLOSED', scope: 'NONE' });
+    await expect(listOwnPhotos(roll)).rejects.toMatchObject({ code: 'NOT_PUBLISHED' });
+  });
+
+  it("refuse quand l'hote a publie sans partager", async () => {
+    eventFindUnique.mockResolvedValue({ state: 'PUBLISHED', scope: 'NONE' });
+    await expect(listOwnPhotos(roll)).rejects.toMatchObject({ code: 'NOT_SHARED' });
+  });
+
+  it('renvoie des adresses signees et jamais les cles brutes', async () => {
+    eventFindUnique.mockResolvedValue({ state: 'PUBLISHED', scope: 'OWN_ONLY' });
+    photoFindManyMock.mockResolvedValue([
+      { id: 'p1', objectKey: 'e1/r1/a.jpg', takenAt: new Date(), width: 1, height: 1 },
+    ]);
+
+    const photos = await listOwnPhotos(roll);
+
+    expect(photos[0]).not.toHaveProperty('objectKey');
+    expect(photos[0]!.url).toContain('sig=');
+  });
+
+  it('ne demande que les photographies publiees de sa propre pellicule', async () => {
+    eventFindUnique.mockResolvedValue({ state: 'PUBLISHED', scope: 'OWN_ONLY' });
+    photoFindManyMock.mockResolvedValue([]);
+
+    await listOwnPhotos(roll);
+
+    expect(photoFindManyMock.mock.calls[0]![0].where).toMatchObject({
+      rollId: 'r1', published: true, status: 'UPLOADED',
+    });
+  });
+});
+
+describe('requestRemoval', () => {
+  it('masque la photographie des le signalement', async () => {
+    photoFindUnique.mockResolvedValue({ id: 'p1', roll: { eventId: 'e1' } });
+    transaction.mockResolvedValue([{ id: 'req1', state: 'PENDING', createdAt: new Date() }]);
+
+    await requestRemoval(roll, 'p1', 'Je prefere ne pas apparaitre');
+
+    // Le masquage est conservatoire : il precede l'arbitrage de l'hote.
+    const ops = transaction.mock.calls[0]![0];
+    expect(ops).toHaveLength(2);
+  });
+
+  it("refuse de signaler une photographie d'un autre evenement", async () => {
+    photoFindUnique.mockResolvedValue({ id: 'p1', roll: { eventId: 'AUTRE' } });
+    await expect(requestRemoval(roll, 'p1', 'raison')).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });

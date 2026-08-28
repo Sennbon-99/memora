@@ -9,16 +9,19 @@ const findUniquePayment = vi.fn();
 const count = vi.fn();
 const create = vi.fn();
 const update = vi.fn();
+const eventFindMany = vi.fn();
+const tableCreateMany = vi.fn();
+const tableFindMany = vi.fn();
 
 vi.mock('../../config/prisma.js', () => ({
   prisma: {
-    event: { findUnique, count, create, update, findMany: vi.fn() },
+    event: { findUnique, count, create, update, findMany: eventFindMany },
     payment: { findUnique: findUniquePayment },
-    eventTable: { createMany: vi.fn(), findMany: vi.fn() },
+    eventTable: { createMany: tableCreateMany, findMany: tableFindMany },
   },
 }));
 
-const { assertCanManage, createEvent, updateEvent, openEvent, closeEvent } =
+const { assertCanManage, createEvent, updateEvent, openEvent, closeEvent, listEvents, createTables } =
   await import('./event.service.js');
 
 const baseEvent = {
@@ -26,7 +29,8 @@ const baseEvent = {
 };
 
 beforeEach(() => {
-  [findUnique, findUniquePayment, count, create, update].forEach((m) => m.mockReset());
+  [findUnique, findUniquePayment, count, create, update,
+   eventFindMany, tableCreateMany, tableFindMany].forEach((m) => m.mockReset());
 });
 
 describe('assertCanManage', () => {
@@ -123,5 +127,40 @@ describe('closeEvent', () => {
   it('refuse de fermer un evenement qui n a pas ete ouvert', async () => {
     findUnique.mockResolvedValue(baseEvent); // etat DRAFT
     await expect(closeEvent('e1', 'u1')).rejects.toMatchObject({ code: 'NOT_OPEN' });
+  });
+});
+
+describe('listEvents', () => {
+  it('inclut les evenements ou l utilisateur est co-hote', async () => {
+    eventFindMany.mockResolvedValue([]);
+
+    await listEvents('u1');
+
+    const where = eventFindMany.mock.calls[0]![0].where;
+    expect(where.OR).toEqual([
+      { ownerId: 'u1' },
+      { coHosts: { some: { userId: 'u1' } } },
+    ]);
+  });
+});
+
+describe('createTables', () => {
+  it('cree une table par libelle, chacune avec son jeton', async () => {
+    findUnique.mockResolvedValue(baseEvent);
+    tableFindMany.mockResolvedValue([]);
+
+    await createTables('e1', 'u1', ['Table 1', 'Table 2']);
+
+    const data = tableCreateMany.mock.calls[0]![0].data;
+    expect(data).toHaveLength(2);
+    // Deux jetons distincts : connaitre l'un ne donne pas l'autre.
+    expect(data[0].qrToken).not.toBe(data[1].qrToken);
+  });
+
+  it('refuse un nombre de tables superieur au plafond de participants', async () => {
+    findUnique.mockResolvedValue(baseEvent);
+    const trop = Array.from({ length: 201 }, (_, i) => `Table ${i}`);
+
+    await expect(createTables('e1', 'u1', trop)).rejects.toMatchObject({ code: 'TOO_MANY_TABLES' });
   });
 });

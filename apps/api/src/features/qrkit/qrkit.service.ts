@@ -8,15 +8,9 @@
 
 import PDFDocument from 'pdfkit';
 import QRCode from 'qrcode';
-import { env } from '../../config/env.js';
 import { prisma } from '../../config/prisma.js';
+import { buildCards, type Card } from './qrkit.cards.js';
 import { assertCanManage } from '../events/event.service.js';
-
-/** Adresse encodee dans le QR code, avec la table si elle est connue. */
-function buildJoinUrl(slug: string, tableToken?: string): string {
-  const base = `${env.CLIENT_URL}/e/${slug}`;
-  return tableToken ? `${base}?t=${tableToken}` : base;
-}
 
 /**
  * Produit l'image du QR code.
@@ -32,12 +26,6 @@ async function renderQr(url: string, color: string): Promise<Buffer> {
     width: 600,
     color: { dark: color, light: '#FFFFFF' },
   });
-}
-
-interface Card {
-  title: string;
-  subtitle: string;
-  url: string;
 }
 
 /**
@@ -104,18 +92,5 @@ export async function generateKit(eventId: string, userId: string): Promise<Buff
       })
     : [];
 
-  const cards: Card[] =
-    tables.length > 0
-      ? tables.map((table) => ({
-          title: event.name,
-          subtitle: table.label,
-          url: buildJoinUrl(event.slug, table.qrToken),
-        }))
-      : [{
-          title: event.name,
-          subtitle: 'Bienvenue',
-          url: buildJoinUrl(event.slug),
-        }];
-
-  return buildPdf(cards, event.name, event.color);
+  return buildPdf(buildCards(event, tables), event.name, event.color);
 }

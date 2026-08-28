@@ -11,7 +11,7 @@ vi.mock('../../config/prisma.js', () => ({
   prisma: { user: { findUnique, create } },
 }));
 
-const { register, login } = await import('./auth.service.js');
+const { register, login, refresh } = await import('./auth.service.js');
 const { hashPassword } = await import('../../utils/hash.js');
 
 beforeEach(() => {
@@ -68,5 +68,18 @@ describe('login', () => {
     // C'est le point du test : les deux reponses sont indiscernables.
     expect(inconnu.code).toBe(mauvais.code);
     expect(inconnu.message).toBe(mauvais.message);
+  });
+});
+
+describe('refresh', () => {
+  it('delivre un nouveau jeton d acces', async () => {
+    findUnique.mockResolvedValue({ id: 'u1', role: 'HOST' });
+    const { accessToken } = await refresh('u1');
+    expect(accessToken).toBeTruthy();
+  });
+
+  it('refuse si le compte a ete supprime entre-temps', async () => {
+    findUnique.mockResolvedValue(null);
+    await expect(refresh('u1')).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
   });
 });

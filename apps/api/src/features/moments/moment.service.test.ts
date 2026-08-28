@@ -19,7 +19,8 @@ vi.mock('../../config/prisma.js', () => ({
 }));
 vi.mock('../../config/redis.js', () => ({ grantBonusShots }));
 
-const { isActive, triggerMoment, closeMoment } = await import('./moment.service.js');
+const { isActive, triggerMoment, closeMoment, createMoment, listMoments } =
+  await import('./moment.service.js');
 
 const openEvent = { id: 'e1', ownerId: 'u1', state: 'OPEN', coHosts: [] as unknown[] };
 const moment = {
@@ -114,5 +115,39 @@ describe('closeMoment', () => {
   it('refuse de clore un moment qui n est pas en cours', async () => {
     momentFindUnique.mockResolvedValue(moment); // jamais demarre
     await expect(closeMoment('m1', 'u1')).rejects.toMatchObject({ code: 'NOT_ACTIVE' });
+  });
+});
+
+describe('createMoment', () => {
+  it('programme un moment sans le declencher', async () => {
+    momentCreate.mockImplementation(({ data }: { data: Record<string, unknown> }) => data);
+
+    const created = await createMoment('e1', 'u1', {
+      label: 'Discours', durationMinutes: 10, bonusShots: 3,
+    } as never);
+
+    // startedAt reste nul : programmer n'est pas declencher.
+    expect(created).not.toHaveProperty('startedAt');
+    expect(momentCreate.mock.calls[0]![0].data.eventId).toBe('e1');
+  });
+});
+
+describe('listMoments', () => {
+  it('indique quels moments sont en cours', async () => {
+    momentFindMany.mockResolvedValue([
+      { id: 'm1', label: 'Cocktail', plannedAt: null, startedAt: new Date(Date.now() - 30 * 60_000),
+        durationMinutes: 10, bonusShots: 3, _count: { photos: 42 } },
+      { id: 'm2', label: 'Bal', plannedAt: null, startedAt: new Date(Date.now() - 60_000),
+        durationMinutes: 10, bonusShots: 3, _count: { photos: 7 } },
+      { id: 'm3', label: 'Gateau', plannedAt: null, startedAt: null,
+        durationMinutes: 10, bonusShots: 3, _count: { photos: 0 } },
+    ]);
+
+    const moments = await listMoments('e1', 'u1');
+
+    expect(moments[0]!.active).toBe(false); // fenetre expiree
+    expect(moments[1]!.active).toBe(true);  // en cours
+    expect(moments[2]!.active).toBe(false); // pas encore declenche
+    expect(moments[0]!.photoCount).toBe(42);
   });
 });
