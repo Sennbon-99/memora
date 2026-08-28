@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#C97C1E">
+<title>Memora — apercu invite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Apercu plein ecran du parcours invite, aux memes classes que les
+   composants React. Sert a regarder l'application sur un vrai telephone
+   tant que l'API n'est pas branchee. */
+:root{
+  --film:#1C1916; --paper:#F2EDE4;
+  --accent:#C97C1E; --accent-text:#17110A;
+  --sans:'Bricolage Grotesque',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  background:var(--film);color:var(--paper);font-family:var(--sans);
+  -webkit-user-select:none;user-select:none;overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;
+}
+input{-webkit-user-select:text;user-select:text}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+#app{height:100%;position:relative;overflow:hidden}
+.flash{position:absolute;inset:0;background:#fff;z-index:70;opacity:0;pointer-events:none}
+.flash.on{animation:pop .16s ease-out}
+@keyframes pop{0%{opacity:.92}100%{opacity:0}}
+
+.view{
+  display:none;flex-direction:column;height:100%;overflow-y:auto;
+  padding:calc(env(safe-area-inset-top) + 44px) 26px calc(env(safe-area-inset-bottom) + 30px);
+}
+.view.on{display:flex}
+.view h3{font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.12;margin:0}
+.sub{font-size:16px;line-height:1.55;color:rgb(242 237 228 / .6);margin:12px 0 0}
+.copy{margin-top:28px;display:flex;flex-direction:column;gap:16px;font-size:15px;line-height:1.62;color:rgb(242 237 228 / .68)}
+.copy .faint{color:rgb(242 237 228 / .44)}
+.spacer{flex:1;min-height:18px}
+.stack{display:flex;flex-direction:column;gap:11px}
+.btn{min-height:52px;border-radius:18px;padding:0 22px;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;width:100%}
+.btn-p{background:var(--accent);color:var(--accent-text)}
+.btn-p:active{filter:brightness(.9)}
+.btn-g{background:rgb(242 237 228 / .09)}
+.btn-g:active{background:rgb(242 237 228 / .16)}
+.btn:disabled{opacity:.4}
+.legal{font-size:12.5px;line-height:1.5;color:rgb(242 237 228 / .35);text-align:center;margin:0}
+.field{display:flex;flex-direction:column;gap:8px;margin-top:22px}
+.field span{font-size:13.5px;font-weight:600;color:rgb(242 237 228 / .62)}
+.field input{height:52px;border-radius:18px;background:rgb(242 237 228 / .08);border:0;padding:0 18px;color:var(--paper);font:inherit;font-size:16px}
+.field input::placeholder{color:rgb(242 237 228 / .22)}
+
+/* Viseur */
+.finder{display:none;flex-direction:column;height:100%;position:relative}
+.finder.on{display:flex}
+.feed{position:absolute;inset:0;background:
+  radial-gradient(circle 26px at 18% 21%, rgb(255 216 150 / .55), transparent 70%),
+  radial-gradient(circle 17px at 33% 15%, rgb(255 204 130 / .42), transparent 70%),
+  radial-gradient(circle 21px at 63% 18%, rgb(255 198 120 / .46), transparent 70%),
+  radial-gradient(circle 13px at 79% 12%, rgb(255 226 170 / .38), transparent 70%),
+  radial-gradient(circle 30px at 87% 30%, rgb(255 210 140 / .3), transparent 70%),
+  radial-gradient(circle 15px at 8% 34%, rgb(240 190 120 / .32), transparent 70%),
+  radial-gradient(circle 22px at 47% 27%, rgb(255 205 130 / .22), transparent 70%),
+  radial-gradient(ellipse 70% 34% at 50% 62%, rgb(126 84 52 / .5), transparent 70%),
+  radial-gradient(ellipse 120% 40% at 50% 100%, rgb(28 20 14 / .96), transparent 70%),
+  linear-gradient(180deg,#1B140D 0%,#3B2A1A 38%,#241A11 68%,#100C08 100%)}
+.ftop{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(env(safe-area-inset-top) + 14px) 20px 0}
+.counter{display:flex;align-items:center;gap:11px;background:rgb(0 0 0 / .55);border-radius:18px;padding:9px 14px;backdrop-filter:blur(10px)}
+.counter b{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;min-width:36px;text-align:center}
+.counter small{font-size:11px;line-height:1.3;color:rgb(242 237 228 / .5);display:block}
+.counter small[hidden]{display:none}
+.counter small.bonus{color:var(--accent)}
+.counter small.queue{color:#E5B45C}
+.evname{background:rgb(0 0 0 / .55);border-radius:999px;padding:7px 13px;font-size:12px;color:rgb(242 237 228 / .68);backdrop-filter:blur(10px);white-space:nowrap;margin-top:6px}
+.banner{position:relative;z-index:10;margin:12px 20px 0;border-radius:15px;padding:11px 14px;font-size:13.5px;text-align:center;line-height:1.4}
+.banner.net{background:rgb(229 180 92 / .2);color:#F3DDAE}
+.banner.mom{background:var(--accent);color:var(--accent-text);font-weight:700}
+.ffoot{position:relative;z-index:10;margin-top:auto;display:flex;justify-content:center;padding-bottom:calc(env(safe-area-inset-bottom) + 74px)}
+.shutter{width:82px;height:82px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgb(255 255 255 / .28)}
+.shutter:active{transform:scale(.93)}
+.shutter:disabled{opacity:.35}
+
+.card{border-radius:24px;background:rgb(242 237 228 / .05);padding:22px;margin-top:26px}
+.card h4{margin:0;font-size:16px;font-weight:700}
+.card p{font-size:14px;line-height:1.55;color:rgb(242 237 228 / .58);margin:9px 0 0}
+.codebox{display:flex;gap:11px;margin-top:18px}
+.codebox input{flex:1;height:52px;border-radius:18px;background:rgb(242 237 228 / .08);border:0;text-align:center;font-family:var(--mono);font-size:22px;letter-spacing:.4em;color:var(--paper);text-indent:.4em}
+.codebox .btn{width:auto;padding:0 20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:24px;padding-bottom:20px}
+.tile{aspect-ratio:1;border-radius:14px;background:linear-gradient(140deg,#3A2A1B,#171210)}
+.tile:nth-child(3n){background:linear-gradient(140deg,#2B2A38,#14131A)}
+.tile:nth-child(3n+1){background:linear-gradient(140deg,#3E2A24,#1A1210)}
+
+/* Barre de pilotage de l'apercu. Elle n'existe pas dans l'application. */
+.dev{position:fixed;left:0;right:0;bottom:0;z-index:90;transform:translateY(calc(100% - 34px));transition:transform .22s ease}
+.dev.open{transform:translateY(0)}
+.dev-h{height:34px;display:flex;align-items:center;justify-content:center;gap:8px;background:#0B0A08;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgb(242 237 228 / .45);width:100%}
+.dev-b{background:#0B0A08;padding:12px 16px calc(env(safe-area-inset-bottom) + 14px);display:flex;flex-direction:column;gap:11px}
+.row{display:flex;gap:7px;flex-wrap:wrap}
+.dev-b button{border:1px solid rgb(242 237 228 / .13);border-radius:10px;padding:8px 11px;font-size:12px;color:rgb(242 237 228 / .7)}
+.dev-b button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-text);font-weight:700}
+.sw{width:30px;height:30px;border-radius:9px;border:2px solid transparent;padding:0}
+.sw[aria-pressed="true"]{border-color:#fff}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="flash" id="flash"></div>
+
+  <div class="view on" data-v="consent">
+    <h3>Mariage de Léa &amp; Tom</h3>
+    <p class="sub">Vous êtes le photographe de la soirée.</p>
+    <div class="copy">
+      <p>Vos photographies sont visibles par l'organisateur de l'événement, puis par les invités s'il décide de les publier.</p>
+      <p>Elles sont conservées trente jours, puis supprimées automatiquement. Vous pouvez demander le retrait de l'une d'elles à tout moment.</p>
+      <p class="faint">Aucun compte, aucun nom, aucune adresse électronique ne vous est demandé. La position et le modèle de votre téléphone sont effacés avant l'envoi.</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="stack">
+      <button class="btn btn-p" data-go="identity">J'accepte, je prends mes photos</button>
+      <p class="legal">Refuser ferme simplement cette page. Aucune donnée n'est conservée.</p>
+    </div>
+  </div>
+
+  <div class="view" data-v="identity">
+    <h3>Comment vous appeler ?</h3>
+    <p class="sub">Facultatif. Cela sert seulement à retrouver vos photos si vous changez de téléphone.</p>
+    <label class="field"><span>Prénom</span><input placeholder="Camille" id="fname" autocomplete="given-name"></label>
+    <label class="field"><span>Numéro de table</span><input placeholder="7" inputmode="numeric"></label>
+    <div class="spacer"></div>
+    <div class="stack">
+      <button class="btn btn-p" data-go="finder">Continuer</button>
+      <button class="btn btn-g" data-go="finder">Passer, rester anonyme</button>
+    </div>
+  </div>
+
+  <div class="finder" data-v="finder">
+    <div class="feed"></div>
+    <div class="ftop">
+      <div class="counter">
+        <b id="cnt">24</b>
+        <div>
+          <small id="lbl">poses restantes</small>
+          <small class="bonus" id="bns" hidden></small>
+          <small class="queue" id="que" hidden></small>
+        </div>
+      </div>
+      <span class="evname">Léa &amp; Tom</span>
+    </div>
+    <p class="banner net" id="bnet" hidden>Hors ligne. Continuez, vos photos partiront au retour du réseau.</p>
+    <p class="banner mom" id="bmom" hidden>Ouverture du bal — c'est maintenant</p>
+    <div class="ffoot"><button class="shutter" id="shutter" aria-label="Prendre une photo"></button></div>
+  </div>
+
+  <div class="view" data-v="denied">
+    <h3>Caméra non autorisée</h3>
+    <p class="sub">Vous pouvez continuer sans rien changer : le bouton ci-dessous ouvre l'appareil photo de votre téléphone.</p>
+    <div class="spacer"></div>
+    <div class="stack">
+      <button class="btn btn-p">Prendre une photo</button>
+      <p class="legal">Pour revenir au viseur, autorisez la caméra dans les réglages de votre navigateur, puis rechargez la page.</p>
+    </div>
+  </div>
+
+  <div class="view" data-v="end">
+    <h3>Pellicule terminée</h3>
+    <p class="sub" id="endsub">Vos photos sont arrivées. Elles apparaîtront ici quand les mariés les auront publiées.</p>
+    <div class="card">
+      <h4>Retrouver vos photos plus tard</h4>
+      <p>Ce téléphone se souvient de vous. Choisissez un code à quatre chiffres si vous voulez aussi y accéder depuis un autre appareil.</p>
+      <div class="codebox"><input placeholder="0000" inputmode="numeric" maxlength="4"><button class="btn btn-g">Garder</button></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="stack">
+      <button class="btn btn-p" data-go="album">Voir l'album</button>
+      <p class="legal">Pour être prévenu de la publication : touchez Partager, puis « Sur l'écran d'accueil ».</p>
+    </div>
+  </div>
+
+  <div class="view" data-v="album">
+    <h3 id="albumtitle">Vos photos</h3>
+    <p class="sub" id="albumsub">24 images de la soirée.</p>
+    <div class="grid2" id="grid"></div>
+  </div>
+
+  <div class="view" data-v="wait">
+    <h3>Pellicule terminée</h3>
+    <p class="sub">3 photos partent dès que le réseau revient.</p>
+    <div class="card">
+      <h4>En attente</h4>
+      <p>Vos poses sont enregistrées sur ce téléphone. Elles s'enverront seules dès que la connexion sera rétablie — vous pouvez fermer l'application.</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="stack"><button class="btn btn-g" disabled>En attente de publication</button></div>
+  </div>
+
+  <div class="view" data-v="gone">
+    <h3>Événement introuvable</h3>
+    <p class="sub">Ce lien n'est plus valide, ou la soirée est terminée depuis plus de trente jours.</p>
+    <div class="copy"><p class="faint">Les photographies sont effacées automatiquement au bout de trente jours. Ce n'est pas une panne : c'est la règle annoncée aux invités le soir même.</p></div>
+  </div>
+</div>
+
+<div class="dev" id="dev">
+  <button class="dev-h" id="devh">aperçu · piloter</button>
+  <div class="dev-b">
+    <div class="row" id="steps">
+      <button data-v="consent" aria-current="true">Droit à l'image</button>
+      <button data-v="identity">Prénom</button>
+      <button data-v="finder">Viseur</button>
+      <button data-v="end">Fin</button>
+      <button data-v="album">Album</button>
+      <button data-v="denied">Caméra refusée</button>
+      <button data-v="wait">Envoi différé</button>
+      <button data-v="gone">Lien expiré</button>
+    </div>
+    <div class="row">
+      <button id="tnet">Hors ligne</button>
+      <button id="tmom">Moment fort</button>
+      <button id="reset">Recharger la pellicule</button>
+    </div>
+    <div class="row">
+      <button class="sw" data-c="#C97C1E" style="background:#C97C1E" aria-pressed="true" aria-label="Ambre"></button>
+      <button class="sw" data-c="#7B3FE4" style="background:#7B3FE4" aria-label="Violet"></button>
+      <button class="sw" data-c="#1FA97A" style="background:#1FA97A" aria-label="Vert"></button>
+      <button class="sw" data-c="#E0533D" style="background:#E0533D" aria-label="Corail"></button>
+      <button class="sw" data-c="#2F6BE0" style="background:#2F6BE0" aria-label="Bleu"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const QUOTA = 24;
+  let shots = QUOTA, bonus = 0, queued = 0, taken = 0, offline = false;
+  const $ = id => document.getElementById(id);
+  const views = [...document.querySelectorAll('[data-v]')];
+  const screens = views.filter(v => v.classList.contains('view') || v.classList.contains('finder'));
+  const steps = [...document.querySelectorAll('#steps button')];
+
+  function show(name){
+    screens.forEach(v => v.classList.toggle('on', v.dataset.v === name));
+    steps.forEach(s => s.setAttribute('aria-current', String(s.dataset.v === name)));
+    if (name === 'album') paintAlbum();
+  }
+  function paint(){
+    const total = shots + bonus;
+    $('cnt').textContent = total;
+    $('lbl').textContent = total > 1 ? 'poses restantes' : 'pose restante';
+    $('bns').hidden = bonus === 0;
+    $('bns').textContent = 'dont ' + bonus + (bonus > 1 ? ' offertes' : ' offerte');
+    $('que').hidden = queued === 0;
+    $('que').textContent = queued + " en attente d'envoi";
+    $('shutter').disabled = total === 0;
+  }
+  function paintAlbum(){
+    const n = Math.max(taken, 6);
+    $('grid').innerHTML = Array.from({length:n}, () => '<div class="tile"></div>').join('');
+    $('albumsub').textContent = n + (n > 1 ? ' images' : ' image') + ' de la soirée.';
+  }
+
+  $('shutter').addEventListener('click', () => {
+    if (shots + bonus === 0) return;
+    const f = $('flash');
+    f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+    // Poses offertes d'abord, comme le script Lua du serveur.
+    if (bonus > 0) bonus--; else shots--;
+    taken++;
+    if (offline) queued++;
+    paint();
+    if (shots + bonus === 0) setTimeout(() => show(queued ? 'wait' : 'end'), 430);
+  });
+
+  steps.forEach(s => s.addEventListener('click', () => show(s.dataset.v)));
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
+  $('devh').addEventListener('click', () => $('dev').classList.toggle('open'));
+
+  $('tnet').addEventListener('click', e => {
+    offline = !offline;
+    $('bnet').hidden = !offline;
+    e.target.setAttribute('aria-current', String(offline));
+  });
+  $('tmom').addEventListener('click', e => {
+    const on = $('bmom').hidden;
+    $('bmom').hidden = !on;
+    bonus = on ? 5 : 0;
+    e.target.setAttribute('aria-current', String(on));
+    paint();
+  });
+  $('reset').addEventListener('click', () => {
+    shots = QUOTA; bonus = 0; queued = 0; taken = 0;
+    $('bmom').hidden = true; $('tmom').setAttribute('aria-current','false');
+    paint(); show('consent');
+  });
+
+  // Meme formule que lib/theme.ts : la couleur du texte est calculee.
+  function lum(hex){
+    const c = [1,3,5].map(i => {
+      const v = parseInt(hex.slice(i,i+2),16)/255;
+      return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+    });
+    return 0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2];
+  }
+  document.querySelectorAll('.sw').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.sw').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+    const c = b.dataset.c;
+    document.documentElement.style.setProperty('--accent', c);
+    document.documentElement.style.setProperty('--accent-text', lum(c) > 0.45 ? '#17110A' : '#FFFFFF');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', c);
+  }));
+
+  $('fname').addEventListener('input', e => {
+    const n = e.target.value.trim();
+    $('albumtitle').textContent = n ? 'Vos photos, ' + n : 'Vos photos';
+  });
+
+  paint();
+})();
+</script>
+</body>
+</html>
