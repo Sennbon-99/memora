@@ -22,6 +22,34 @@ import {
   QuotaExhaustedError,
 } from '../../utils/errors.js';
 
+/**
+ * Delai de grace apres la fermeture, pendant lequel les photographies prises
+ * hors connexion peuvent encore remonter. Sans lui, un invite qui a
+ * photographie a 02h55 sans reseau perdrait ses images en retrouvant du
+ * signal a 03h05.
+ */
+const GRACE_PERIOD_MS = 2 * 60 * 60 * 1000;
+
+/**
+ * Decide si une photographie peut encore etre deposee.
+ *
+ * Deux cas l'autorisent : l'evenement est ouvert, ou il vient d'etre ferme
+ * et la photographie a ete prise AVANT la fermeture, dans la limite du delai
+ * de grace. C'est l'horodatage de la prise de vue qui fait foi, jamais celui
+ * de l'envoi : une photographie prise a temps reste valable.
+ */
+export function acceptsPhotos(
+  event: { state: string; closesAt: Date },
+  takenAt: Date,
+): boolean {
+  if (event.state === 'OPEN') return true;
+  if (event.state !== 'CLOSED') return false;
+
+  const takenBeforeClosing = takenAt.getTime() <= event.closesAt.getTime();
+  const withinGrace = Date.now() <= event.closesAt.getTime() + GRACE_PERIOD_MS;
+  return takenBeforeClosing && withinGrace;
+}
+
 export interface Reservation {
   photoId: string;
   uploadUrl: string;
@@ -82,14 +110,15 @@ export async function reserveShot(
     };
   }
 
-  // 2. L'evenement est-il toujours ouvert ? La verification est ici et non
-  //    dans un middleware, car elle doit etre faite au plus pres du decrement.
+  // 2. L'evenement accepte-t-il encore des photographies ? La verification
+  //    est ici et non dans un middleware, car elle doit etre faite au plus
+  //    pres du decrement.
   const event = await prisma.event.findUnique({
     where: { id: roll.eventId },
     select: { id: true, state: true, closesAt: true },
   });
   if (!event) throw new NotFoundError('Evenement');
-  if (event.state !== 'OPEN') throw new EventClosedError();
+  if (!acceptsPhotos(event, input.takenAt)) throw new EventClosedError();
 
   // 3. Decrement atomique. Les poses bonus sont consommees en premier.
   const { remaining, fromBonus } = await consumeShot(roll.id);

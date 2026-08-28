@@ -36,6 +36,10 @@ services:
     ports: ['9000:9000', '9001:9001']
     volumes: ['memora-photos:/data']
 
+# Le travailleur tourne dans son propre conteneur en production. En local,
+# on le lance avec pnpm dev:worker plutot que de reconstruire une image
+# a chaque modification.
+
 volumes:
   memora-db:
   memora-redis:
