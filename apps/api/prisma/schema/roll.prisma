@@ -16,6 +16,9 @@ model Roll {
   bonusShots   Int       @default(0) @db.SmallInt
   /// Code a quatre chiffres, hache. Jamais stocke en clair.
   recoveryHash String?
+  /// Le photographe officiel depose sans limite de poses. Son acces passe
+  /// par un lien dedie remis par l'hote, jamais par le QR code des invites.
+  isPhotographer Boolean @default(false)
   createdAt    DateTime  @default(now())
 
   eventId      String

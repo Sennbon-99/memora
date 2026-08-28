@@ -21,6 +21,8 @@ model Event {
   /// Jeton du lien d'album, distinct de l'identifiant : revocable, non devinable.
   albumToken     String?     @unique
   accessCodeHash String?
+  /// Jeton du lien remis au photographe officiel, distinct du slug public.
+  photographerToken String?  @unique
   createdAt      DateTime    @default(now())
 
   ownerId        String
