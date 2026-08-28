@@ -72,6 +72,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   radial-gradient(ellipse 70% 34% at 50% 62%, rgb(126 84 52 / .5), transparent 70%),
   radial-gradient(ellipse 120% 40% at 50% 100%, rgb(28 20 14 / .96), transparent 70%),
   linear-gradient(180deg,#1B140D 0%,#3B2A1A 38%,#241A11 68%,#100C08 100%)}
+/* Le flux reel recouvre la scene de synthese quand la camera repond. */
+.cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.cam.on{display:block}
 .ftop{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(env(safe-area-inset-top) + 14px) 20px 0}
 .counter{display:flex;align-items:center;gap:11px;background:rgb(0 0 0 / .55);border-radius:18px;padding:9px 14px;backdrop-filter:blur(10px);transition:background .2s}
 .counter:active{background:rgb(0 0 0 / .75)}
@@ -89,7 +92,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .banner{position:relative;z-index:10;margin:12px 20px 0;border-radius:15px;padding:11px 14px;font-size:13.5px;text-align:center;line-height:1.4}
 .banner.net{background:rgb(229 180 92 / .2);color:#F3DDAE}
 .banner.mom{background:var(--accent);color:var(--accent-text);font-weight:700}
-.ffoot{position:relative;z-index:10;margin-top:auto;display:flex;justify-content:center;padding-bottom:calc(env(safe-area-inset-bottom) + 74px)}
+.finder.awaiting .ffoot{display:none}
+.ffoot{position:relative;z-index:62;margin-top:auto;display:flex;justify-content:center;padding-bottom:calc(env(safe-area-inset-bottom) + 74px)}
 .shutter{width:82px;height:82px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgb(255 255 255 / .28)}
 .shutter:active{transform:scale(.93)}
 .shutter:disabled{opacity:.35}
@@ -97,12 +101,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* --- Retours de prise de vue, selon le mode choisi par l'hote -------- */
 .shot{position:absolute;inset:0;z-index:60;display:none}
 .shot.on{display:flex;flex-direction:column}
-/* FLASH : la photographie occupe l'ecran, une seconde, puis s'efface. */
-.shot.flash{animation:fade 1.1s ease forwards}
-@keyframes fade{0%,72%{opacity:1}100%{opacity:0}}
+/* FLASH : la photographie occupe l'ecran deux secondes et demie, puis
+   s'efface seule. Le declencheur reste au-dessus et reste actif : on peut
+   enchainer sans attendre la fin. Une touche ailleurs passe l'apercu. */
+.shot.flash{animation:fade 2.5s ease forwards}
+@keyframes fade{0%,78%{opacity:1}100%{opacity:0}}
 .shot .pic{position:absolute;inset:0}
 .shot.confirm .pic{filter:none}
 .shot-bar{position:relative;margin-top:auto;display:flex;gap:11px;padding:0 22px calc(env(safe-area-inset-bottom) + 78px)}
+.shot-bar[hidden]{display:none}
 .shot-bar .btn{flex:1}
 /* BLURRED : une vignette floutee glisse dans le coin, deux secondes. */
 .thumb{
@@ -199,6 +206,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
   <div class="finder" data-v="finder">
     <div class="feed"></div>
+    <video class="cam" id="cam" playsinline muted></video>
 
     <div class="ftop">
       <button class="counter" id="counter" aria-label="Voir ma planche contact">
@@ -314,9 +322,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div></div>
 
     <div class="grp"><span>Mode d'aperçu réglé par l'hôte</span><div class="row" id="modes">
-      <button data-m="NONE" aria-current="true">Aucun</button>
-      <button data-m="FLASH">Flash</button>
-      <button data-m="BLURRED">Vignette floutée</button>
+      <button data-m="NONE">Aucun</button>
+      <button data-m="FLASH">Flash 2,5 s</button>
+      <button data-m="BLURRED" aria-current="true">Vignette floutée</button>
       <button data-m="CONFIRM">Garder ou reprendre</button>
     </div></div>
 
@@ -348,7 +356,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   const QUOTA = 24;
   const $ = id => document.getElementById(id);
   let shots = QUOTA, bonus = 0, queued = 0, offline = false;
-  let mode = 'NONE', frames = [];
+  let mode = 'BLURRED', frames = [];   // defaut retenu : protege du pouce sur l'objectif
 
   /* Le type d'evenement ne change pas que la couleur : il change le mot
      qui designe l'hote, et le nom par defaut de la soiree. */
@@ -358,8 +366,44 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     ENTREPRISE:   { who:"l'équipe",       whoCap:"L'équipe",       verb:'elle décide', long:'Séminaire Vertuo 2026',  short:'Vertuo 2026' },
   };
 
+  /* Camera reelle. Sur un ordinateur ou un telephone elle repond et le
+     viseur montre la vraie scene ; le simulateur iOS n'en a pas, la scene
+     de synthese reste alors affichee. Meme logique que useCamera.ts. */
+  let stream = null;
+  async function startCamera(){
+    if (stream || !navigator.mediaDevices?.getUserMedia) return;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1920 } },
+        audio: false,
+      });
+      const cam = $('cam');
+      cam.srcObject = stream;
+      await cam.play();
+      cam.classList.add('on');
+    } catch { /* refus ou absence de camera : la scene de synthese suffit */ }
+  }
+
+  /* Saisit la trame courante et la re-encode dans un canvas. Le canvas ne
+     connait que des pixels : les metadonnees du capteur disparaissent a la
+     reconstruction. C'est exactement ce que fait lib/image.ts. */
+  function captureReal(){
+    const cam = $('cam');
+    if (!stream || !cam.videoWidth) return null;
+
+    const MAX = 2048;
+    const long = Math.max(cam.videoWidth, cam.videoHeight);
+    const ratio = long > MAX ? MAX / long : 1;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(cam.videoWidth * ratio);
+    canvas.height = Math.round(cam.videoHeight * ratio);
+    canvas.getContext('2d').drawImage(cam, 0, 0, canvas.width, canvas.height);
+    return `url("${canvas.toDataURL('image/jpeg', 0.85)}") center/cover`;
+  }
+
   /* Une photographie plausible : meme palette que le viseur, positions
-     tirees au sort pour que deux poses ne se ressemblent pas. */
+     tirees au sort pour que deux poses ne se ressemblent pas. Sert de repli
+     quand aucune camera ne repond. */
   function makePhoto(){
     const r = (a,b) => a + Math.random() * (b - a);
     const spot = () => `radial-gradient(circle ${r(10,34)|0}px at ${r(5,95)|0}% ${r(6,60)|0}%, rgb(255 ${r(190,225)|0} ${r(110,175)|0} / ${r(.25,.6).toFixed(2)}), transparent 70%)`;
@@ -378,6 +422,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     steps.forEach(s => s.setAttribute('aria-current', String(s.dataset.v === name)));
     $('sheetv').classList.remove('on');
     if (name === 'album') paintAlbum();
+    if (name === 'finder') void startCamera();
   }
 
   function paint(){
@@ -458,7 +503,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     click();
     navigator.vibrate?.(18);
 
-    const photo = makePhoto();
+    const photo = captureReal() ?? makePhoto();
     frames.push(photo);
     spend();
 
@@ -469,7 +514,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     if (mode === 'FLASH') {
       pic.style.background = photo;
       shot.classList.add('on', 'flash');
-      setTimeout(() => { shot.className = 'shot'; afterShot(); }, 1100);
+      setTimeout(() => { if (shot.classList.contains('flash')) shot.className = 'shot'; }, 2500);
+      afterShot();   // non bloquant : on peut declencher pendant l'apercu
       return;
     }
     if (mode === 'BLURRED') {
@@ -483,15 +529,26 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       pic.style.background = photo;
       shot.classList.add('on', 'confirm');
       bar.hidden = false;
+      document.querySelector('.finder').classList.add('awaiting');
       return;   // la suite depend du choix de l'invite
     }
     afterShot();   // NONE
   });
 
-  $('keep').addEventListener('click', () => { $('shot').className = 'shot'; afterShot(); });
+  // Une touche n'importe ou passe l'apercu du mode Flash. Le mode
+  // Garder ou reprendre, lui, attend une reponse : on ne le ferme pas.
+  $('shot').addEventListener('click', () => {
+    if ($('shot').classList.contains('flash')) $('shot').className = 'shot';
+  });
+
+  function closeConfirm(){
+    $('shot').className = 'shot';
+    document.querySelector('.finder').classList.remove('awaiting');
+  }
+  $('keep').addEventListener('click', () => { closeConfirm(); afterShot(); });
   $('redo').addEventListener('click', () => {
     // Reprendre rend la pose : c'est le remboursement deja ecrit cote serveur.
-    frames.pop(); refund(); $('shot').className = 'shot';
+    frames.pop(); refund(); closeConfirm();
   });
 
   $('counter').addEventListener('click', () => { paintSheet(); $('sheetv').classList.add('on'); });
@@ -504,6 +561,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   document.querySelectorAll('#modes button').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('#modes button').forEach(o => o.setAttribute('aria-current', String(o === b)));
     mode = b.dataset.m;
+    $('shot').className = 'shot';
+    document.querySelector('.finder').classList.remove('awaiting');
     if (!screens.find(s => s.dataset.v === 'finder').classList.contains('on')) show('finder');
   }));
 
