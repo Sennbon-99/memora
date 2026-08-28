@@ -20,6 +20,7 @@ import { teamRouter, photographerRouter } from './features/team/team.routes.js';
 import { dashboardRouter } from './features/dashboard/dashboard.routes.js';
 import { downloadRouter } from './features/download/download.routes.js';
 import { pushRouter } from './features/notifications/push.routes.js';
+import { openapiRouter } from './openapi/openapi.routes.js';
 
 export const apiRouter: Router = Router();
 
@@ -39,6 +40,8 @@ apiRouter.use('/events/:id', downloadRouter);
 // Acces du photographe officiel par son lien dedie, sans compte.
 apiRouter.use('/p', photographerRouter);
 apiRouter.use('/push', pushRouter);
+// Documentation derivee des schemas Zod.
+apiRouter.use('/', openapiRouter);
 // Consultation d'un album publie, par son lien de partage.
 apiRouter.use('/album', publicAlbumRouter);
 apiRouter.use('/removals', removalRouter);
