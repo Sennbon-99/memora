@@ -1,13 +1,13 @@
-// 🧠 apps/api/src/services/authService.ts
+// 🧠 apps/api/src/features/auth/auth.service.ts
 // Regles metier de l'authentification de l'hote.
 // Le service ne connait ni Express, ni req, ni res : il recoit des donnees
 // validees et renvoie des donnees. C'est ce qui le rend testable seul.
 
 import type { LoginInput, RegisterInput } from '@memora/types';
-import { prisma } from '../config/prisma.js';
-import { hashPassword, verifyPassword } from '../utils/hash.js';
-import { signAccessToken, signRefreshToken } from '../utils/jwt.js';
-import { AppError, UnauthorizedError } from '../utils/errors.js';
+import { prisma } from '../../config/prisma.js';
+import { hashPassword, verifyPassword } from '../../utils/hash.js';
+import { signAccessToken, signRefreshToken } from '../../utils/jwt.js';
+import { AppError, UnauthorizedError } from '../../utils/errors.js';
 
 export interface AuthResult {
   user: { id: string; email: string; name: string };

@@ -1,4 +1,4 @@
-// 🧪 apps/api/src/services/__tests__/authService.test.ts
+// 🧪 apps/api/src/features/auth/auth.service.test.ts
 // Tests du service d'authentification. Prisma est remplace par un double,
 // pour que ces tests portent sur la regle metier et non sur la base.
 
@@ -11,7 +11,7 @@ vi.mock('../../config/prisma.js', () => ({
   prisma: { user: { findUnique, create } },
 }));
 
-const { register, login } = await import('../authService.js');
+const { register, login } = await import('./auth.service.js');
 const { hashPassword } = await import('../../utils/hash.js');
 
 beforeEach(() => {

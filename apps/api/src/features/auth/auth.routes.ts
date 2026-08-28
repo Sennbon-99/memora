@@ -1,10 +1,10 @@
-// 🚏 apps/api/src/routes/authRoute.ts
+// 🚏 apps/api/src/features/auth/auth.routes.ts
 import { Router } from 'express';
 import { loginSchema, registerSchema } from '@memora/types';
-import { validate } from '../middlewares/validate.js';
-import { requireAuth } from '../middlewares/requireAuth.js';
-import { authLimiter } from '../middlewares/rateLimiter.js';
-import * as authController from '../controllers/authController.js';
+import { validate } from '../../middlewares/validate.js';
+import { requireAuth } from '../../middlewares/requireAuth.js';
+import { authLimiter } from '../../middlewares/rateLimiter.js';
+import * as authController from './auth.controller.js';
 
 export const authRouter = Router();
 
