@@ -6,7 +6,7 @@ import { requireAuth } from '../../middlewares/requireAuth.js';
 import { authLimiter } from '../../middlewares/rateLimiter.js';
 import * as authController from './auth.controller.js';
 
-export const authRouter = Router();
+export const authRouter: Router = Router();
 
 // POST /api/auth/register — creer un compte hote
 authRouter.post('/register', authLimiter, validate(registerSchema), authController.register);

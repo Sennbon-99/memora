@@ -4,13 +4,8 @@
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import * as eventService from './event.service.js';
+import { currentUserId, routeParam } from '../../utils/http.js';
 import { UnauthorizedError } from '../../utils/errors.js';
-
-/** Petit garde-fou : requireAuth garantit req.user, TypeScript ne le sait pas. */
-function currentUserId(req: Parameters<RequestHandler>[0]): string {
-  if (!req.user) throw new UnauthorizedError();
-  return req.user.id;
-}
 
 export const create: RequestHandler = async (req, res, next) => {
   try {
@@ -31,7 +26,7 @@ export const list: RequestHandler = async (req, res, next) => {
 
 export const detail: RequestHandler = async (req, res, next) => {
   try {
-    const event = await eventService.getEvent(req.params.id!, currentUserId(req));
+    const event = await eventService.getEvent(routeParam(req, 'id'), currentUserId(req));
     res.status(200).json({ event });
   } catch (err) {
     next(err);
@@ -40,7 +35,7 @@ export const detail: RequestHandler = async (req, res, next) => {
 
 export const update: RequestHandler = async (req, res, next) => {
   try {
-    const event = await eventService.updateEvent(req.params.id!, currentUserId(req), req.body);
+    const event = await eventService.updateEvent(routeParam(req, 'id'), currentUserId(req), req.body);
     res.status(200).json({ event });
   } catch (err) {
     next(err);
@@ -49,7 +44,7 @@ export const update: RequestHandler = async (req, res, next) => {
 
 export const open: RequestHandler = async (req, res, next) => {
   try {
-    const event = await eventService.openEvent(req.params.id!, currentUserId(req));
+    const event = await eventService.openEvent(routeParam(req, 'id'), currentUserId(req));
     res.status(200).json({ event });
   } catch (err) {
     next(err);
@@ -58,7 +53,7 @@ export const open: RequestHandler = async (req, res, next) => {
 
 export const close: RequestHandler = async (req, res, next) => {
   try {
-    const event = await eventService.closeEvent(req.params.id!, currentUserId(req));
+    const event = await eventService.closeEvent(routeParam(req, 'id'), currentUserId(req));
     // On previent les invites connectes que la pellicule est terminee.
     req.io.to(`event:${event.id}`).emit('event:closed', { eventId: event.id });
     res.status(200).json({ event });
@@ -75,7 +70,7 @@ const tablesSchema = z.object({
 export const createTables: RequestHandler = async (req, res, next) => {
   try {
     const { labels } = tablesSchema.parse(req.body);
-    const tables = await eventService.createTables(req.params.id!, currentUserId(req), labels);
+    const tables = await eventService.createTables(routeParam(req, 'id'), currentUserId(req), labels);
     res.status(201).json({ tables });
   } catch (err) {
     next(err);

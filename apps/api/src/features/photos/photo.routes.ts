@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { requireGuest, requireConsent } from '../../middlewares/requireGuest.js';
 import * as photoController from './photo.controller.js';
 
-export const photoRouter = Router();
+export const photoRouter: Router = Router();
 
 // Toutes ces routes supposent une pellicule ouverte sur cet appareil.
 photoRouter.use(requireGuest);

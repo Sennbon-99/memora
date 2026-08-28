@@ -3,18 +3,14 @@
 import type { RequestHandler } from 'express';
 import { createMomentSchema } from '@memora/types';
 import * as momentService from './moment.service.js';
+import { currentUserId, routeParam } from '../../utils/http.js';
 import { UnauthorizedError } from '../../utils/errors.js';
-
-function currentUserId(req: Parameters<RequestHandler>[0]): string {
-  if (!req.user) throw new UnauthorizedError();
-  return req.user.id;
-}
 
 /** POST /api/events/:id/moments — programmer un moment. */
 export const create: RequestHandler = async (req, res, next) => {
   try {
     const input = createMomentSchema.parse(req.body);
-    const moment = await momentService.createMoment(req.params.id!, currentUserId(req), input);
+    const moment = await momentService.createMoment(routeParam(req, 'id'), currentUserId(req), input);
     res.status(201).json({ moment });
   } catch (err) {
     next(err);
@@ -24,7 +20,7 @@ export const create: RequestHandler = async (req, res, next) => {
 /** GET /api/events/:id/moments — le programme de la soiree. */
 export const list: RequestHandler = async (req, res, next) => {
   try {
-    const moments = await momentService.listMoments(req.params.id!, currentUserId(req));
+    const moments = await momentService.listMoments(routeParam(req, 'id'), currentUserId(req));
     res.status(200).json({ moments });
   } catch (err) {
     next(err);
@@ -34,12 +30,12 @@ export const list: RequestHandler = async (req, res, next) => {
 /** POST /api/events/:id/moments/:momentId/trigger — ouvrir la fenetre. */
 export const trigger: RequestHandler = async (req, res, next) => {
   try {
-    const moment = await momentService.triggerMoment(req.params.momentId!, currentUserId(req));
+    const moment = await momentService.triggerMoment(routeParam(req, 'momentId'), currentUserId(req));
 
     // Les invites connectes sont prevenus immediatement. Ceux qui n'ont pas
     // l'application ouverte verront le bandeau a leur retour, tant que la
     // fenetre n'est pas expiree.
-    req.io.to(`event:${req.params.id}`).emit('moment:started', {
+    req.io.to(`event:${routeParam(req, 'id')}`).emit('moment:started', {
       momentId: moment.id,
       label: moment.label,
       endsAt: moment.endsAt,
@@ -55,8 +51,8 @@ export const trigger: RequestHandler = async (req, res, next) => {
 /** POST /api/events/:id/moments/:momentId/close — clore avant terme. */
 export const close: RequestHandler = async (req, res, next) => {
   try {
-    const result = await momentService.closeMoment(req.params.momentId!, currentUserId(req));
-    req.io.to(`event:${req.params.id}`).emit('moment:ended', { momentId: result.id });
+    const result = await momentService.closeMoment(routeParam(req, 'momentId'), currentUserId(req));
+    req.io.to(`event:${routeParam(req, 'id')}`).emit('moment:ended', { momentId: result.id });
     res.status(200).json(result);
   } catch (err) {
     next(err);

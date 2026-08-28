@@ -6,12 +6,12 @@
 // secondes sur le meme evenement. Un UPDATE concurrent sur une seule ligne
 // de la base serait un point de contention ; un compteur en memoire, non.
 
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { env } from './env.js';
 
 export const redis = new Redis(env.REDIS_URL, { maxRetriesPerRequest: 3 });
 
-redis.on('error', (err) => console.error('Erreur Redis :', err.message));
+redis.on('error', (err: Error) => console.error('Erreur Redis :', err.message));
 
 /** Compteur du quota principal d'une pellicule. */
 export const quotaKey = (rollId: string) => `quota:${rollId}`;

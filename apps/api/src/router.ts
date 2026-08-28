@@ -17,7 +17,7 @@ import { momentRouter } from './features/moments/moment.routes.js';
 import { paymentRouter } from './features/payments/payment.routes.js';
 import { qrkitRouter } from './features/qrkit/qrkit.routes.js';
 
-export const apiRouter = Router();
+export const apiRouter: Router = Router();
 
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/events', eventRouter);

@@ -5,7 +5,7 @@ import { requireAuth } from '../../middlewares/requireAuth.js';
 import * as paymentController from './payment.controller.js';
 
 /** Monte sous /api/events/:id — actions de l'hote. */
-export const paymentRouter = Router({ mergeParams: true });
+export const paymentRouter: Router = Router({ mergeParams: true });
 paymentRouter.use(requireAuth);
 
 // POST /api/events/:id/checkout — creer la session de paiement
@@ -19,7 +19,7 @@ paymentRouter.get('/payment', paymentController.status);
  * express.raw() conserve le corps brut, indispensable a la verification
  * de signature : un corps deja transforme en objet ne peut plus etre verifie.
  */
-export const stripeWebhookRouter = Router();
+export const stripeWebhookRouter: Router = Router();
 stripeWebhookRouter.post(
   '/webhook',
   express.raw({ type: 'application/json' }),

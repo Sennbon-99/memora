@@ -4,7 +4,7 @@ import { Router } from 'express';
 import { requireAuth } from '../../middlewares/requireAuth.js';
 import * as qrkitController from './qrkit.controller.js';
 
-export const qrkitRouter = Router({ mergeParams: true });
+export const qrkitRouter: Router = Router({ mergeParams: true });
 qrkitRouter.use(requireAuth);
 
 // GET /api/events/:id/qr-kit — telecharger le kit de QR codes en PDF

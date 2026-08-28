@@ -6,7 +6,7 @@ import { requireGuest } from '../../middlewares/requireGuest.js';
 import { authLimiter } from '../../middlewares/rateLimiter.js';
 import * as guestController from './guest.controller.js';
 
-export const guestRouter = Router();
+export const guestRouter: Router = Router();
 
 // GET /api/e/:slug — rejoindre l'evenement, ou restaurer sa pellicule
 guestRouter.get('/:slug', guestController.join);

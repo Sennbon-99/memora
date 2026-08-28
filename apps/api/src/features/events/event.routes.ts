@@ -5,7 +5,7 @@ import { validate } from '../../middlewares/validate.js';
 import { requireAuth } from '../../middlewares/requireAuth.js';
 import * as eventController from './event.controller.js';
 
-export const eventRouter = Router();
+export const eventRouter: Router = Router();
 
 // Toutes les routes de ce module supposent un hote authentifie.
 eventRouter.use(requireAuth);

@@ -5,20 +5,16 @@ import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import { publishEventSchema } from '@memora/types';
 import * as publicationService from './publication.service.js';
+import { currentUserId, routeParam } from '../../utils/http.js';
 import type { Viewer } from './visibility.js';
 import { verifyDeviceToken } from '../../utils/jwt.js';
 import { DEVICE_COOKIE } from '../../middlewares/requireGuest.js';
 import { UnauthorizedError } from '../../utils/errors.js';
 
-function currentUserId(req: Parameters<RequestHandler>[0]): string {
-  if (!req.user) throw new UnauthorizedError();
-  return req.user.id;
-}
-
 /** GET /api/events/:id/album — l'album complet, reserve a l'hote. */
 export const albumForHost: RequestHandler = async (req, res, next) => {
   try {
-    const photos = await publicationService.getAlbumForHost(req.params.id!, currentUserId(req));
+    const photos = await publicationService.getAlbumForHost(routeParam(req, 'id'), currentUserId(req));
     res.status(200).json({ photos });
   } catch (err) {
     next(err);
@@ -29,10 +25,10 @@ export const albumForHost: RequestHandler = async (req, res, next) => {
 export const publish: RequestHandler = async (req, res, next) => {
   try {
     const input = publishEventSchema.parse(req.body);
-    const result = await publicationService.publishAlbum(req.params.id!, currentUserId(req), input);
+    const result = await publicationService.publishAlbum(routeParam(req, 'id'), currentUserId(req), input);
 
     // Les invites connectes sont prevenus que l'album est en ligne.
-    req.io.to(`event:${req.params.id}`).emit('album:published', { scope: result.scope });
+    req.io.to(`event:${routeParam(req, 'id')}`).emit('album:published', { scope: result.scope });
 
     res.status(200).json(result);
   } catch (err) {
@@ -60,7 +56,7 @@ export const publicAlbum: RequestHandler = async (req, res, next) => {
       ? { kind: 'GUEST', rollId: decoded.rollId }
       : { kind: 'LINK' };
 
-    const album = await publicationService.getPublicAlbum(req.params.token!, viewer, accessCode);
+    const album = await publicationService.getPublicAlbum(routeParam(req, 'token'), viewer, accessCode);
     res.status(200).json(album);
   } catch (err) {
     next(err);
@@ -73,7 +69,7 @@ const decisionSchema = z.object({ accept: z.boolean() });
 export const handleRemoval: RequestHandler = async (req, res, next) => {
   try {
     const { accept } = decisionSchema.parse(req.body);
-    const result = await publicationService.handleRemoval(req.params.id!, currentUserId(req), accept);
+    const result = await publicationService.handleRemoval(routeParam(req, 'id'), currentUserId(req), accept);
     res.status(200).json({ request: result });
   } catch (err) {
     next(err);

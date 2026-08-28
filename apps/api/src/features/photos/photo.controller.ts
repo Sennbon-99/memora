@@ -4,12 +4,8 @@
 import type { RequestHandler } from 'express';
 import { confirmPhotoSchema, removalRequestSchema, reservePhotoSchema } from '@memora/types';
 import * as photoService from './photo.service.js';
+import { currentRoll } from '../../utils/http.js';
 import { UnauthorizedError } from '../../utils/errors.js';
-
-function currentRoll(req: Parameters<RequestHandler>[0]) {
-  if (!req.roll) throw new UnauthorizedError();
-  return req.roll;
-}
 
 /** POST /api/photos/reserve — reserver une pose et obtenir l'adresse d'envoi. */
 export const reserve: RequestHandler = async (req, res, next) => {

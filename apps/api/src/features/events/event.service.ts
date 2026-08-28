@@ -5,6 +5,7 @@ import type { CreateEventInput, UpdateEventInput } from '@memora/types';
 import { MAX_GUESTS_PER_EVENT } from '@memora/types';
 import { prisma } from '../../config/prisma.js';
 import { buildEventSlug, buildToken } from '../../utils/slug.js';
+import { compact } from '../../utils/object.js';
 import { AppError, ForbiddenError, NotFoundError } from '../../utils/errors.js';
 
 /** Limites de l'offre gratuite, appliquees au premier evenement d'un compte. */
@@ -39,7 +40,7 @@ export async function createEvent(userId: string, input: CreateEventInput) {
 
   return prisma.event.create({
     data: {
-      ...input,
+      ...compact(input),
       slug: buildEventSlug(input.name),
       ownerId: userId,
       quotaShots: isFirstEvent ? Math.min(input.quotaShots, FREE_TIER.shots) : input.quotaShots,
@@ -86,7 +87,7 @@ export async function updateEvent(eventId: string, userId: string, input: Update
     }
   }
 
-  return prisma.event.update({ where: { id: eventId }, data: input });
+  return prisma.event.update({ where: { id: eventId }, data: compact(input) });
 }
 
 /**

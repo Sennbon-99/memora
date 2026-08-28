@@ -2,17 +2,13 @@
 
 import type { RequestHandler } from 'express';
 import * as paymentService from './payment.service.js';
+import { currentUserId, routeParam } from '../../utils/http.js';
 import { AppError, UnauthorizedError } from '../../utils/errors.js';
-
-function currentUserId(req: Parameters<RequestHandler>[0]): string {
-  if (!req.user) throw new UnauthorizedError();
-  return req.user.id;
-}
 
 /** POST /api/events/:id/checkout — obtenir l'adresse de paiement. */
 export const checkout: RequestHandler = async (req, res, next) => {
   try {
-    const result = await paymentService.createCheckoutSession(req.params.id!, currentUserId(req));
+    const result = await paymentService.createCheckoutSession(routeParam(req, 'id'), currentUserId(req));
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -22,7 +18,7 @@ export const checkout: RequestHandler = async (req, res, next) => {
 /** GET /api/events/:id/payment — verification differee de l'etat du paiement. */
 export const status: RequestHandler = async (req, res, next) => {
   try {
-    res.status(200).json(await paymentService.syncPayment(req.params.id!, currentUserId(req)));
+    res.status(200).json(await paymentService.syncPayment(routeParam(req, 'id'), currentUserId(req)));
   } catch (err) {
     next(err);
   }

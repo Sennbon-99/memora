@@ -10,7 +10,7 @@ const rollFindUnique = vi.fn();
 const rollFindMany = vi.fn();
 const rollCreate = vi.fn();
 const rollUpdate = vi.fn();
-const redisGet = vi.fn();
+const readQuota = vi.fn();
 const initQuota = vi.fn();
 
 vi.mock('../../config/prisma.js', () => ({
@@ -23,11 +23,7 @@ vi.mock('../../config/prisma.js', () => ({
   },
 }));
 
-vi.mock('../../config/redis.js', () => ({
-  redis: { get: redisGet },
-  quotaKey: (id: string) => `quota:${id}`,
-  initQuota,
-}));
+vi.mock('../../config/redis.js', () => ({ readQuota, initQuota }));
 
 const { joinEvent, giveConsent, recoverRoll } = await import('./guest.service.js');
 const { hashRecoveryCode } = await import('../../utils/hash.js');
@@ -41,7 +37,7 @@ const openEvent = {
 };
 
 beforeEach(() => {
-  [eventFindUnique, rollFindFirst, rollFindUnique, rollFindMany, rollCreate, rollUpdate, redisGet, initQuota]
+  [eventFindUnique, rollFindFirst, rollFindUnique, rollFindMany, rollCreate, rollUpdate, readQuota, initQuota]
     .forEach((m) => m.mockReset());
 });
 
@@ -64,7 +60,7 @@ describe('joinEvent', () => {
     rollFindFirst.mockResolvedValue({
       id: 'r1', firstName: 'Camille', shotsLeft: 24, bonusShots: 0, consentedAt: new Date(),
     });
-    redisGet.mockResolvedValue('17'); // Redis fait foi pendant l'evenement
+    readQuota.mockResolvedValue(17); // Redis fait foi pendant l'evenement
 
     const session = await joinEvent('mariage-x', signDeviceToken('r1'));
 

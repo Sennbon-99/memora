@@ -14,6 +14,7 @@ import type { CreateMomentInput } from '@memora/types';
 import { prisma } from '../../config/prisma.js';
 import { grantBonusShots } from '../../config/redis.js';
 import { assertCanManage } from '../events/event.service.js';
+import { compact } from '../../utils/object.js';
 import { AppError, NotFoundError } from '../../utils/errors.js';
 
 /** Un moment est actif s'il a demarre et que sa fenetre n'est pas expiree. */
@@ -27,7 +28,7 @@ export async function createMoment(eventId: string, userId: string, input: Creat
   await assertCanManage(eventId, userId);
 
   return prisma.moment.create({
-    data: { ...input, eventId },
+    data: { ...compact(input), eventId },
     select: { id: true, label: true, plannedAt: true, durationMinutes: true, bonusShots: true },
   });
 }

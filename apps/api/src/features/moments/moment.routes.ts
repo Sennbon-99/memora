@@ -6,7 +6,7 @@ import { Router } from 'express';
 import { requireAuth } from '../../middlewares/requireAuth.js';
 import * as momentController from './moment.controller.js';
 
-export const momentRouter = Router({ mergeParams: true });
+export const momentRouter: Router = Router({ mergeParams: true });
 momentRouter.use(requireAuth);
 
 // POST /api/events/:id/moments — programmer un moment

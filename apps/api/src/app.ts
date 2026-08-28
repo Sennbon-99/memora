@@ -5,7 +5,7 @@
 // et l'attaquent directement avec Supertest, sans ouvrir de port ni lancer
 // de vrai serveur. Les tests deviennent rapides et peuvent tourner en parallele.
 
-import express from 'express';
+import express, { type Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
@@ -18,7 +18,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { apiRouter } from './router.js';
 import { stripeWebhookRouter } from './features/payments/payment.routes.js';
 
-export function createApp() {
+export function createApp(): Express {
   const app = express();
 
   // Le webhook Stripe recoit le corps BRUT. Il est monte ici, avant
