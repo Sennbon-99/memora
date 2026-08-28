@@ -1,0 +1,31 @@
+// 🎞️ apps/api/prisma/schema/roll.prisma
+// La pellicule : l'appareil d'un invite pour un evenement donne.
+
+/// Represente l'appareil d'un invite, non l'invite lui-meme.
+/// C'est elle qui porte le quota de poses et le consentement au droit a l'image.
+model Roll {
+  id           String    @id @default(cuid())
+  /// Identifiant signe depose dans le cookie de l'appareil.
+  deviceToken  String
+  firstName    String?   @db.VarChar(30)
+  /// Horodatage du consentement. Nul tant qu'il n'a pas ete donne :
+  /// aucune photographie ne peut exister avant.
+  consentedAt  DateTime? @db.Timestamptz
+  shotsLeft    Int       @db.SmallInt
+  /// Poses supplementaires d'un moment fort, perdues a sa fermeture.
+  bonusShots   Int       @default(0) @db.SmallInt
+  /// Code a quatre chiffres, hache. Jamais stocke en clair.
+  recoveryHash String?
+  createdAt    DateTime  @default(now())
+
+  eventId      String
+  event        Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tableId      String?
+  table        EventTable?      @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  photos       Photo[]
+  requests     RemovalRequest[]
+
+  /// Un meme appareil ne peut pas ouvrir deux pellicules sur le meme evenement.
+  @@unique([eventId, deviceToken])
+  @@map("rolls")
+}

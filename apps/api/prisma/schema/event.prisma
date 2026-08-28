@@ -1,0 +1,84 @@
+// 🎉 apps/api/prisma/schema/event.prisma
+// L'evenement, pivot du modele, et les tables de la salle.
+
+model Event {
+  id             String      @id @default(cuid())
+  name           String      @db.VarChar(120)
+  /// Identifiant public, celui qui figure dans l'URL du QR code.
+  slug           String      @unique @db.VarChar(64)
+  type           EventType
+  eventDate      DateTime    @db.Timestamptz
+  quotaShots     Int         @db.SmallInt
+  /// Heure a laquelle la prise de vue s'arrete. Fait foi, fuseau compris.
+  closesAt       DateTime    @db.Timestamptz
+  previewMode    PreviewMode @default(NONE)
+  color          String      @db.Char(7)
+  logoKey        String?
+  welcomeMessage String?     @db.VarChar(280)
+  useTableCodes  Boolean     @default(false)
+  state          EventState  @default(DRAFT)
+  scope          Scope       @default(NONE)
+  /// Jeton du lien d'album, distinct de l'identifiant : revocable, non devinable.
+  albumToken     String?     @unique
+  accessCodeHash String?
+  createdAt      DateTime    @default(now())
+
+  ownerId        String
+  owner          User         @relation("EventOwner", fields: [ownerId], references: [id])
+  coHosts        CoHost[]
+  rolls          Roll[]
+  tables         EventTable[]
+  moments        Moment[]
+  payment        Payment?
+
+  /// Index utilise par la tache planifiee qui ferme les evenements a echeance.
+  @@index([state, closesAt])
+  @@map("events")
+}
+
+/// Une table de la salle. Sert a segmenter les contributions quand l'hote
+/// choisit d'imprimer un QR code par table plutot qu'un seul a l'entree.
+model EventTable {
+  id      String @id @default(cuid())
+  label   String @db.VarChar(40)
+  qrToken String @unique
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  rolls   Roll[]
+
+  @@map("event_tables")
+}
+
+enum EventType {
+  MARIAGE
+  ANNIVERSAIRE
+  ENTREPRISE
+}
+
+/// Cycle de vie d'un evenement. L'ordre est chronologique :
+/// un evenement ne revient jamais en arriere.
+enum EventState {
+  DRAFT
+  OPEN
+  CLOSED
+  PUBLISHED
+  PURGED
+}
+
+/// Ce que l'invite voit apres avoir declenche. Choisi par l'hote a la
+/// configuration, et fige des l'ouverture de l'evenement.
+enum PreviewMode {
+  NONE
+  FLASH
+  BLURRED
+  CONFIRM
+}
+
+/// Portee de publication retenue par l'hote apres son tri.
+enum Scope {
+  NONE
+  EVERYONE
+  SELECTED
+  OWN_ONLY
+}

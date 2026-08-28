@@ -1,0 +1,20 @@
+// ⏱️ apps/api/prisma/schema/moment.prisma
+// Les moments forts de la soiree : discours, ouverture du bal, gateau.
+
+model Moment {
+  id              String    @id @default(cuid())
+  label           String    @db.VarChar(60)
+  /// Heure prevue au programme, facultative.
+  plannedAt       DateTime? @db.Timestamptz
+  /// Heure du declenchement reel, qui differe presque toujours de l'heure prevue.
+  /// Tant qu'elle est nulle, le moment n'a pas commence.
+  startedAt       DateTime? @db.Timestamptz
+  durationMinutes Int       @db.SmallInt
+  bonusShots      Int       @db.SmallInt
+
+  eventId         String
+  event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  photos          Photo[]
+
+  @@map("moments")
+}

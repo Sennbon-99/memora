@@ -1,0 +1,21 @@
+// 🗄️ apps/api/prisma/schema/schema.prisma
+// Configuration du client et de la source de donnees.
+// Les modeles sont repartis dans les autres fichiers de ce dossier :
+// Prisma les assemble tous automatiquement grace a "prisma": { "schema": "./prisma/schema" }
+// declare dans package.json.
+//
+// Convention : modeles et champs en anglais, commentaires en francais.
+// Chaque entite du MCD francais du dossier a son equivalent ici :
+// EVENEMENT -> Event, PELLICULE -> Roll, PHOTO -> Photo,
+// TABLE_SALLE -> EventTable, DEMANDE_RETRAIT -> RemovalRequest.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../generated/prisma"
+  binaryTargets = ["native", "darwin-arm64", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

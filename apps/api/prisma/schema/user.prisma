@@ -1,0 +1,36 @@
+// 👤 apps/api/prisma/schema/user.prisma
+// L'hote, ses co-hotes, et l'administrateur de la plateforme.
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(HOST)
+  createdAt    DateTime @default(now())
+
+  ownedEvents  Event[]  @relation("EventOwner")
+  coHostOf     CoHost[]
+
+  @@map("users")
+}
+
+/// Table d'association entre un utilisateur et un evenement qu'il co-anime.
+/// C'est l'association plusieurs-a-plusieurs du MCD, devenue une relation
+/// propre au passage au modele logique.
+model CoHost {
+  userId    String
+  eventId   String
+  invitedAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([userId, eventId])
+  @@map("co_hosts")
+}
+
+enum UserRole {
+  HOST
+  ADMIN
+}

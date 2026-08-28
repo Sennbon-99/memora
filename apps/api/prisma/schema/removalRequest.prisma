@@ -1,0 +1,27 @@
+// ⚖️ apps/api/prisma/schema/removalRequest.prisma
+// Droit a l'image : demande de retrait formulee par un invite.
+
+/// Le masquage de la photographie est immediat des le signalement ;
+/// l'arbitrage revient a l'hote. Sans reponse sous sept jours,
+/// le retrait devient definitif.
+model RemovalRequest {
+  id        String       @id @default(cuid())
+  reason    String       @db.VarChar(280)
+  state     RequestState @default(PENDING)
+  createdAt DateTime     @default(now())
+  handledAt DateTime?
+
+  photoId   String
+  photo     Photo        @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  /// La pellicule du demandeur, pour lui repondre sans connaitre son identite.
+  rollId    String
+  roll      Roll         @relation(fields: [rollId], references: [id], onDelete: Cascade)
+
+  @@map("removal_requests")
+}
+
+enum RequestState {
+  PENDING
+  ACCEPTED
+  REFUSED
+}

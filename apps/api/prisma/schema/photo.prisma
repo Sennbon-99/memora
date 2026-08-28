@@ -1,0 +1,42 @@
+// 📷 apps/api/prisma/schema/photo.prisma
+// Les photographies deposees par les invites.
+
+model Photo {
+  id             String      @id @default(cuid())
+  /// Chemin de l'objet dans le stockage : evenement/pellicule/uuid.jpg
+  objectKey      String      @unique
+  /// Cle fournie par le client. Un rejeu retrouve la photo existante
+  /// au lieu d'en creer une seconde et de consommer une pose de plus.
+  idempotencyKey String      @unique
+  /// Horodatage de la prise de vue, non celui de l'envoi : une photo prise
+  /// hors connexion garde l'heure a laquelle elle a reellement ete prise.
+  takenAt        DateTime    @db.Timestamptz
+  uploadedAt     DateTime?   @db.Timestamptz
+  status         PhotoStatus @default(RESERVED)
+  published      Boolean     @default(false)
+  width          Int
+  height         Int
+  sizeBytes      Int
+
+  rollId         String
+  roll           Roll             @relation(fields: [rollId], references: [id], onDelete: Cascade)
+  /// Une photographie peut n'appartenir a aucun moment fort.
+  momentId       String?
+  moment         Moment?          @relation(fields: [momentId], references: [id], onDelete: SetNull)
+  requests       RemovalRequest[]
+
+  @@index([rollId, status])
+  @@map("photos")
+}
+
+/// Etats successifs d'une photographie.
+/// RESERVED : la pose est consommee, le fichier n'est pas encore arrive.
+/// UPLOADED : le transfert est confirme.
+/// HIDDEN   : masquee a titre conservatoire, le temps d'un arbitrage.
+/// REMOVED  : retiree definitivement.
+enum PhotoStatus {
+  RESERVED
+  UPLOADED
+  HIDDEN
+  REMOVED
+}

@@ -1,0 +1,23 @@
+// 💳 apps/api/prisma/schema/payment.prisma
+// Reglement d'un evenement au-dela de l'offre gratuite.
+
+model Payment {
+  id          String       @id @default(cuid())
+  amountCents Int
+  state       PaymentState @default(PENDING)
+  /// Identifiant de la session Stripe. Son unicite est ce qui empeche
+  /// qu'une notification renvoyee deux fois credite l'evenement deux fois.
+  externalRef String       @unique
+  paidAt      DateTime?
+
+  eventId     String       @unique
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+enum PaymentState {
+  PENDING
+  PAID
+  FAILED
+}
