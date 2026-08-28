@@ -17,6 +17,7 @@
 :root{
   --film:#1C1916; --paper:#F2EDE4;
   --accent:#C97C1E; --accent-text:#17110A;
+  --alarm:#E5533D;
   --sans:'Bricolage Grotesque',system-ui,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,monospace;
 }
@@ -30,7 +31,7 @@ body{
 input{-webkit-user-select:text;user-select:text}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #app{height:100%;position:relative;overflow:hidden}
-.flash{position:absolute;inset:0;background:#fff;z-index:70;opacity:0;pointer-events:none}
+.flash{position:absolute;inset:0;background:#fff;z-index:80;opacity:0;pointer-events:none}
 .flash.on{animation:pop .16s ease-out}
 @keyframes pop{0%{opacity:.92}100%{opacity:0}}
 
@@ -57,7 +58,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .field input{height:52px;border-radius:18px;background:rgb(242 237 228 / .08);border:0;padding:0 18px;color:var(--paper);font:inherit;font-size:16px}
 .field input::placeholder{color:rgb(242 237 228 / .22)}
 
-/* Viseur */
+/* --- Viseur --------------------------------------------------------- */
 .finder{display:none;flex-direction:column;height:100%;position:relative}
 .finder.on{display:flex}
 .feed{position:absolute;inset:0;background:
@@ -72,13 +73,19 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   radial-gradient(ellipse 120% 40% at 50% 100%, rgb(28 20 14 / .96), transparent 70%),
   linear-gradient(180deg,#1B140D 0%,#3B2A1A 38%,#241A11 68%,#100C08 100%)}
 .ftop{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(env(safe-area-inset-top) + 14px) 20px 0}
-.counter{display:flex;align-items:center;gap:11px;background:rgb(0 0 0 / .55);border-radius:18px;padding:9px 14px;backdrop-filter:blur(10px)}
-.counter b{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;min-width:36px;text-align:center}
-.counter small{font-size:11px;line-height:1.3;color:rgb(242 237 228 / .5);display:block}
+.counter{display:flex;align-items:center;gap:11px;background:rgb(0 0 0 / .55);border-radius:18px;padding:9px 14px;backdrop-filter:blur(10px);transition:background .2s}
+.counter:active{background:rgb(0 0 0 / .75)}
+.counter b{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;min-width:36px;text-align:center;transition:font-size .25s,color .25s}
+.counter small{font-size:11px;line-height:1.3;color:rgb(242 237 228 / .5);display:block;text-align:left}
 .counter small[hidden]{display:none}
 .counter small.bonus{color:var(--accent)}
 .counter small.queue{color:#E5B45C}
-.evname{background:rgb(0 0 0 / .55);border-radius:999px;padding:7px 13px;font-size:12px;color:rgb(242 237 228 / .68);backdrop-filter:blur(10px);white-space:nowrap;margin-top:6px}
+/* Fin de pellicule : le compteur grossit et change de ton. C'est la
+   tension du jetable en fin de rouleau. */
+.counter.low b{font-size:34px;color:var(--alarm);min-width:44px}
+.counter.last b{animation:beat 1.5s ease-in-out infinite}
+@keyframes beat{0%,100%{opacity:1}50%{opacity:.4}}
+.evname{background:rgb(0 0 0 / .55);border-radius:999px;padding:7px 13px;font-size:12px;color:rgb(242 237 228 / .68);backdrop-filter:blur(10px);white-space:nowrap;margin-top:6px;max-width:44%;overflow:hidden;text-overflow:ellipsis}
 .banner{position:relative;z-index:10;margin:12px 20px 0;border-radius:15px;padding:11px 14px;font-size:13.5px;text-align:center;line-height:1.4}
 .banner.net{background:rgb(229 180 92 / .2);color:#F3DDAE}
 .banner.mom{background:var(--accent);color:var(--accent-text);font-weight:700}
@@ -87,26 +94,74 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .shutter:active{transform:scale(.93)}
 .shutter:disabled{opacity:.35}
 
-.card{border-radius:24px;background:rgb(242 237 228 / .05);padding:22px;margin-top:26px}
+/* --- Retours de prise de vue, selon le mode choisi par l'hote -------- */
+.shot{position:absolute;inset:0;z-index:60;display:none}
+.shot.on{display:flex;flex-direction:column}
+/* FLASH : la photographie occupe l'ecran, une seconde, puis s'efface. */
+.shot.flash{animation:fade 1.1s ease forwards}
+@keyframes fade{0%,72%{opacity:1}100%{opacity:0}}
+.shot .pic{position:absolute;inset:0}
+.shot.confirm .pic{filter:none}
+.shot-bar{position:relative;margin-top:auto;display:flex;gap:11px;padding:0 22px calc(env(safe-area-inset-bottom) + 78px)}
+.shot-bar .btn{flex:1}
+/* BLURRED : une vignette floutee glisse dans le coin, deux secondes. */
+.thumb{
+  position:absolute;left:20px;bottom:calc(env(safe-area-inset-bottom) + 104px);z-index:55;
+  width:76px;height:76px;border-radius:14px;overflow:hidden;display:none;
+  box-shadow:0 10px 26px -8px rgb(0 0 0 / .8), 0 0 0 2px rgb(242 237 228 / .18);
+}
+.thumb.on{display:block;animation:slide 2.2s ease forwards}
+.thumb > div{position:absolute;inset:0;filter:blur(7px) saturate(1.15);transform:scale(1.25)}
+@keyframes slide{0%{opacity:0;transform:translateY(14px)}12%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(6px)}}
+
+/* --- Planche contact non developpee --------------------------------- */
+.sheet{
+  position:absolute;inset:0;z-index:65;background:rgb(10 8 6 / .94);backdrop-filter:blur(18px);
+  display:none;flex-direction:column;
+  padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 78px);
+}
+.sheet.on{display:flex}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sheet-h h4{margin:0;font-size:19px;font-weight:800;letter-spacing:-.02em}
+.sheet-h button{font-size:14px;color:rgb(242 237 228 / .55);padding:8px 4px}
+.sheet p{font-size:13px;line-height:1.5;color:rgb(242 237 228 / .45);margin:8px 0 0}
+.sheet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:18px;overflow-y:auto}
+.neg{aspect-ratio:1;border-radius:9px;position:relative;overflow:hidden;background:#0F0C09}
+.neg > div{position:absolute;inset:0;filter:blur(6px) saturate(.8) brightness(.7);transform:scale(1.3)}
+.neg b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:12px;color:rgb(255 255 255 / .68);text-shadow:0 1px 3px rgb(0 0 0 / .8)}
+.neg.empty{background:rgb(242 237 228 / .04)}
+.neg.empty b{color:rgb(242 237 228 / .16)}
+
+/* --- Developpement --------------------------------------------------- */
+.devlp{align-items:center;text-align:center;justify-content:center}
+.reel{width:104px;height:104px;border-radius:50%;border:2px solid rgb(242 237 228 / .13);position:relative;margin-bottom:30px}
+.reel::before,.reel::after{content:'';position:absolute;border-radius:50%}
+.reel::before{inset:16px;border:2px solid rgb(242 237 228 / .1)}
+.reel::after{inset:-2px;border:2px solid transparent;border-top-color:var(--accent);animation:spin 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.devlp h3{font-size:26px}
+.devlp .sub{max-width:30ch}
+
+.card{border-radius:24px;background:rgb(242 237 228 / .05);padding:22px;margin-top:26px;width:100%}
 .card h4{margin:0;font-size:16px;font-weight:700}
 .card p{font-size:14px;line-height:1.55;color:rgb(242 237 228 / .58);margin:9px 0 0}
 .codebox{display:flex;gap:11px;margin-top:18px}
 .codebox input{flex:1;height:52px;border-radius:18px;background:rgb(242 237 228 / .08);border:0;text-align:center;font-family:var(--mono);font-size:22px;letter-spacing:.4em;color:var(--paper);text-indent:.4em}
 .codebox .btn{width:auto;padding:0 20px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:24px;padding-bottom:20px}
-.tile{aspect-ratio:1;border-radius:14px;background:linear-gradient(140deg,#3A2A1B,#171210)}
-.tile:nth-child(3n){background:linear-gradient(140deg,#2B2A38,#14131A)}
-.tile:nth-child(3n+1){background:linear-gradient(140deg,#3E2A24,#1A1210)}
+.tile{aspect-ratio:1;border-radius:14px}
 
-/* Barre de pilotage de l'apercu. Elle n'existe pas dans l'application. */
+/* --- Barre de pilotage. Elle n'existe pas dans l'application. -------- */
 .dev{position:fixed;left:0;right:0;bottom:0;z-index:90;transform:translateY(calc(100% - 34px));transition:transform .22s ease}
 .dev.open{transform:translateY(0)}
-.dev-h{height:34px;display:flex;align-items:center;justify-content:center;gap:8px;background:#0B0A08;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgb(242 237 228 / .45);width:100%}
-.dev-b{background:#0B0A08;padding:12px 16px calc(env(safe-area-inset-bottom) + 14px);display:flex;flex-direction:column;gap:11px}
-.row{display:flex;gap:7px;flex-wrap:wrap}
-.dev-b button{border:1px solid rgb(242 237 228 / .13);border-radius:10px;padding:8px 11px;font-size:12px;color:rgb(242 237 228 / .7)}
+.dev-h{height:34px;display:flex;align-items:center;justify-content:center;background:#0B0A08;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgb(242 237 228 / .45);width:100%}
+.dev-b{background:#0B0A08;padding:10px 14px calc(env(safe-area-inset-bottom) + 12px);display:flex;flex-direction:column;gap:9px;max-height:62vh;overflow-y:auto}
+.grp{display:flex;flex-direction:column;gap:6px}
+.grp > span{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgb(242 237 228 / .3)}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.dev-b button{border:1px solid rgb(242 237 228 / .13);border-radius:9px;padding:7px 10px;font-size:12px;color:rgb(242 237 228 / .7)}
 .dev-b button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-text);font-weight:700}
-.sw{width:30px;height:30px;border-radius:9px;border:2px solid transparent;padding:0}
+.sw{width:28px;height:28px;border-radius:8px;border:2px solid transparent;padding:0}
 .sw[aria-pressed="true"]{border-color:#fff}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -116,17 +171,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="flash" id="flash"></div>
 
   <div class="view on" data-v="consent">
-    <h3>Mariage de Léa &amp; Tom</h3>
+    <h3 id="c-title">Mariage de Léa &amp; Tom</h3>
     <p class="sub">Vous êtes le photographe de la soirée.</p>
     <div class="copy">
-      <p>Vos photographies sont visibles par l'organisateur de l'événement, puis par les invités s'il décide de les publier.</p>
+      <p>Vos photographies sont visibles par <span class="who">les mariés</span>, puis par les invités s'ils décident de les publier.</p>
       <p>Elles sont conservées trente jours, puis supprimées automatiquement. Vous pouvez demander le retrait de l'une d'elles à tout moment.</p>
       <p class="faint">Aucun compte, aucun nom, aucune adresse électronique ne vous est demandé. La position et le modèle de votre téléphone sont effacés avant l'envoi.</p>
     </div>
     <div class="spacer"></div>
     <div class="stack">
       <button class="btn btn-p" data-go="identity">J'accepte, je prends mes photos</button>
-      <p class="legal">Refuser ferme simplement cette page. Aucune donnée n'est conservée.</p>
+      <p class="legal"><b id="c-quota">24 poses, comme un appareil jetable. Pas une de plus.</b><br>Refuser ferme simplement cette page.</p>
     </div>
   </div>
 
@@ -144,20 +199,42 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
   <div class="finder" data-v="finder">
     <div class="feed"></div>
+
     <div class="ftop">
-      <div class="counter">
+      <button class="counter" id="counter" aria-label="Voir ma planche contact">
         <b id="cnt">24</b>
         <div>
           <small id="lbl">poses restantes</small>
           <small class="bonus" id="bns" hidden></small>
           <small class="queue" id="que" hidden></small>
         </div>
-      </div>
-      <span class="evname">Léa &amp; Tom</span>
+      </button>
+      <span class="evname" id="f-title">Léa &amp; Tom</span>
     </div>
+
     <p class="banner net" id="bnet" hidden>Hors ligne. Continuez, vos photos partiront au retour du réseau.</p>
     <p class="banner mom" id="bmom" hidden>Ouverture du bal — c'est maintenant</p>
+
     <div class="ffoot"><button class="shutter" id="shutter" aria-label="Prendre une photo"></button></div>
+
+    <div class="thumb" id="thumb"><div></div></div>
+
+    <div class="shot" id="shot">
+      <div class="pic" id="shot-pic"></div>
+      <div class="shot-bar" id="shot-bar" hidden>
+        <button class="btn btn-g" id="redo">Reprendre</button>
+        <button class="btn btn-p" id="keep">Garder</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="sheetv">
+      <div class="sheet-h">
+        <h4>Votre pellicule</h4>
+        <button id="sheet-close">Fermer</button>
+      </div>
+      <p>Vos photographies sont enregistrées. Elles ne se révèlent qu'après le tri, comme un film qu'on n'a pas encore développé.</p>
+      <div class="sheet-grid" id="sheet-grid"></div>
+    </div>
   </div>
 
   <div class="view" data-v="denied">
@@ -172,7 +249,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
   <div class="view" data-v="end">
     <h3>Pellicule terminée</h3>
-    <p class="sub" id="endsub">Vos photos sont arrivées. Elles apparaîtront ici quand les mariés les auront publiées.</p>
+    <p class="sub" id="end-sub">Vos vingt-quatre poses sont parties. Elles apparaîtront ici quand <span class="who">les mariés</span> les auront publiées.</p>
     <div class="card">
       <h4>Retrouver vos photos plus tard</h4>
       <p>Ce téléphone se souvient de vous. Choisissez un code à quatre chiffres si vous voulez aussi y accéder depuis un autre appareil.</p>
@@ -180,9 +257,21 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
     <div class="spacer"></div>
     <div class="stack">
-      <button class="btn btn-p" data-go="album">Voir l'album</button>
+      <button class="btn btn-p" data-go="devlp">Voir où en sont mes photos</button>
       <p class="legal">Pour être prévenu de la publication : touchez Partager, puis « Sur l'écran d'accueil ».</p>
     </div>
+  </div>
+
+  <div class="view devlp" data-v="devlp">
+    <div class="reel"></div>
+    <h3>Au développement</h3>
+    <p class="sub"><span class="who">Les mariés</span> trient les photos de la soirée. Vous serez prévenu dès qu'elles seront publiées — cela prend souvent un jour ou deux.</p>
+    <div class="card">
+      <h4>Vingt-quatre poses déposées</h4>
+      <p>Rien ne se perd : vos photographies sont enregistrées et conservées trente jours. Vous pouvez fermer cette page.</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="stack"><button class="btn btn-g" data-go="album">Simuler la publication</button></div>
   </div>
 
   <div class="view" data-v="album">
@@ -193,7 +282,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
   <div class="view" data-v="wait">
     <h3>Pellicule terminée</h3>
-    <p class="sub">3 photos partent dès que le réseau revient.</p>
+    <p class="sub">3 poses partent dès que le réseau revient.</p>
     <div class="card">
       <h4>En attente</h4>
       <p>Vos poses sont enregistrées sur ce téléphone. Elles s'enverront seules dès que la connexion sera rétablie — vous pouvez fermer l'application.</p>
@@ -212,36 +301,74 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <div class="dev" id="dev">
   <button class="dev-h" id="devh">aperçu · piloter</button>
   <div class="dev-b">
-    <div class="row" id="steps">
+    <div class="grp"><span>Écrans</span><div class="row" id="steps">
       <button data-v="consent" aria-current="true">Droit à l'image</button>
       <button data-v="identity">Prénom</button>
       <button data-v="finder">Viseur</button>
       <button data-v="end">Fin</button>
+      <button data-v="devlp">Développement</button>
       <button data-v="album">Album</button>
       <button data-v="denied">Caméra refusée</button>
       <button data-v="wait">Envoi différé</button>
       <button data-v="gone">Lien expiré</button>
-    </div>
-    <div class="row">
+    </div></div>
+
+    <div class="grp"><span>Mode d'aperçu réglé par l'hôte</span><div class="row" id="modes">
+      <button data-m="NONE" aria-current="true">Aucun</button>
+      <button data-m="FLASH">Flash</button>
+      <button data-m="BLURRED">Vignette floutée</button>
+      <button data-m="CONFIRM">Garder ou reprendre</button>
+    </div></div>
+
+    <div class="grp"><span>Type d'événement</span><div class="row" id="types">
+      <button data-t="MARIAGE" aria-current="true">Mariage</button>
+      <button data-t="ANNIVERSAIRE">Anniversaire</button>
+      <button data-t="ENTREPRISE">Entreprise</button>
+    </div></div>
+
+    <div class="grp"><span>États et raccourcis</span><div class="row">
       <button id="tnet">Hors ligne</button>
       <button id="tmom">Moment fort</button>
-      <button id="reset">Recharger la pellicule</button>
-    </div>
-    <div class="row">
+      <button id="tlow">Plus que 3 poses</button>
+      <button id="reset">Recharger</button>
+    </div></div>
+
+    <div class="grp"><span>Couleur de l'événement</span><div class="row">
       <button class="sw" data-c="#C97C1E" style="background:#C97C1E" aria-pressed="true" aria-label="Ambre"></button>
       <button class="sw" data-c="#7B3FE4" style="background:#7B3FE4" aria-label="Violet"></button>
       <button class="sw" data-c="#1FA97A" style="background:#1FA97A" aria-label="Vert"></button>
       <button class="sw" data-c="#E0533D" style="background:#E0533D" aria-label="Corail"></button>
       <button class="sw" data-c="#2F6BE0" style="background:#2F6BE0" aria-label="Bleu"></button>
-    </div>
+    </div></div>
   </div>
 </div>
 
 <script>
 (() => {
   const QUOTA = 24;
-  let shots = QUOTA, bonus = 0, queued = 0, taken = 0, offline = false;
   const $ = id => document.getElementById(id);
+  let shots = QUOTA, bonus = 0, queued = 0, offline = false;
+  let mode = 'NONE', frames = [];
+
+  /* Le type d'evenement ne change pas que la couleur : il change le mot
+     qui designe l'hote, et le nom par defaut de la soiree. */
+  const TYPES = {
+    MARIAGE:      { who:'les mariés',    whoCap:'Les mariés',    verb:'ils décident', long:'Mariage de Léa & Tom',   short:'Léa & Tom' },
+    ANNIVERSAIRE: { who:"l'organisateur", whoCap:"L'organisateur", verb:'il décide',   long:'Les 30 ans de Camille',  short:'Camille · 30 ans' },
+    ENTREPRISE:   { who:"l'équipe",       whoCap:"L'équipe",       verb:'elle décide', long:'Séminaire Vertuo 2026',  short:'Vertuo 2026' },
+  };
+
+  /* Une photographie plausible : meme palette que le viseur, positions
+     tirees au sort pour que deux poses ne se ressemblent pas. */
+  function makePhoto(){
+    const r = (a,b) => a + Math.random() * (b - a);
+    const spot = () => `radial-gradient(circle ${r(10,34)|0}px at ${r(5,95)|0}% ${r(6,60)|0}%, rgb(255 ${r(190,225)|0} ${r(110,175)|0} / ${r(.25,.6).toFixed(2)}), transparent 70%)`;
+    const hue = r(0, 1) > .5 ? '#3B2A1A' : '#3A2438';
+    return [spot(),spot(),spot(),spot(),spot(),
+      `radial-gradient(ellipse 80% 40% at ${r(25,75)|0}% ${r(45,75)|0}%, rgb(150 100 62 / .45), transparent 70%)`,
+      `linear-gradient(${r(160,200)|0}deg,#1B140D 0%,${hue} 42%,#100C08 100%)`].join(',');
+  }
+
   const views = [...document.querySelectorAll('[data-v]')];
   const screens = views.filter(v => v.classList.contains('view') || v.classList.contains('finder'));
   const steps = [...document.querySelectorAll('#steps button')];
@@ -249,8 +376,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   function show(name){
     screens.forEach(v => v.classList.toggle('on', v.dataset.v === name));
     steps.forEach(s => s.setAttribute('aria-current', String(s.dataset.v === name)));
+    $('sheetv').classList.remove('on');
     if (name === 'album') paintAlbum();
   }
+
   function paint(){
     const total = shots + bonus;
     $('cnt').textContent = total;
@@ -260,44 +389,157 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     $('que').hidden = queued === 0;
     $('que').textContent = queued + " en attente d'envoi";
     $('shutter').disabled = total === 0;
+    // La tension de fin de rouleau : trois poses, puis la derniere.
+    $('counter').classList.toggle('low', total > 0 && total <= 3);
+    $('counter').classList.toggle('last', total === 1);
   }
+
+  function paintSheet(){
+    const cells = Array.from({length: Math.max(frames.length, 12)}, (_, i) => {
+      const f = frames[i];
+      return f
+        ? `<div class="neg"><div style="background:${f}"></div><b>${String(i+1).padStart(2,'0')}</b></div>`
+        : `<div class="neg empty"><b>${String(i+1).padStart(2,'0')}</b></div>`;
+    });
+    $('sheet-grid').innerHTML = cells.join('');
+  }
+
   function paintAlbum(){
-    const n = Math.max(taken, 6);
-    $('grid').innerHTML = Array.from({length:n}, () => '<div class="tile"></div>').join('');
-    $('albumsub').textContent = n + (n > 1 ? ' images' : ' image') + ' de la soirée.';
+    const list = frames.length ? frames : Array.from({length:6}, makePhoto);
+    $('grid').innerHTML = list.map(f => `<div class="tile" style="background:${f}"></div>`).join('');
+    $('albumsub').textContent = list.length + (list.length > 1 ? ' images' : ' image') + ' de la soirée.';
+  }
+
+  /* Clic d'obturateur en Web Audio : deux impulsions breves, miroir qui
+     monte puis qui redescend. Aucun fichier a charger. */
+  let audio = null;
+  function click(){
+    try {
+      audio ??= new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === 'suspended') audio.resume();
+      [0, 0.055].forEach((delay, i) => {
+        const t = audio.currentTime + delay;
+        const noise = audio.createBufferSource();
+        const buf = audio.createBuffer(1, 1400, audio.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * (1 - j / data.length);
+        noise.buffer = buf;
+        const band = audio.createBiquadFilter();
+        band.type = 'bandpass'; band.frequency.value = i ? 2400 : 3600; band.Q.value = 1.1;
+        const gain = audio.createGain();
+        gain.gain.setValueAtTime(i ? 0.16 : 0.26, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+        noise.connect(band).connect(gain).connect(audio.destination);
+        noise.start(t); noise.stop(t + 0.06);
+      });
+    } catch { /* audio indisponible : la prise de vue marche quand meme */ }
+  }
+
+  function spend(){
+    if (bonus > 0) bonus--; else shots--;   // poses offertes d'abord, comme le script Lua
+    if (offline) queued++;
+    paint();
+  }
+  function refund(){
+    if (offline && queued > 0) queued--;
+    shots++;
+    paint();
+  }
+
+  function afterShot(){
+    if (shots + bonus === 0) setTimeout(() => show(queued ? 'wait' : 'end'), 430);
   }
 
   $('shutter').addEventListener('click', () => {
     if (shots + bonus === 0) return;
+
     const f = $('flash');
     f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
-    // Poses offertes d'abord, comme le script Lua du serveur.
-    if (bonus > 0) bonus--; else shots--;
-    taken++;
-    if (offline) queued++;
-    paint();
-    if (shots + bonus === 0) setTimeout(() => show(queued ? 'wait' : 'end'), 430);
+    click();
+    navigator.vibrate?.(18);
+
+    const photo = makePhoto();
+    frames.push(photo);
+    spend();
+
+    const shot = $('shot'), pic = $('shot-pic'), bar = $('shot-bar');
+    shot.className = 'shot';
+    bar.hidden = true;
+
+    if (mode === 'FLASH') {
+      pic.style.background = photo;
+      shot.classList.add('on', 'flash');
+      setTimeout(() => { shot.className = 'shot'; afterShot(); }, 1100);
+      return;
+    }
+    if (mode === 'BLURRED') {
+      const t = $('thumb');
+      t.firstElementChild.style.background = photo;
+      t.classList.remove('on'); void t.offsetWidth; t.classList.add('on');
+      afterShot();
+      return;
+    }
+    if (mode === 'CONFIRM') {
+      pic.style.background = photo;
+      shot.classList.add('on', 'confirm');
+      bar.hidden = false;
+      return;   // la suite depend du choix de l'invite
+    }
+    afterShot();   // NONE
   });
+
+  $('keep').addEventListener('click', () => { $('shot').className = 'shot'; afterShot(); });
+  $('redo').addEventListener('click', () => {
+    // Reprendre rend la pose : c'est le remboursement deja ecrit cote serveur.
+    frames.pop(); refund(); $('shot').className = 'shot';
+  });
+
+  $('counter').addEventListener('click', () => { paintSheet(); $('sheetv').classList.add('on'); });
+  $('sheet-close').addEventListener('click', () => $('sheetv').classList.remove('on'));
 
   steps.forEach(s => s.addEventListener('click', () => show(s.dataset.v)));
   document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
   $('devh').addEventListener('click', () => $('dev').classList.toggle('open'));
 
+  document.querySelectorAll('#modes button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#modes button').forEach(o => o.setAttribute('aria-current', String(o === b)));
+    mode = b.dataset.m;
+    if (!screens.find(s => s.dataset.v === 'finder').classList.contains('on')) show('finder');
+  }));
+
+  document.querySelectorAll('#types button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#types button').forEach(o => o.setAttribute('aria-current', String(o === b)));
+    const t = TYPES[b.dataset.t];
+    document.querySelectorAll('.who').forEach((n, i) => { n.textContent = i === 0 ? t.who : t.whoCap; });
+    $('c-title').textContent = t.long;
+    $('f-title').textContent = t.short;
+    $('c-title').nextElementSibling.textContent = 'Vous êtes le photographe de la soirée.';
+    document.querySelector('[data-v="consent"] .copy p').innerHTML =
+      `Vos photographies sont visibles par <span class="who">${t.who}</span>, puis par les invités si ${t.verb} de les publier.`;
+    $('end-sub').innerHTML =
+      `Vos vingt-quatre poses sont parties. Elles apparaîtront ici quand <span class="who">${t.who}</span> les auront publiées.`;
+    document.querySelector('[data-v="devlp"] .sub').innerHTML =
+      `<span class="who">${t.whoCap}</span> trient les photos de la soirée. Vous serez prévenu dès qu'elles seront publiées — cela prend souvent un jour ou deux.`;
+  }));
+
   $('tnet').addEventListener('click', e => {
-    offline = !offline;
-    $('bnet').hidden = !offline;
+    offline = !offline; $('bnet').hidden = !offline;
     e.target.setAttribute('aria-current', String(offline));
   });
   $('tmom').addEventListener('click', e => {
     const on = $('bmom').hidden;
-    $('bmom').hidden = !on;
-    bonus = on ? 5 : 0;
-    e.target.setAttribute('aria-current', String(on));
-    paint();
+    $('bmom').hidden = !on; bonus = on ? 5 : 0;
+    e.target.setAttribute('aria-current', String(on)); paint();
+  });
+  $('tlow').addEventListener('click', () => {
+    shots = 3; bonus = 0;
+    while (frames.length < QUOTA - 3) frames.push(makePhoto());
+    paint(); show('finder');
   });
   $('reset').addEventListener('click', () => {
-    shots = QUOTA; bonus = 0; queued = 0; taken = 0;
-    $('bmom').hidden = true; $('tmom').setAttribute('aria-current','false');
+    shots = QUOTA; bonus = 0; queued = 0; frames = []; offline = false;
+    $('bmom').hidden = true; $('bnet').hidden = true;
+    $('tmom').setAttribute('aria-current','false'); $('tnet').setAttribute('aria-current','false');
     paint(); show('consent');
   });
 
