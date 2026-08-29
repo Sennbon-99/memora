@@ -7,3 +7,9 @@ build/
 *.log
 .DS_Store
 apps/api/generated/
+
+# Capacitor : la plateforme iOS est regeneree par cap add ios. Seuls la
+# configuration et les fichiers propres au projet Xcode sont versionnes.
+apps/web/ios/App/App/public/
+apps/web/ios/App/Pods/
+apps/web/ios/.build/

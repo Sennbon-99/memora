@@ -6,7 +6,8 @@
 // parce qu'un invite qui appuie sur Precedent en pleine soiree ne doit pas
 // sortir de sa pellicule. L'hote vit sous /hote, derriere une session.
 
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
+import { EntryScreen } from './features/guest/screens/EntryScreen.js';
 import { GuestJourney } from './features/guest/GuestJourney.js';
 import { PhotographerScreen } from './features/guest/screens/PhotographerScreen.js';
 import { PublicAlbumScreen } from './features/guest/screens/PublicAlbumScreen.js';
@@ -27,7 +28,9 @@ import { RemovalsScreen } from './features/host/screens/RemovalsScreen.js';
 import { ReviewScreen } from './features/host/screens/ReviewScreen.js';
 
 export const router = createBrowserRouter([
-  { path: '/', element: <Navigate to="/hote" replace /> },
+  // Pas de redirection vers l'espace de l'hote : l'application native est
+  // installee par des invites, a qui l'on ne demande jamais de compte.
+  { path: '/', element: <EntryScreen /> },
 
   // Parcours invite : aucune session, aucun compte.
   { path: '/e/:slug', element: <GuestJourney /> },
@@ -71,14 +74,8 @@ export const router = createBrowserRouter([
     ],
   },
 
-  {
-    path: '*',
-    element: (
-      <div className="flex h-full items-center justify-center px-8 text-center">
-        <p className="text-sm text-white/50">
-          Scannez le QR code de la soirée pour ouvrir votre pellicule.
-        </p>
-      </div>
-    ),
-  },
+  // Toute adresse inconnue retombe sur l'entree plutot que sur un message
+  // d'erreur : dans une application installee, il n'y a pas de barre
+  // d'adresse pour se rattraper.
+  { path: '*', element: <EntryScreen /> },
 ]);
