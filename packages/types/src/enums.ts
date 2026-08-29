@@ -41,3 +41,13 @@ export const MAX_GUESTS_PER_EVENT = 200;
 export const RETENTION_DAYS = 30;
 export const MOMENT_BONUS_SHOTS = 3;
 export const MOMENT_DEFAULT_MINUTES = 10;
+
+/**
+ * Palier gratuit. La premiere soiree d'un compte est offerte, mais bornee.
+ *
+ * Ces valeurs vivent ici et non dans l'API : le serveur les applique, le
+ * client les annonce a l'hote avant qu'il ne choisisse. Deux copies auraient
+ * fini par diverger, et l'hote aurait lu une promesse que le serveur ne
+ * tenait pas.
+ */
+export const FREE_TIER = { events: 1, guests: 20, shots: 10 } as const;

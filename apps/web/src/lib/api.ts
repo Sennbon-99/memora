@@ -31,19 +31,59 @@ let accessToken: string | null = null;
 export function setAccessToken(token: string | null) { accessToken = token; }
 
 /**
+ * Renouvellement du jeton d'acces.
+ *
+ * Le jeton ne vit que quinze minutes. Sans ce renouvellement, la session
+ * serait plus courte que la soiree : l'hote se retrouverait deconnecte au
+ * milieu de son tri, sans avoir rien fait de mal.
+ *
+ * La promesse est partagee. Quand dix requetes echouent en meme temps parce
+ * que le jeton vient d'expirer, un seul renouvellement part et les dix
+ * attendent le meme resultat, au lieu d'en declencher dix.
+ */
+let renewal: Promise<boolean> | null = null;
+
+function renewAccess(): Promise<boolean> {
+  renewal ??= (async () => {
+    try {
+      const response = await fetch(`${BASE}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!response.ok) return false;
+
+      const { accessToken: token } = (await response.json()) as { accessToken: string };
+      accessToken = token;
+      return true;
+    } catch {
+      return false;
+    } finally {
+      // Liberee au tour de boucle suivant : les appels deja en attente
+      // partagent cette tentative, les suivants en declencheront une neuve.
+      queueMicrotask(() => { renewal = null; });
+    }
+  })();
+
+  return renewal;
+}
+
+/**
  * Appel HTTP.
  *
  * Le jeton d'acces vit en memoire et non dans le stockage local : une faille
  * d'injection de script pourrait lire le stockage, pas une variable de module.
  * Il est perdu au rechargement, et retrouve par la route de renouvellement,
  * dont le cookie est inaccessible au JavaScript.
+ *
+ * Un 401 declenche un renouvellement et un seul reessai : le drapeau retried
+ * evite la boucle infinie le jour ou la session est reellement finie.
  */
 // Omit et non intersection : RequestInit impose deja body: BodyInit, et une
 // intersection garderait cette contrainte. On veut un objet quelconque, que
 // call() serialise lui-meme.
 type CallInit = Omit<RequestInit, 'body'> & { body?: unknown };
 
-async function call<T>(path: string, init: CallInit = {}): Promise<T> {
+async function call<T>(path: string, init: CallInit = {}, retried = false): Promise<T> {
   const { body, ...rest } = init;
 
   const response = await fetch(`${BASE}${path}`, {
@@ -58,6 +98,13 @@ async function call<T>(path: string, init: CallInit = {}): Promise<T> {
     },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
+
+  // Jeton expire : on renouvelle une fois, puis on rejoue la requete.
+  // La route de renouvellement elle-meme est exclue, sinon elle s'appellerait
+  // en boucle le jour ou le cookie est mort.
+  if (response.status === 401 && !retried && path !== '/auth/refresh') {
+    if (await renewAccess()) return call<T>(path, init, true);
+  }
 
   if (response.status === 204) return undefined as T;
 
@@ -139,24 +186,53 @@ export async function uploadPhoto(uploadUrl: string, blob: Blob): Promise<void> 
 
 // --- Espace hote -------------------------------------------------------------
 
+export interface HostUser { id: string; email: string; name: string }
+
+export interface EventSummary {
+  id: string;
+  name: string;
+  slug: string;
+  type: 'MARIAGE' | 'ANNIVERSAIRE' | 'ENTREPRISE';
+  state: 'DRAFT' | 'OPEN' | 'CLOSED' | 'PUBLISHED' | 'PURGED';
+  eventDate: string;
+  closesAt: string;
+  color: string;
+  quotaShots: number;
+  previewMode: 'NONE' | 'FLASH' | 'BLURRED' | 'CONFIRM';
+  welcomeMessage: string | null;
+  useTableCodes: boolean;
+  _count?: { rolls: number; photos: number };
+}
+
+export interface EventStats {
+  activeGuests: number;
+  totalPhotos: number;
+  quotaUsedPercent: number;
+  closesInMinutes: number;
+  byTable: { label: string; photos: number }[];
+  topMoments: { label: string; photos: number; active: boolean }[];
+}
+
 export const authApi = {
   register: (body: RegisterInput) =>
-    call<{ user: { id: string; email: string; name: string }; accessToken: string }>(
-      '/auth/register', { method: 'POST', body },
-    ),
+    call<{ user: HostUser; accessToken: string }>('/auth/register', { method: 'POST', body }),
   login: (body: LoginInput) =>
-    call<{ user: { id: string; email: string; name: string }; accessToken: string }>(
-      '/auth/login', { method: 'POST', body },
-    ),
+    call<{ user: HostUser; accessToken: string }>('/auth/login', { method: 'POST', body }),
   refresh: () => call<{ accessToken: string }>('/auth/refresh', { method: 'POST' }),
   logout: () => call<void>('/auth/logout', { method: 'POST' }),
-  me: () => call<{ user: { id: string; email: string; name: string } }>('/auth/me'),
+  me: () => call<{ user: HostUser }>('/auth/me'),
 };
 
 export const eventApi = {
-  list: () => call<{ events: unknown[] }>('/events'),
-  create: (body: CreateEventInput) => call<{ event: { id: string } }>('/events', { method: 'POST', body }),
-  open: (id: string) => call<{ event: unknown }>(`/events/${id}/open`, { method: 'POST' }),
-  close: (id: string) => call<{ event: unknown }>(`/events/${id}/close`, { method: 'POST' }),
-  stats: (id: string) => call<Record<string, unknown>>(`/events/${id}/stats`),
+  list: () => call<{ events: EventSummary[] }>('/events'),
+  detail: (id: string) => call<{ event: EventSummary }>(`/events/${id}`),
+  create: (body: CreateEventInput) =>
+    call<{ event: EventSummary }>('/events', { method: 'POST', body }),
+  update: (id: string, body: Partial<CreateEventInput>) =>
+    call<{ event: EventSummary }>(`/events/${id}`, { method: 'PATCH', body }),
+  open: (id: string) => call<{ event: EventSummary }>(`/events/${id}/open`, { method: 'POST' }),
+  close: (id: string) => call<{ event: EventSummary }>(`/events/${id}/close`, { method: 'POST' }),
+  stats: (id: string) => call<EventStats>(`/events/${id}/stats`),
+  /** Adresse du kit QR. Ouverte dans un onglet, pas passee par call(). */
+  qrKitUrl: (id: string) => `${BASE}/events/${id}/qr-kit`,
 };

@@ -13,10 +13,14 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "type-check": "tsc -p tsconfig.json --noEmit"
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "zod": "^3.24.1",
     "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
   }
 }

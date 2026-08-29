@@ -1,0 +1,92 @@
+// apps/web/src/features/host/screens/EventListScreen.tsx
+// Liste des soirees. Premier ecran apres la connexion.
+
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../../../ui/Button.js';
+import { Screen } from '../../../ui/Screen.js';
+import { Spinner } from '../../../ui/Spinner.js';
+import { useEvents } from '../useEvents.js';
+import type { EventSummary } from '../../../lib/api.js';
+
+/** Etat de la soiree, dit avec les mots de l'hote et non ceux de la base. */
+function stateLabel(event: EventSummary): { text: string; tone: string } {
+  switch (event.state) {
+    case 'DRAFT': return { text: 'brouillon', tone: 'bg-white/8 text-white/50' };
+    case 'OPEN': return { text: 'en cours', tone: 'bg-emerald-500/15 text-emerald-400' };
+    case 'CLOSED': return { text: 'à trier', tone: 'bg-[var(--accent-soft)] text-[var(--accent)]' };
+    case 'PUBLISHED': return { text: 'album publié', tone: 'bg-white/8 text-white/50' };
+    case 'PURGED': return { text: 'effacée', tone: 'bg-white/6 text-white/35' };
+  }
+}
+
+const dateFr = (iso: string) =>
+  new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+export function EventListScreen() {
+  const navigate = useNavigate();
+  const { data, isPending, isError } = useEvents();
+
+  if (isPending) return <Spinner label="Chargement de vos soirées" />;
+
+  if (isError) {
+    return (
+      <Screen title="Chargement impossible" subtitle="Vérifiez votre connexion et rechargez la page.">
+        <span />
+      </Screen>
+    );
+  }
+
+  const events = data.events;
+
+  return (
+    <Screen
+      title="Vos soirées"
+      subtitle="Une soirée par événement. Chacune a son QR code et sa pellicule."
+      footer={
+        <Button full onClick={() => navigate('/hote/nouvelle')}>
+          Créer une soirée
+        </Button>
+      }
+    >
+      {events.length === 0 ? (
+        <p className="mt-14 text-center text-sm leading-relaxed text-white/45">
+          Rien pour l’instant.<br />Créez votre première soirée, imprimez le kit,
+          et vos invités photographient.
+        </p>
+      ) : (
+        <ul className="mt-8 flex flex-col gap-3 pb-6">
+          {events.map((event) => {
+            const badge = stateLabel(event);
+            return (
+              <li key={event.id}>
+                <button
+                  onClick={() => navigate(`/hote/${event.id}`)}
+                  className="w-full overflow-hidden rounded-3xl border border-white/10
+                    bg-white/4 text-left transition active:bg-white/8"
+                >
+                  {/* Bande de couleur : la teinte choisie par l'hote sert de
+                      reperage entre plusieurs soirees. */}
+                  <div className="h-1.5" style={{ background: event.color }} />
+                  <div className="px-4 py-3.5">
+                    <p className="text-[15px] font-extrabold tracking-tight">{event.name}</p>
+                    <p className="mt-1.5 flex items-center gap-2 text-xs text-white/45">
+                      {dateFr(event.eventDate)}
+                      <span className={`rounded-full px-2 py-0.5 font-bold ${badge.tone}`}>
+                        {badge.text}
+                      </span>
+                    </p>
+                    {event._count && (
+                      <p className="mt-1 text-xs text-white/35">
+                        {event._count.rolls} invités · {event._count.photos} photos
+                      </p>
+                    )}
+                  </div>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Screen>
+  );
+}

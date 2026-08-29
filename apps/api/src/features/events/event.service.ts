@@ -2,14 +2,13 @@
 // Regles metier de l'evenement : creation, configuration, ouverture, fermeture.
 
 import type { CreateEventInput, UpdateEventInput } from '@memora/types';
-import { MAX_GUESTS_PER_EVENT } from '@memora/types';
+import { MAX_GUESTS_PER_EVENT, FREE_TIER } from '@memora/types';
 import { prisma } from '../../config/prisma.js';
 import { buildEventSlug, buildToken } from '../../utils/slug.js';
 import { compact } from '../../utils/object.js';
 import { AppError, ForbiddenError, NotFoundError } from '../../utils/errors.js';
 
 /** Limites de l'offre gratuite, appliquees au premier evenement d'un compte. */
-const FREE_TIER = { events: 1, guests: 20, shots: 10 } as const;
 
 /**
  * Verifie que l'utilisateur a le droit d'agir sur cet evenement.
@@ -48,17 +47,45 @@ export async function createEvent(userId: string, input: CreateEventInput) {
   });
 }
 
-/** Liste les evenements dont l'utilisateur est hote ou co-hote. */
+/**
+ * Liste les evenements dont l'utilisateur est hote ou co-hote.
+ *
+ * Le nombre de photographies demande un second passage : une photographie
+ * appartient a une pellicule, pas directement a un evenement, donc Prisma ne
+ * sait pas la compter depuis Event. On aurait pu poser un eventId sur Photo,
+ * mais dupliquer une cle etrangere pour economiser une requete de liste est
+ * un mauvais echange : ce chiffre s'affiche sur une poignee d'evenements,
+ * jamais dans une boucle.
+ */
 export async function listEvents(userId: string) {
-  return prisma.event.findMany({
+  const events = await prisma.event.findMany({
     where: { OR: [{ ownerId: userId }, { coHosts: { some: { userId } } }] },
     orderBy: { eventDate: 'desc' },
     select: {
       id: true, name: true, slug: true, type: true, eventDate: true,
       state: true, quotaShots: true, closesAt: true, color: true,
+      previewMode: true, welcomeMessage: true, useTableCodes: true,
       _count: { select: { rolls: true } },
     },
   });
+  if (events.length === 0) return [];
+
+  // Une seule requete pour tous les evenements, groupee par pellicule, puis
+  // repartie en memoire. Compter evenement par evenement ferait N requetes.
+  const rolls = await prisma.roll.findMany({
+    where: { eventId: { in: events.map((event) => event.id) } },
+    select: { eventId: true, _count: { select: { photos: true } } },
+  });
+
+  const photosByEvent = new Map<string, number>();
+  for (const roll of rolls) {
+    photosByEvent.set(roll.eventId, (photosByEvent.get(roll.eventId) ?? 0) + roll._count.photos);
+  }
+
+  return events.map((event) => ({
+    ...event,
+    _count: { ...event._count, photos: photosByEvent.get(event.id) ?? 0 },
+  }));
 }
 
 /** Detail d'un evenement, pour l'espace de l'hote. */
