@@ -58,6 +58,10 @@ COPY --from=build --chown=memora:memora /app/apps/api/dist ./apps/api/dist
 COPY --from=build --chown=memora:memora /app/apps/api/generated ./apps/api/generated
 COPY --from=build --chown=memora:memora /app/apps/api/prisma ./apps/api/prisma
 COPY --from=build --chown=memora:memora /app/apps/api/package.json ./apps/api/
+# La configuration de Prisma declare ou vit le schema. Sans elle, la
+# commande de migration cherche prisma/schema.prisma, ne le trouve pas —
+# le schema est decoupe en plusieurs fichiers — et refuse de s executer.
+COPY --from=build --chown=memora:memora /app/apps/api/prisma.config.ts ./apps/api/
 
 USER memora
 WORKDIR /app/apps/api
