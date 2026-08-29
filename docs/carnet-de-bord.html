@@ -127,6 +127,7 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--p
   <a href="#client">16 &middot; Client invit&eacute;</a>
   <a href="#client-lib" class="sub">Le socle du client</a>
   <a href="#client-ecrans" class="sub">Les &eacute;crans</a>
+  <a href="#mise-en-service">17 &middot; Mise en service</a>
   <a href="#concepts">Concepts &agrave; ma&icirc;triser</a>
   <a href="#jury">Questions de jury</a>
 </nav>
@@ -570,6 +571,36 @@ app.use(express.json({ limit: '1mb' }));      // puis seulement JSON</pre>
   <details class="file"><summary><span class="tag">m&eacute;tier</span>screens/InstallPrompt.tsx</summary><div class="body-in">
     <div class="why"><b>Propos&eacute; en fin de pellicule, pas &agrave; l&rsquo;arriv&eacute;e</b>Demander d&rsquo;installer une application avant d&rsquo;avoir rien vu fait fuir. En fin de pellicule, l&rsquo;invit&eacute; a une raison&nbsp;: &ecirc;tre pr&eacute;venu de la publication.</div>
     <div class="why"><b>Deux chemins, parce que les syst&egrave;mes diff&egrave;rent</b>Android expose <code>beforeinstallprompt</code>, un vrai bouton est possible. iOS n&rsquo;expose rien&nbsp;: il faut d&eacute;crire le geste. Sur iOS l&rsquo;ajout n&rsquo;est pas cosm&eacute;tique &mdash; sans lui, aucune notification.</div>
+  </div></details>
+</section>
+
+
+<section id="mise-en-service">
+  <div class="lot"><span class="n">Lot 17</span><h2>Mise en service</h2></div>
+  <p class="lead">Premi&egrave;re ex&eacute;cution contre une vraie infrastructure. Trois d&eacute;fauts, tous invisibles aux 176 tests.</p>
+
+  <details class="file" open><summary><span class="tag">cl&eacute;</span>Ce que les tests ne pouvaient pas voir</summary><div class="body-in">
+    <p>C&rsquo;est le point le plus important &agrave; savoir dire &agrave; l&rsquo;oral. Les tests unitaires simulent les d&eacute;pendances&nbsp;: ils v&eacute;rifient que <b>le code fait ce qu&rsquo;on croit</b>, jamais que <b>le c&acirc;blage tient</b>. Les trois anomalies ci-dessous vivaient dans le c&acirc;blage, et aucune n&rsquo;aurait pu &ecirc;tre trouv&eacute;e autrement qu&rsquo;en lan&ccedil;ant.</p>
+    <div class="why"><b>Prisma ne trouvait pas les migrations</b>Avec un sch&eacute;ma d&eacute;coup&eacute; en plusieurs fichiers, Prisma r&eacute;sout le dossier des migrations <b>relativement au dossier de sch&eacute;ma</b>. La commande annon&ccedil;ait &laquo;&nbsp;no migration found&nbsp;&raquo; puis &laquo;&nbsp;no pending migrations&nbsp;&raquo; sans erreur&nbsp;: la base serait rest&eacute;e vide en silence. Corrig&eacute; par <code>prisma.config.ts</code>, qui d&eacute;clare le chemin et remplace au passage la cl&eacute; <code>package.json#prisma</code>, d&eacute;pr&eacute;ci&eacute;e.</div>
+    <div class="why"><b>Le seed n&rsquo;avait pas de variables d&rsquo;environnement</b>Il est lanc&eacute; hors de l&rsquo;application&nbsp;: personne n&rsquo;avait charg&eacute; le <code>.env</code> avant lui. Un <code>import 'dotenv/config'</code> avant l&rsquo;instanciation du client suffit &mdash; l&rsquo;ordre des imports compte.</div>
+    <div class="why"><b>L&rsquo;injection de Socket.io &eacute;tait enregistr&eacute;e trop tard</b>Le plus s&eacute;rieux. <code>server.ts</code> ajoutait le middleware <code>req.io = io</code> <b>apr&egrave;s</b> que <code>createApp()</code> avait mont&eacute; le routeur. Express ex&eacute;cute les middlewares dans l&rsquo;ordre d&rsquo;enregistrement&nbsp;: il ne s&rsquo;ex&eacute;cutait donc jamais. Les cinq contr&ocirc;leurs qui &eacute;mettent jetaient <code>Cannot read properties of undefined</code>. Une photographie d&eacute;pos&eacute;e et enregistr&eacute;e r&eacute;pondait 500.</div>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">cl&eacute;</span>realtime/broadcast.ts</summary><div class="body-in">
+    <p>Le rem&egrave;de va plus loin que le sympt&ocirc;me.</p>
+    <div class="why"><b><code>app.set</code> plut&ocirc;t qu&rsquo;un middleware</b>Socket.io est cr&eacute;&eacute; apr&egrave;s l&rsquo;application, parce qu&rsquo;il a besoin du serveur HTTP, qui a besoin de l&rsquo;application. <code>app.set('io', io)</code> ne d&eacute;pend d&rsquo;aucun ordre&nbsp;: le contr&ocirc;leur lit l&rsquo;instance au moment de la requ&ecirc;te. Toute une classe de bogues d&rsquo;ordonnancement dispara&icirc;t.</div>
+    <div class="why"><b>Une diffusion rat&eacute;e ne doit pas annuler une &eacute;criture r&eacute;ussie</b>Quand la photographie est confirm&eacute;e, elle est en base et dans le stockage. R&eacute;pondre 500 parce qu&rsquo;une notification a &eacute;chou&eacute; ferait croire &agrave; l&rsquo;invit&eacute; que sa pose est perdue&nbsp;: il la reprendrait, et en consommerait deux pour une image. <code>emitToEvent</code> trace et continue.</div>
+    <p>Trois tests de non-r&eacute;gression&nbsp;: &eacute;mission normale, serveur temps r&eacute;el absent, transport en erreur.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">m&eacute;tier</span>Ce qui a &eacute;t&eacute; v&eacute;rifi&eacute; de bout en bout</summary><div class="body-in">
+    <p>Parcours complet contre PostgreSQL, Redis et MinIO r&eacute;els&nbsp;: arriv&eacute;e sur l&rsquo;&eacute;v&eacute;nement et pose du cookie d&rsquo;appareil, consentement &eacute;crit en base, r&eacute;servation d&rsquo;une pose avec quota pass&eacute; de 24 &agrave; 23, d&eacute;p&ocirc;t direct du fichier vers le stockage par adresse sign&eacute;e (HTTP 200), confirmation, objet pr&eacute;sent sous <code>eventId/rollId/uuid.jpg</code>.</p>
+    <div class="why"><b>L&rsquo;idempotence tient contre un vrai Redis</b>Rejouer la m&ecirc;me cl&eacute; renvoie le m&ecirc;me identifiant de photographie et laisse le quota &agrave; 23. Ce n&rsquo;est plus une propri&eacute;t&eacute; d&eacute;montr&eacute;e sur une simulation, c&rsquo;est un comportement observ&eacute;.</div>
+    <p>Le client React tourne sur un iPhone, aliment&eacute; par cette API&nbsp;: nom de l&rsquo;&eacute;v&eacute;nement, message d&rsquo;accueil et couleur viennent de la base. Le simulateur n&rsquo;ayant pas de cam&eacute;ra, le repli s&rsquo;est d&eacute;clench&eacute; tout seul et a r&eacute;v&eacute;l&eacute; un quatri&egrave;me d&eacute;faut&nbsp;: cet &eacute;cran n&rsquo;affichait pas le compteur de poses.</p>
+  </div></details>
+
+  <details class="file"><summary><span class="tag">outil</span>scripts/dev-stack.sh</summary><div class="body-in">
+    <p>La machine de d&eacute;veloppement n&rsquo;a pas Docker. Les trois services tournent en natif &mdash; PostgreSQL et Redis par Homebrew, MinIO en processus autonome &mdash; avec <b>les m&ecirc;mes ports et les m&ecirc;mes identifiants</b> que le <code>docker-compose.yml</code>, qui reste la r&eacute;f&eacute;rence pour la production.</p>
   </div></details>
 </section>
 
