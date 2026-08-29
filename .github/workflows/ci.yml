@@ -81,7 +81,13 @@ jobs:
       pull-requests: read
 
     steps:
+      # L'historique complet est necessaire : sur une demande de fusion,
+      # l'analyse de secrets compare la branche a sa base. Avec la
+      # profondeur d'un seul commit, elle echoue sur une reference
+      # introuvable — et le message parle d'argument ambigu, pas de secret.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
