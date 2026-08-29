@@ -38,6 +38,10 @@ export interface GuestSession {
     welcomeMessage: string | null;
     closesAt: Date;
     useTableCodes: boolean;
+    /** Etat de la soiree : le client en deduit l'ecran a montrer. */
+    state: string;
+    /** Vrai des que l'hote a publie : c'est ce qui ouvre l'album. */
+    albumPublished: boolean;
   };
 }
 
@@ -61,10 +65,19 @@ export async function joinEvent(
     },
   });
   if (!event) throw new NotFoundError('Evenement');
+  // Un evenement en preparation est traite comme inexistant : on ne revele
+  // pas qu'une soiree se prepare a quelqu'un qui a devine l'adresse.
   if (event.state === 'DRAFT') throw new NotFoundError('Evenement');
-  if (event.state !== 'OPEN') throw new EventClosedError();
+  // Une soiree purgee n'a plus rien a montrer : ses photographies sont
+  // effacees, et son lien doit se comporter comme un lien mort.
+  if (event.state === 'PURGED') throw new EventClosedError();
 
   // 1. Cet appareil a-t-il deja une pellicule sur cet evenement ?
+  //
+  // Ce test vient AVANT le refus d'un evenement ferme. Un invite qui revient
+  // apres la fin de la soiree doit retrouver sa pellicule : c'est la seule
+  // facon pour lui d'attendre la publication, puis de voir son album. Le
+  // refus d'ouvrir une pellicule ne concerne que les nouveaux arrivants.
   const decoded = existingToken ? verifyDeviceToken(existingToken) : null;
   if (decoded) {
     const existing = await prisma.roll.findFirst({
@@ -80,7 +93,9 @@ export async function joinEvent(
     }
   }
 
-  // 2. Nouvel appareil : on verifie le plafond avant d'ouvrir une pellicule.
+  // 2. Nouvel appareil. Une pellicule ne s'ouvre que pendant la soiree :
+  // arriver apres la fermeture, sans cookie, ne donne acces a rien.
+  if (event.state !== 'OPEN') throw new EventClosedError();
   if (event._count.rolls >= MAX_GUESTS_PER_EVENT) throw new EventFullError();
 
   const roll = await prisma.roll.create({
@@ -99,7 +114,7 @@ export async function joinEvent(
 function buildSession(
   deviceToken: string,
   roll: { id: string; firstName: string | null; shotsLeft: number; bonusShots: number; consentedAt: Date | null },
-  event: GuestSession['event'],
+  event: Omit<GuestSession['event'], 'albumPublished'>,
 ): GuestSession {
   return {
     deviceToken,
@@ -114,6 +129,8 @@ function buildSession(
       name: event.name, quotaShots: event.quotaShots, previewMode: event.previewMode,
       color: event.color, welcomeMessage: event.welcomeMessage,
       closesAt: event.closesAt, useTableCodes: event.useTableCodes,
+      state: event.state,
+      albumPublished: event.state === 'PUBLISHED',
     },
   };
 }

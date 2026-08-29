@@ -135,6 +135,10 @@ export interface GuestSession {
   event: {
     name: string; quotaShots: number; previewMode: 'NONE' | 'FLASH' | 'BLURRED' | 'CONFIRM';
     color: string; welcomeMessage: string | null; closesAt: string; useTableCodes: boolean;
+    /** Etat de la soiree : le client en deduit l'ecran a montrer. */
+    state: 'DRAFT' | 'OPEN' | 'CLOSED' | 'PUBLISHED' | 'PURGED';
+    /** Vrai des que l'hote a publie : c'est ce qui ouvre l'album. */
+    albumPublished: boolean;
   };
 }
 

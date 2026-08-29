@@ -85,9 +85,31 @@ describe('joinEvent', () => {
     await expect(joinEvent('mariage-x', undefined)).rejects.toMatchObject({ code: 'EVENT_FULL' });
   });
 
-  it('refuse un evenement ferme', async () => {
+  it('refuse un nouvel arrivant sur un evenement ferme', async () => {
     eventFindUnique.mockResolvedValue({ ...openEvent, state: 'CLOSED' });
     await expect(joinEvent('mariage-x', undefined)).rejects.toMatchObject({ code: 'EVENT_CLOSED' });
+  });
+
+  it('laisse revenir un invite qui a deja sa pellicule apres la fermeture', async () => {
+    // Sans cela, l'invite ne pourrait jamais voir son album : la soiree est
+    // fermee au moment ou l'hote publie. Le refus ne vise que les nouveaux
+    // arrivants, pas ceux qui etaient la.
+    eventFindUnique.mockResolvedValue({ ...openEvent, state: 'PUBLISHED' });
+    rollFindFirst.mockResolvedValue({
+      id: 'r1', firstName: 'Camille', shotsLeft: 0, bonusShots: 0, consentedAt: new Date(),
+    });
+
+    const session = await joinEvent('mariage-x', signDeviceToken('r1'));
+
+    expect(session.roll.id).toBe('r1');
+    expect(session.event.albumPublished).toBe(true);
+    expect(rollCreate).not.toHaveBeenCalled();
+  });
+
+  it('traite une soiree purgee comme un lien mort', async () => {
+    eventFindUnique.mockResolvedValue({ ...openEvent, state: 'PURGED' });
+    await expect(joinEvent('mariage-x', signDeviceToken('r1')))
+      .rejects.toMatchObject({ code: 'EVENT_CLOSED' });
   });
 
   it('traite un evenement en brouillon comme inexistant', async () => {

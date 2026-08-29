@@ -15,6 +15,7 @@ import { useMoment } from './useMoment.js';
 import { useOnline } from './useOnline.js';
 import { AlbumScreen } from './screens/AlbumScreen.js';
 import { ConsentScreen } from './screens/ConsentScreen.js';
+import { DevelopmentScreen } from './screens/DevelopmentScreen.js';
 import { EndOfRollScreen } from './screens/EndOfRollScreen.js';
 import { IdentityScreen } from './screens/IdentityScreen.js';
 import { ViewfinderScreen } from './screens/ViewfinderScreen.js';
@@ -29,6 +30,7 @@ export function GuestJourney() {
   // que l'invite peut passer, et l'album, qu'il choisit d'ouvrir.
   const [identityDone, setIdentityDone] = useState(false);
   const [showAlbum, setShowAlbum] = useState(false);
+  const [seenEnd, setSeenEnd] = useState(false);
 
   if (isPending) return <Spinner label="Ouverture de votre pellicule" />;
 
@@ -61,15 +63,33 @@ export function GuestJourney() {
     );
   }
 
+  // L'album est ouvert soit parce que l'hote vient de publier — message
+  // temps reel —, soit parce qu'il avait publie avant que l'invite revienne.
+  const albumReady = published || event.albumPublished;
+
   if (showAlbum) return <AlbumScreen firstName={roll.firstName} />;
 
-  if (roll.shotsLeft + roll.bonusShots === 0) {
+  // La soiree est finie : l'invite ne photographie plus, il attend.
+  if (event.state !== 'OPEN' || roll.shotsLeft + roll.bonusShots === 0) {
+    // Un premier passage propose le code de recuperation ; les suivants
+    // montrent directement l'attente, sans reposer la meme question.
+    if (!seenEnd && roll.shotsLeft + roll.bonusShots === 0 && event.state === 'OPEN') {
+      return (
+        <EndOfRollScreen
+          slug={slug}
+          firstName={roll.firstName}
+          queued={queued}
+          albumReady={albumReady}
+          onSeeAlbum={() => (albumReady ? setShowAlbum(true) : setSeenEnd(true))}
+        />
+      );
+    }
+
     return (
-      <EndOfRollScreen
-        slug={slug}
-        firstName={roll.firstName}
+      <DevelopmentScreen
+        hostLabel="Les mariés"
         queued={queued}
-        albumReady={published}
+        albumReady={albumReady}
         onSeeAlbum={() => setShowAlbum(true)}
       />
     );
