@@ -43,6 +43,20 @@ export function useCreateEvent() {
   });
 }
 
+/** Modification d'un reglage. Le serveur reste l'autorite sur ce qui est permis. */
+export function useUpdateEvent(id: string) {
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: (patch: Record<string, unknown>) =>
+      eventApi.update(id, patch as Partial<CreateEventInput>),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: eventKey(id) });
+      void client.invalidateQueries({ queryKey: eventsKey });
+    },
+  });
+}
+
 /** Ouverture et fermeture de la pellicule, depuis le tableau de bord. */
 export function useEventState(id: string) {
   const client = useQueryClient();

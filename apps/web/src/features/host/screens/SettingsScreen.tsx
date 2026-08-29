@@ -66,20 +66,23 @@ export function SettingsScreen() {
   const { event } = data;
 
   const pending = (rolls?.rolls ?? []).filter((roll) => roll.pendingRemoval).length;
+  const edit = (setting: string) => navigate(`/hote/${eventId}/reglage?r=${setting}`);
   const closes = new Date(event.closesAt)
     .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
   return (
     <Screen title="Réglages" subtitle={event.name}>
       <Group title="La pellicule">
-        <Line label="Poses par invité" value={String(event.quotaShots)} onClick={() => {}} />
-        <Line label="Aperçu après la photo" value={PREVIEW_LABEL[event.previewMode]} onClick={() => {}} />
-        <Line label="Fermeture" value={closes} onClick={() => {}} />
+        <Line label="Poses par invité" value={String(event.quotaShots)} onClick={() => edit('quota')} />
+        <Line label="Aperçu après la photo" value={PREVIEW_LABEL[event.previewMode]} onClick={() => edit('preview')} />
+        <Line label="Fermeture" value={closes} onClick={() => edit('closes')} />
         <Line
           label="Numéros de table"
           value={event.useTableCodes ? 'Demandés' : 'Non demandés'}
-          onClick={() => {}}
+          onClick={() => edit('tables')}
         />
+        <Line label="Mot d’accueil" value={event.welcomeMessage ? 'Défini' : 'Aucun'} onClick={() => edit('welcome')} />
+        <Line label="Couleur" onClick={() => edit('color')} />
       </Group>
 
       <Group title="La soirée">
@@ -90,7 +93,7 @@ export function SettingsScreen() {
           value={pending > 0 ? String(pending) : undefined}
           onClick={() => navigate(`/hote/${eventId}/retraits`)}
         />
-        <Line label="Co-hôtes" onClick={() => navigate(`/hote/${eventId}/equipe`)} />
+        <Line label="Co-hôtes et photographe" onClick={() => navigate(`/hote/${eventId}/equipe`)} />
         {/* Telechargement direct : l'archive est construite au fil de l'eau
             par le serveur, elle ne passe pas par le client. */}
         <Line
@@ -101,7 +104,7 @@ export function SettingsScreen() {
 
       <Group title="Mon compte">
         <Line label={session?.name ?? '—'} value={session?.email} />
-        <Line label="Facturation" onClick={() => navigate('/hote/facturation')} />
+        <Line label="Facturation" onClick={() => navigate(`/hote/${eventId}/facturation`)} />
         <Line
           label="Se déconnecter"
           danger

@@ -8,6 +8,8 @@
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { GuestJourney } from './features/guest/GuestJourney.js';
+import { PhotographerScreen } from './features/guest/screens/PhotographerScreen.js';
+import { PublicAlbumScreen } from './features/guest/screens/PublicAlbumScreen.js';
 import { HostLayout, RequireHost } from './features/host/HostLayout.js';
 import { CreateEventScreen } from './features/host/screens/CreateEventScreen.js';
 import { DashboardScreen } from './features/host/screens/DashboardScreen.js';
@@ -16,7 +18,10 @@ import { GuestsScreen } from './features/host/screens/GuestsScreen.js';
 import { PhotosScreen } from './features/host/screens/PhotosScreen.js';
 import { SettingsScreen } from './features/host/screens/SettingsScreen.js';
 import { LoginScreen } from './features/host/screens/LoginScreen.js';
+import { BillingScreen } from './features/host/screens/BillingScreen.js';
+import { EditSettingScreen } from './features/host/screens/EditSettingScreen.js';
 import { MomentsScreen } from './features/host/screens/MomentsScreen.js';
+import { TeamScreen } from './features/host/screens/TeamScreen.js';
 import { QrKitScreen } from './features/host/screens/QrKitScreen.js';
 import { RemovalsScreen } from './features/host/screens/RemovalsScreen.js';
 import { ReviewScreen } from './features/host/screens/ReviewScreen.js';
@@ -26,6 +31,11 @@ export const router = createBrowserRouter([
 
   // Parcours invite : aucune session, aucun compte.
   { path: '/e/:slug', element: <GuestJourney /> },
+  // Album partage par lien : ni QR code ni pellicule.
+  { path: '/album/:token', element: <PublicAlbumScreen /> },
+  // Lien du photographe officiel : il echange son jeton puis rejoint
+  // le parcours normal.
+  { path: '/p/:token', element: <PhotographerScreen /> },
 
   // Espace hote.
   { path: '/hote/connexion', element: <LoginScreen /> },
@@ -46,6 +56,9 @@ export const router = createBrowserRouter([
           { path: '/hote/:eventId/kit', element: <QrKitScreen /> },
           { path: '/hote/:eventId/moments', element: <MomentsScreen /> },
           { path: '/hote/:eventId/retraits', element: <RemovalsScreen /> },
+          { path: '/hote/:eventId/equipe', element: <TeamScreen /> },
+          { path: '/hote/:eventId/reglage', element: <EditSettingScreen /> },
+          { path: '/hote/:eventId/facturation', element: <BillingScreen /> },
         ],
       },
       // Le tri occupe tout l'ecran : la barre d'onglets disparait, comme

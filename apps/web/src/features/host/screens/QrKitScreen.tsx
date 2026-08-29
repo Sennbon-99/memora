@@ -52,11 +52,21 @@ export function QrKitScreen() {
               paraissait simplement ne rien faire — c'est le cas d'une soiree
               au-dela du palier gratuit, refusee avec un 402. */}
           {open.error && (
-            <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm leading-relaxed text-red-300">
-              {(open.error as ApiError).code === 'PAYMENT_REQUIRED'
-                ? 'Votre première soirée est offerte. Celle-ci doit être réglée avant d’ouvrir la pellicule.'
-                : (open.error as ApiError).message}
-            </p>
+            <div role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm leading-relaxed
+              text-red-300">
+              {(open.error as ApiError).code === 'PAYMENT_REQUIRED' ? (
+                <>
+                  Votre première soirée est offerte. Celle-ci doit être réglée
+                  avant d’ouvrir la pellicule.
+                  <button
+                    onClick={() => navigate(`/hote/${eventId}/facturation`)}
+                    className="mt-2 block font-bold underline"
+                  >
+                    Régler cette soirée
+                  </button>
+                </>
+              ) : (open.error as ApiError).message}
+            </div>
           )}
         </div>
       }

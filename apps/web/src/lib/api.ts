@@ -286,6 +286,51 @@ export interface PublishResult {
   pending: number;
 }
 
+export interface CoHost {
+  id: string;
+  name: string;
+  email: string;
+  invitedAt: string;
+}
+
+export const teamApi = {
+  list: (eventId: string) => call<{ coHosts: CoHost[] }>(`/events/${eventId}/co-hosts`),
+  invite: (eventId: string, email: string) =>
+    call<{ coHost: CoHost }>(`/events/${eventId}/co-hosts`, { method: 'POST', body: { email } }),
+  remove: (eventId: string, userId: string) =>
+    call<void>(`/events/${eventId}/co-hosts/${userId}`, { method: 'DELETE' }),
+  /** Rend le jeton du photographe. L'adresse complete est construite ici. */
+  photographerLink: (eventId: string) =>
+    call<{ token: string; quota: number }>(`/events/${eventId}/photographer`, { method: 'POST' }),
+  joinAsPhotographer: (token: string) =>
+    call<{
+      roll: { id: string; shotsLeft: number; isPhotographer: boolean };
+      event: { name: string; slug: string; color: string; closesAt: string };
+    }>(`/p/${token}`),
+};
+
+export interface PaymentStatus {
+  paid: boolean;
+  amount?: number;
+  status?: string;
+}
+
+export const paymentApi = {
+  status: (eventId: string) => call<PaymentStatus>(`/events/${eventId}/payment`),
+  checkout: (eventId: string) =>
+    call<{ url: string }>(`/events/${eventId}/checkout`, { method: 'POST' }),
+};
+
+export interface PublicAlbum {
+  event: { name: string; color: string };
+  photos: { id: string; url: string; takenAt: string }[];
+}
+
+export const publicAlbumApi = {
+  read: (token: string, code?: string) =>
+    call<PublicAlbum>(`/album/${token}${code ? `?code=${encodeURIComponent(code)}` : ''}`),
+};
+
 export interface RemovalRequest {
   id: string;
   reason: string;
