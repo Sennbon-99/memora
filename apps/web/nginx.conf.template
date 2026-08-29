@@ -1,0 +1,61 @@
+# apps/web/nginx.conf.template
+# Le client et l'API sont servis sous la meme origine.
+#
+# Ce n'est pas un detail de confort : les cookies d'appareil et de session
+# sont poses en SameSite, et le navigateur ne les enverrait pas vers une
+# autre origine. Le proxy evite aussi toute configuration CORS, et le code
+# du client reste identique en developpement, ou Vite fait la meme chose.
+
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Compression : le paquet JavaScript pese environ 500 Ko, et la salle
+    # des fetes n'a pas la fibre.
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 1024;
+
+    # Les fichiers produits portent une empreinte dans leur nom : ils ne
+    # changent jamais sans changer d'adresse, on peut donc les garder un an.
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # Le service worker, lui, ne doit jamais etre garde en cache : c'est lui
+    # qui decide quand le reste est renouvele.
+    location = /sw.js {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        try_files $uri =404;
+    }
+
+    location /api/ {
+        proxy_pass ${API_UPSTREAM};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Socket.io passe par la : sans ces deux en-tetes, la connexion
+        # retomberait en interrogation reguliere et les moments forts
+        # arriveraient avec du retard.
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        # Le depot d'une photographie peut etre long sur un reseau sature.
+        proxy_read_timeout 120s;
+        client_max_body_size 25m;
+    }
+
+    # Application a page unique : toute adresse inconnue rend index.html,
+    # et c'est le routeur du client qui decide quoi afficher.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
