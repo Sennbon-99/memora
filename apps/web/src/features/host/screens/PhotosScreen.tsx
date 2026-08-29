@@ -7,10 +7,32 @@
 
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { PublicationScope } from '@memora/types';
 import { albumApi, type AlbumPhoto, ApiError } from '../../../lib/api.js';
+import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { useEvent } from '../useEvents.js';
+import { useRolls } from '../useRolls.js';
+import { PublishSheet } from './PublishSheet.js';
+
+/**
+ * Compte ce qui attend d'etre publie.
+ *
+ * Une photographie est prete quand sa pellicule a ete triee et qu'elle n'a
+ * ete ni masquee ni deja publiee. Les pellicules pas encore ouvertes sont
+ * ecartees : publier ce que personne n'a regarde serait exactement ce que
+ * le tri doit empecher.
+ */
+export function countReadyToPublish(
+  photos: { rollId: string; status: string; published: boolean }[],
+  rolls: { id: string; reviewed: boolean }[],
+): number {
+  const reviewed = new Set(rolls.filter((roll) => roll.reviewed).map((roll) => roll.id));
+  return photos.filter((photo) =>
+    reviewed.has(photo.rollId) && photo.status === 'UPLOADED' && !photo.published).length;
+}
 
 type Filter = 'kept' | 'hidden' | 'all';
 
@@ -23,6 +45,8 @@ const FILTERS: { value: Filter; label: string }[] = [
 export function PhotosScreen() {
   const { eventId = '' } = useParams();
   const [filter, setFilter] = useState<Filter>('kept');
+  const [sheet, setSheet] = useState(false);
+  const client = useQueryClient();
 
   const { data, isPending, error } = useQuery({
     queryKey: ['host', 'album', eventId],
@@ -30,13 +54,28 @@ export function PhotosScreen() {
     enabled: !!eventId,
     retry: false,
   });
+  const { data: rollsData } = useRolls(eventId);
+  const { data: eventData } = useEvent(eventId);
+
+  const publish = useMutation({
+    mutationFn: (scope?: PublicationScope) => albumApi.publishReviewed(eventId, scope),
+    onSuccess: () => {
+      setSheet(false);
+      void client.invalidateQueries({ queryKey: ['host', 'album', eventId] });
+      void client.invalidateQueries({ queryKey: ['host', 'event', eventId] });
+    },
+  });
+
+  const photos = data?.photos ?? [];
+  const ready = countReadyToPublish(photos, rollsData?.rolls ?? []);
+  // La portee n'est demandee qu'a la premiere publication.
+  const firstTime = eventData?.event.state !== 'PUBLISHED';
 
   const shown = useMemo(() => {
-    if (!data) return [] as AlbumPhoto[];
-    if (filter === 'all') return data;
-    return data.filter((photo) =>
+    if (filter === 'all') return photos;
+    return photos.filter((photo) =>
       filter === 'hidden' ? photo.status === 'HIDDEN' : photo.status === 'UPLOADED');
-  }, [data, filter]);
+  }, [photos, filter]);
 
   if (isPending) return <Spinner label="Chargement de l’album" />;
 
@@ -61,7 +100,27 @@ export function PhotosScreen() {
   return (
     <Screen
       title="Photos"
-      subtitle={`${data.length} photographie${data.length > 1 ? 's' : ''} déposée${data.length > 1 ? 's' : ''}.`}
+      subtitle={`${photos.length} photographie${photos.length > 1 ? 's' : ''} déposée${photos.length > 1 ? 's' : ''}.`}
+      footer={
+        ready > 0 ? (
+          <div className="flex flex-col gap-2">
+            <Button
+              full
+              disabled={publish.isPending}
+              onClick={() => (firstTime ? setSheet(true) : publish.mutate(undefined))}
+            >
+              {publish.isPending
+                ? 'Publication…'
+                : `Publier ${ready} photographie${ready > 1 ? 's' : ''}`}
+            </Button>
+            {publish.error && (
+              <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-300">
+                {(publish.error as ApiError).message}
+              </p>
+            )}
+          </div>
+        ) : undefined
+      }
     >
       <div role="tablist" aria-label="Filtrer les photographies" className="mt-5 flex gap-1.5">
         {FILTERS.map((option) => (
@@ -103,6 +162,15 @@ export function PhotosScreen() {
             </li>
           ))}
         </ul>
+      )}
+
+      {sheet && (
+        <PublishSheet
+          count={ready}
+          busy={publish.isPending}
+          onCancel={() => setSheet(false)}
+          onConfirm={(scope) => publish.mutate(scope)}
+        />
       )}
     </Screen>
   );

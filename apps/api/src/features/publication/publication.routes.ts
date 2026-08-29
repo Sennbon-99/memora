@@ -16,6 +16,9 @@ hostAlbumRouter.get('/album', publicationController.albumForHost);
 // POST /api/events/:id/publish — publier la selection
 hostAlbumRouter.post('/publish', publicationController.publish);
 
+// POST /api/events/:id/publish-reviewed — publier ce qui vient d'etre trie
+hostAlbumRouter.post('/publish-reviewed', publicationController.publishReviewed);
+
 /** Monte sous /api/album — consultation par lien de partage, sans compte. */
 export const publicAlbumRouter: Router = Router();
 

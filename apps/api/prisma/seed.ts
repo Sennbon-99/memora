@@ -149,7 +149,10 @@ async function main() {
           takenAt: hours(-11 + i * 0.4),
           uploadedAt: hours(-11 + i * 0.4),
           status: 'UPLOADED',
-          published: index < 5, // l hote a retenu les cinq premieres pellicules
+          // Rien n'est publie : le jeu de donnees represente une soiree qui
+          // vient de fermer, ou tout reste a trier. Pre-publier rendrait le
+          // parcours de tri et de publication indemontrable.
+          published: false,
           width: 1200, height: 1600, sizeBytes: image.length,
           rollId: roll.id,
           momentId: duringMoment,
@@ -159,7 +162,7 @@ async function main() {
   }
 
   console.log('Creation d une demande de retrait en attente...');
-  const anyPhoto = await prisma.photo.findFirst({ where: { published: true } });
+  const anyPhoto = await prisma.photo.findFirst({ where: { status: 'UPLOADED' } });
   const anyRoll = await prisma.roll.findFirst({ where: { firstName: 'Robert' } });
   if (anyPhoto && anyRoll) {
     await prisma.removalRequest.create({

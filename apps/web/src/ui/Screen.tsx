@@ -27,7 +27,19 @@ export function Screen({ title, hideTitle, subtitle, children, footer }: ScreenP
         )}
         <div className="flex flex-1 flex-col">{children}</div>
       </main>
-      {footer && <div className="mx-auto w-full max-w-md px-6 pb-8 pt-4">{footer}</div>}
+      {/* Le pied est collant : sur un ecran qui defile — une planche de
+          quatre-vingts photographies, une liste de pellicules — l'action
+          principale se retrouverait sinon des milliers de pixels plus bas,
+          et personne ne la verrait. */}
+      {footer && (
+        <div
+          className="sticky z-20 border-t border-white/10 bg-[#1C1916]/95
+            px-6 pb-6 pt-3 backdrop-blur"
+          style={{ bottom: 'var(--tabbar, 0px)' }}
+        >
+          <div className="mx-auto w-full max-w-md">{footer}</div>
+        </div>
+      )}
     </div>
   );
 }

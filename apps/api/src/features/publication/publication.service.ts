@@ -1,7 +1,7 @@
 // apps/api/src/features/publication/publication.service.ts
 // Le tri par l'hote, puis la publication de l'album selon une portee choisie.
 
-import type { PublishEventInput } from '@memora/types';
+import type { PublicationScope, PublishEventInput } from '@memora/types';
 import { prisma } from '../../config/prisma.js';
 import { signRead } from '../../config/storage.js';
 import { buildToken } from '../../utils/slug.js';
@@ -182,4 +182,63 @@ export async function handleRemoval(
   ]);
 
   return updated;
+}
+
+
+/**
+ * Publie tout ce qui a ete trie, et rien d'autre.
+ *
+ * C'est la publication au fil de l'eau : l'hote trie une pellicule, la
+ * publie, passe a la suivante. Les invites voient l'album grandir au lieu
+ * d'attendre que tout soit fini.
+ *
+ * Le non-choix vaut conservation : une photographie d'une pellicule triee
+ * est publiee sauf si l'hote l'a explicitement masquee. Les pellicules pas
+ * encore ouvertes restent invisibles — les publier reviendrait a diffuser
+ * ce que personne n'a regarde.
+ *
+ * La portee est choisie une seule fois. Aux appels suivants elle est
+ * ignoree : l'invite ne doit pas voir les regles changer en cours de route.
+ */
+export async function publishReviewed(eventId: string, userId: string, scope?: PublicationScope) {
+  const { event } = await assertCanManage(eventId, userId);
+  if (event.state === 'DRAFT' || event.state === 'OPEN') {
+    throw new AppError('NOT_CLOSED', 409, 'Fermez la prise de vue avant de publier');
+  }
+
+  const first = event.state !== 'PUBLISHED';
+  if (first && !scope) {
+    throw new AppError('SCOPE_REQUIRED', 400, 'Choisissez qui pourra voir l album');
+  }
+
+  const [published] = await prisma.$transaction([
+    prisma.photo.updateMany({
+      where: {
+        roll: { eventId, reviewedAt: { not: null } },
+        status: 'UPLOADED',
+        published: false,
+      },
+      data: { published: true },
+    }),
+    prisma.event.update({
+      where: { id: eventId },
+      data: {
+        state: 'PUBLISHED',
+        ...(first && scope ? { scope } : {}),
+        albumToken: event.albumToken ?? buildToken(16),
+      },
+    }),
+  ]);
+
+  // Reste-t-il des pellicules non triees ? C'est ce qui distingue un album
+  // qui grandit d'un album acheve, et donc la notification a envoyer.
+  const pending = await prisma.roll.count({
+    where: {
+      eventId,
+      reviewedAt: null,
+      photos: { some: { status: { in: ['UPLOADED', 'HIDDEN'] } } },
+    },
+  });
+
+  return { publishedNow: published.count, first, complete: pending === 0, pending };
 }

@@ -55,6 +55,22 @@ export function TabBar({ eventId }: { eventId: string }) {
       aria-label="Sections de la soirée"
       className="sticky bottom-0 z-30 flex border-t border-white/10 bg-[#252119]/95
         pt-2 backdrop-blur safe-bottom"
+      // La hauteur est publiee sur l'element racine : le pied collant des
+      // ecrans s'en sert pour se poser juste au-dessus, au lieu de glisser
+      // dessous. Mesurer plutot que coder la valeur en dur laisse la zone
+      // sure du systeme varier d'un appareil a l'autre.
+      ref={(node) => {
+        if (!node) return;
+        const publier = () => document.documentElement.style
+          .setProperty('--tabbar', `${node.offsetHeight}px`);
+        publier();
+        const observer = new ResizeObserver(publier);
+        observer.observe(node);
+        return () => {
+          observer.disconnect();
+          document.documentElement.style.removeProperty('--tabbar');
+        };
+      }}
     >
       <span
         aria-hidden="true"

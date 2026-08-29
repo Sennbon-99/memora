@@ -3,7 +3,7 @@
 
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import { publishEventSchema } from '@memora/types';
+import { PUBLICATION_SCOPES, publishEventSchema } from '@memora/types';
 import * as publicationService from './publication.service.js';
 import { notifyEvent } from '../notifications/push.service.js';
 import { currentUserId, routeParam } from '../../utils/http.js';
@@ -18,6 +18,50 @@ export const albumForHost: RequestHandler = async (req, res, next) => {
   try {
     const photos = await publicationService.getAlbumForHost(routeParam(req, 'id'), currentUserId(req));
     res.status(200).json({ photos });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const publishReviewedSchema = z.object({
+  // Obligatoire a la premiere publication seulement : ensuite la portee est
+  // fixee pour la soiree.
+  scope: z.enum(PUBLICATION_SCOPES).optional(),
+});
+
+/**
+ * POST /api/events/:id/publish-reviewed — publier ce qui est trie.
+ *
+ * Publication au fil de l'eau : chaque pellicule triee rejoint l'album sans
+ * attendre les autres.
+ */
+export const publishReviewed: RequestHandler = async (req, res, next) => {
+  try {
+    const { scope } = publishReviewedSchema.parse(req.body);
+    const eventId = routeParam(req, 'id');
+    const result = await publicationService.publishReviewed(eventId, currentUserId(req), scope);
+
+    emitToEvent(req, eventId, 'album:published', { publishedNow: result.publishedNow });
+
+    // Deux notifications au total, et pas une par publication : une
+    // application qui previent douze fois finit coupee. La premiere dit que
+    // l'album existe, la seconde qu'il est complet. Les publications
+    // intermediaires enrichissent l'album en silence.
+    if (result.first) {
+      void notifyEvent(eventId, {
+        title: "L'album est en ligne",
+        body: 'Vos photographies sont disponibles',
+        url: `/hote/album`,
+      });
+    } else if (result.complete) {
+      void notifyEvent(eventId, {
+        title: "L'album est complet",
+        body: 'Toutes les photographies de la soirée ont été publiées',
+        url: `/hote/album`,
+      });
+    }
+
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }

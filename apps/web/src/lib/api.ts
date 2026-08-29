@@ -273,12 +273,22 @@ export const rollApi = {
     ),
 };
 
+export interface PublishResult {
+  publishedNow: number;
+  /** Vrai a la premiere publication : c'est elle qui previent les invites. */
+  first: boolean;
+  /** Vrai quand plus aucune pellicule n'attend d'etre triee. */
+  complete: boolean;
+  pending: number;
+}
+
 export const albumApi = {
-  forHost: (eventId: string) => call<AlbumPhoto[]>(`/events/${eventId}/album`),
-  publish: (eventId: string, scope: string, photoIds: string[]) =>
-    call<{ scope: string }>(`/events/${eventId}/publish`, {
+  forHost: (eventId: string) => call<{ photos: AlbumPhoto[] }>(`/events/${eventId}/album`),
+  /** Publie ce qui a ete trie. La portee n'est demandee qu'une fois. */
+  publishReviewed: (eventId: string, scope?: string) =>
+    call<PublishResult>(`/events/${eventId}/publish-reviewed`, {
       method: 'POST',
-      body: { scope, photoIds },
+      body: scope ? { scope } : {},
     }),
 };
 

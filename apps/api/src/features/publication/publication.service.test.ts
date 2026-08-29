@@ -13,10 +13,12 @@ const requestFindUnique = vi.fn();
 const requestUpdate = vi.fn();
 const transaction = vi.fn();
 const signRead = vi.fn();
+const rollCount = vi.fn();
 
 vi.mock('../../config/prisma.js', () => ({
   prisma: {
     event: { findUnique: eventFindUnique, update: eventUpdate },
+    roll: { count: rollCount },
     photo: { findMany: photoFindMany, updateMany: photoUpdateMany, update: photoUpdate },
     removalRequest: { findUnique: requestFindUnique, update: requestUpdate },
     $transaction: transaction,
@@ -24,7 +26,7 @@ vi.mock('../../config/prisma.js', () => ({
 }));
 vi.mock('../../config/storage.js', () => ({ signRead }));
 
-const { getAlbumForHost, publishAlbum, getPublicAlbum, handleRemoval } =
+const { getAlbumForHost, publishAlbum, getPublicAlbum, handleRemoval, publishReviewed } =
   await import('./publication.service.js');
 
 const closedEvent = {
@@ -202,5 +204,79 @@ describe('handleRemoval', () => {
 
     await expect(handleRemoval('req1', 'u1', true))
       .rejects.toMatchObject({ code: 'ALREADY_HANDLED' });
+  });
+});
+
+describe('publishReviewed', () => {
+  beforeEach(() => {
+    eventFindUnique.mockReset();
+    photoUpdateMany.mockReset();
+    transaction.mockReset();
+    rollCount.mockReset();
+  });
+
+  const closed = { id: 'e1', ownerId: 'u1', state: 'CLOSED', scope: 'NONE', albumToken: null, coHosts: [] };
+
+  it('ne publie que les photographies des pellicules deja triees', async () => {
+    // Publier une pellicule jamais ouverte reviendrait a diffuser ce que
+    // personne n a regarde : c est exactement ce que le tri doit empecher.
+    eventFindUnique.mockResolvedValue(closed);
+    transaction.mockResolvedValue([{ count: 11 }, {}]);
+    rollCount.mockResolvedValue(3);
+
+    const result = await publishReviewed('e1', 'u1', 'EVERYONE');
+
+    expect(photoUpdateMany.mock.calls[0]![0].where).toMatchObject({
+      roll: { eventId: 'e1', reviewedAt: { not: null } },
+      status: 'UPLOADED',
+      published: false,
+    });
+    expect(result.publishedNow).toBe(11);
+  });
+
+  it('exige une portee a la premiere publication', async () => {
+    eventFindUnique.mockResolvedValue(closed);
+
+    await expect(publishReviewed('e1', 'u1')).rejects.toThrow(/album/i);
+    expect(transaction).not.toHaveBeenCalled();
+  });
+
+  it('ignore la portee aux publications suivantes', async () => {
+    // L invite ne doit pas voir les regles changer en cours de route.
+    eventFindUnique.mockResolvedValue({ ...closed, state: 'PUBLISHED', scope: 'EVERYONE', albumToken: 'jeton' });
+    transaction.mockResolvedValue([{ count: 4 }, {}]);
+    rollCount.mockResolvedValue(1);
+
+    const result = await publishReviewed('e1', 'u1', 'OWN_ONLY');
+
+    expect(eventUpdate.mock.calls.at(-1)![0].data).not.toHaveProperty('scope');
+    expect(result.first).toBe(false);
+  });
+
+  it('signale un album complet quand plus aucune pellicule n attend', async () => {
+    eventFindUnique.mockResolvedValue({ ...closed, state: 'PUBLISHED', albumToken: 'jeton' });
+    transaction.mockResolvedValue([{ count: 2 }, {}]);
+    rollCount.mockResolvedValue(0);
+
+    const result = await publishReviewed('e1', 'u1');
+
+    expect(result.complete).toBe(true);
+    expect(result.pending).toBe(0);
+  });
+
+  it('refuse de publier une soiree encore ouverte', async () => {
+    eventFindUnique.mockResolvedValue({ ...closed, state: 'OPEN' });
+
+    await expect(publishReviewed('e1', 'u1', 'EVERYONE')).rejects.toThrow(/Fermez/);
+  });
+
+  it('conserve le jeton d album existant', async () => {
+    eventFindUnique.mockResolvedValue({ ...closed, state: 'PUBLISHED', albumToken: 'jeton-existant' });
+    transaction.mockResolvedValue([{ count: 0 }, {}]);
+    rollCount.mockResolvedValue(2);
+
+    await publishReviewed('e1', 'u1');
+
+    expect(eventUpdate.mock.calls.at(-1)![0].data.albumToken).toBe('jeton-existant');
   });
 });
