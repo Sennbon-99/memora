@@ -10,5 +10,8 @@ export const rollRouter: Router = Router({ mergeParams: true });
 // GET /api/events/:id/rolls — lister les pellicules a trier
 rollRouter.get('/rolls', rollController.list);
 
+// GET /api/events/:id/rolls/:rollId/photos — les photographies d'une pellicule
+rollRouter.get('/rolls/:rollId/photos', rollController.photos);
+
 // POST /api/events/:id/rolls/:rollId/review — cloturer le tri d'une pellicule
 rollRouter.post('/rolls/:rollId/review', rollController.review);

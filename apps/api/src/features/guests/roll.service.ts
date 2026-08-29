@@ -6,6 +6,7 @@
 // contrairement a une heure de soiree qui peut en contenir trois cents.
 
 import { prisma } from '../../config/prisma.js';
+import { signRead } from '../../config/storage.js';
 import { assertCanManage } from '../events/event.service.js';
 
 export interface RollSummary {
@@ -94,4 +95,75 @@ export async function reviewRoll(
   ]);
 
   return { rollId, hidden: kept.count };
+}
+
+
+/**
+ * Les photographies d'une seule pellicule, pour l'ecran de tri.
+ *
+ * Deux raisons de ne pas passer par l'album complet. La premiere est le
+ * volume : deux cents invites font pres de cinq mille images, en charger
+ * autant pour en trier vingt-quatre serait absurde. La seconde est l'etat :
+ * l'album n'existe qu'apres la fermeture, alors qu'un hote peut trier
+ * pendant la soiree, entre deux plats.
+ */
+export async function listRollPhotos(eventId: string, rollId: string, userId: string) {
+  await assertCanManage(eventId, userId);
+
+  const roll = await prisma.roll.findFirst({
+    where: { id: rollId, eventId },
+    select: {
+      id: true, firstName: true, reviewedAt: true,
+      table: { select: { label: true } },
+      photos: {
+        // Les reservations sans fichier n'ont rien a montrer.
+        where: { status: { in: ['UPLOADED', 'HIDDEN'] } },
+        orderBy: { takenAt: 'asc' },
+        select: {
+          id: true, objectKey: true, takenAt: true, status: true,
+          width: true, height: true,
+          moment: { select: { label: true } },
+        },
+      },
+    },
+  });
+  if (!roll) return null;
+
+  return {
+    roll: {
+      id: roll.id,
+      firstName: roll.firstName,
+      tableLabel: roll.table?.label ?? null,
+      reviewed: roll.reviewedAt !== null,
+    },
+    photos: await Promise.all(
+      roll.photos.map(async ({ objectKey, moment, ...photo }) => ({
+        ...photo,
+        url: await signRead(objectKey),
+        momentLabel: moment?.label ?? null,
+      })),
+    ),
+  };
+}
+
+/**
+ * La pellicule suivante a trier, pour enchainer sans repasser par la liste.
+ * Nulle quand tout est trie : c'est ce qui declenche l'ecran de fin.
+ */
+export async function nextUnreviewedRoll(eventId: string, afterRollId: string, userId: string) {
+  await assertCanManage(eventId, userId);
+
+  const next = await prisma.roll.findFirst({
+    where: {
+      eventId,
+      reviewedAt: null,
+      id: { not: afterRollId },
+      // Une pellicule vide n'a rien a trier : la proposer serait une impasse.
+      photos: { some: { status: { in: ['UPLOADED', 'HIDDEN'] } } },
+    },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true },
+  });
+
+  return next?.id ?? null;
 }

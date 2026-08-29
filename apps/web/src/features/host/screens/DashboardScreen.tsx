@@ -108,7 +108,7 @@ export function DashboardScreen() {
               {close.isPending ? 'Fermeture…' : 'Fermer la pellicule maintenant'}
             </Button>
           ) : (
-            <Button full onClick={() => navigate(`/hote/${eventId}/tri`)}>
+            <Button full onClick={() => navigate(`/hote/${eventId}/invites`)}>
               Trier les photographies
             </Button>
           )}
@@ -149,7 +149,7 @@ export function DashboardScreen() {
           title="Trier les photographies"
           note="Une pellicule d’invité à la fois"
           cta="Trier →"
-          onClick={() => navigate(`/hote/${eventId}/tri`)}
+          onClick={() => navigate(`/hote/${eventId}/invites`)}
         />
         <Action
           title="Moments forts"

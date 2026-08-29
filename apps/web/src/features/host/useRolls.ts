@@ -5,6 +5,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { rollApi } from '../../lib/api.js';
 
 export const rollsKey = (eventId: string) => ['host', 'rolls', eventId] as const;
+export const rollPhotosKey = (eventId: string, rollId: string) =>
+  ['host', 'roll-photos', eventId, rollId] as const;
+
+/** Les photographies d'une pellicule, pour l'ecran de tri. */
+export function useRollPhotos(eventId: string, rollId: string) {
+  return useQuery({
+    queryKey: rollPhotosKey(eventId, rollId),
+    queryFn: () => rollApi.photos(eventId, rollId),
+    enabled: !!eventId && !!rollId,
+    // Le tri est une session de travail : on ne veut pas qu'un
+    // rafraichissement de fond remplace la liste sous le pouce de l'hote.
+    staleTime: Infinity,
+  });
+}
 
 export function useRolls(eventId: string) {
   return useQuery({

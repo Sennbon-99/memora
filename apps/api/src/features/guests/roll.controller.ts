@@ -23,6 +23,22 @@ const reviewSchema = z.object({
   hiddenPhotoIds: z.array(z.string().cuid()).max(200),
 });
 
+/** GET /api/events/:id/rolls/:rollId/photos — les photographies a trier. */
+export const photos: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await rollService.listRollPhotos(
+      routeParam(req, 'id'),
+      routeParam(req, 'rollId'),
+      currentUserId(req),
+    );
+    if (!result) throw new NotFoundError('Pellicule');
+
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 /** POST /api/events/:id/rolls/:rollId/review — cloture le tri d'une pellicule. */
 export const review: RequestHandler = async (req, res, next) => {
   try {
@@ -35,7 +51,15 @@ export const review: RequestHandler = async (req, res, next) => {
     );
     if (!result) throw new NotFoundError('Pellicule');
 
-    res.status(200).json(result);
+    // La pellicule suivante est rendue avec le resultat : l'hote enchaine
+    // sans repasser par la liste, et le client n'a pas a la deviner.
+    const nextRollId = await rollService.nextUnreviewedRoll(
+      routeParam(req, 'id'),
+      routeParam(req, 'rollId'),
+      currentUserId(req),
+    );
+
+    res.status(200).json({ ...result, nextRollId });
   } catch (err) {
     next(err);
   }

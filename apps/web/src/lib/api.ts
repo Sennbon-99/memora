@@ -247,13 +247,30 @@ export interface AlbumPhoto {
   moment: { id: string; label: string } | null;
 }
 
+export interface RollPhoto {
+  id: string;
+  url: string;
+  takenAt: string;
+  status: 'UPLOADED' | 'HIDDEN';
+  width: number;
+  height: number;
+  momentLabel: string | null;
+}
+
+export interface RollForReview {
+  roll: { id: string; firstName: string | null; tableLabel: string | null; reviewed: boolean };
+  photos: RollPhoto[];
+}
+
 export const rollApi = {
   list: (eventId: string) => call<{ rolls: RollSummary[] }>(`/events/${eventId}/rolls`),
+  photos: (eventId: string, rollId: string) =>
+    call<RollForReview>(`/events/${eventId}/rolls/${rollId}/photos`),
   review: (eventId: string, rollId: string, hiddenPhotoIds: string[]) =>
-    call<{ rollId: string; hidden: number }>(`/events/${eventId}/rolls/${rollId}/review`, {
-      method: 'POST',
-      body: { hiddenPhotoIds },
-    }),
+    call<{ rollId: string; hidden: number; nextRollId: string | null }>(
+      `/events/${eventId}/rolls/${rollId}/review`,
+      { method: 'POST', body: { hiddenPhotoIds } },
+    ),
 };
 
 export const albumApi = {

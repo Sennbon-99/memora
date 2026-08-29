@@ -10,10 +10,31 @@
 // avant lui, il doit le faire lui-meme et avant d'instancier le client.
 import 'dotenv/config';
 import { randomUUID } from 'node:crypto';
+import { readdir, readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { PrismaClient } from '../generated/prisma/index.js';
 import bcrypt from 'bcrypt';
+import { s3 } from '../src/config/storage.js';
+import { env } from '../src/config/env.js';
 
 const prisma = new PrismaClient();
+
+/**
+ * Depot des fichiers de demonstration dans le stockage objet.
+ *
+ * Sans eux, la base contient des enregistrements dont l'adresse signee ne
+ * pointe sur rien : les ecrans de tri et d'album affichent des images
+ * cassees. Les fichiers sont des images de synthese generees pour ce jeu
+ * de donnees, sans droits a verifier.
+ */
+const DOSSIER_PHOTOS = join(dirname(fileURLToPath(import.meta.url)), 'photos');
+
+async function chargerImages(): Promise<Buffer[]> {
+  const noms = (await readdir(DOSSIER_PHOTOS)).filter((nom) => nom.endsWith('.jpg')).sort();
+  return Promise.all(noms.map((nom) => readFile(join(DOSSIER_PHOTOS, nom))));
+}
 
 /** Decale une date de n heures par rapport a maintenant. */
 const hours = (n: number) => new Date(Date.now() + n * 3_600_000);
@@ -85,6 +106,10 @@ async function main() {
     }),
   ]);
 
+  console.log('Chargement des images de demonstration...');
+  const images = await chargerImages();
+  if (images.length === 0) throw new Error('Aucune image dans prisma/photos');
+
   console.log('Creation des pellicules et des photographies...');
   const prenoms = ['Camille', 'Robert', 'Marc', 'Sonia', null, 'Julien', null, 'Ines'];
 
@@ -107,15 +132,25 @@ async function main() {
     // forts, le reste au fil de la soiree.
     for (let i = 0; i < used; i += 1) {
       const duringMoment = i < 3 ? cocktail.id : i < 6 ? bal.id : null;
+      const objectKey = `${mariage.id}/${roll.id}/${randomUUID()}.jpg`;
+
+      // Le fichier part avant l'enregistrement : une photographie en base
+      // dont le fichier manque produirait une image cassee a l'ecran, ce
+      // qui est pire qu'une photographie absente.
+      const image = images[(index * 7 + i) % images.length]!;
+      await s3.send(new PutObjectCommand({
+        Bucket: env.S3_BUCKET, Key: objectKey, Body: image, ContentType: 'image/jpeg',
+      }));
+
       await prisma.photo.create({
         data: {
-          objectKey: `${mariage.id}/${roll.id}/${randomUUID()}.jpg`,
+          objectKey,
           idempotencyKey: randomUUID(),
           takenAt: hours(-11 + i * 0.4),
           uploadedAt: hours(-11 + i * 0.4),
           status: 'UPLOADED',
           published: index < 5, // l hote a retenu les cinq premieres pellicules
-          width: 3024, height: 4032, sizeBytes: 2_800_000,
+          width: 1200, height: 1600, sizeBytes: image.length,
           rollId: roll.id,
           momentId: duringMoment,
         },
