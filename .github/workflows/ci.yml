@@ -93,3 +93,8 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Le televersement du rapport est desactive : il consomme le quota
+          # d'artefacts du compte, et la chaine echouait pour cette raison
+          # alors qu'aucun secret n'avait ete trouve. Le verdict reste dans
+          # le journal de l'etape, qui suffit.
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
