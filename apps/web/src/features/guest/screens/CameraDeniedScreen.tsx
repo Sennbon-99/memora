@@ -9,11 +9,23 @@
 import { useRef } from 'react';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
+import { ShotCounter } from '../../../ui/ShotCounter.js';
 import { useShot } from '../useShot.js';
 
-export function CameraDeniedScreen({ slug, denied }: { slug: string; denied: boolean }) {
+interface CameraDeniedScreenProps {
+  slug: string;
+  denied: boolean;
+  shotsLeft: number;
+  bonusShots: number;
+  queued: number;
+}
+
+export function CameraDeniedScreen({
+  slug, denied, shotsLeft, bonusShots, queued,
+}: CameraDeniedScreenProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const shot = useShot(slug);
+  const total = shotsLeft + bonusShots;
 
   const onPick = async (file: File | undefined) => {
     if (!file) return;
@@ -30,7 +42,11 @@ export function CameraDeniedScreen({ slug, denied }: { slug: string; denied: boo
       }
       footer={
         <div className="flex flex-col gap-3">
-          <Button full onClick={() => inputRef.current?.click()} disabled={shot.isPending}>
+          <Button
+            full
+            onClick={() => inputRef.current?.click()}
+            disabled={shot.isPending || total === 0}
+          >
             {shot.isPending ? 'Envoi...' : 'Prendre une photo'}
           </Button>
           {denied && (
@@ -42,6 +58,13 @@ export function CameraDeniedScreen({ slug, denied }: { slug: string; denied: boo
         </div>
       }
     >
+      {/* Le compteur suit l'invite jusque sur ce repli : sans lui il ne
+          saurait plus combien de poses il lui reste, et c'est la seule
+          information qui compte pendant la soiree. */}
+      <div className="mt-8">
+        <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
+      </div>
+
       {/* capture environment demande la camera arriere directement, sans
           passer par la galerie. */}
       <input

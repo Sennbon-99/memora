@@ -55,7 +55,15 @@ export function ViewfinderScreen({
   };
 
   if (state === 'denied' || state === 'unavailable') {
-    return <CameraDeniedScreen slug={slug} denied={state === 'denied'} />;
+    return (
+      <CameraDeniedScreen
+        slug={slug}
+        denied={state === 'denied'}
+        shotsLeft={shotsLeft}
+        bonusShots={bonusShots}
+        queued={queued}
+      />
+    );
   }
 
   return (
