@@ -98,3 +98,4 @@ jobs:
           # alors qu'aucun secret n'avait ete trouve. Le verdict reste dans
           # le journal de l'etape, qui suffit.
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+          GITLEAKS_CONFIG: .gitleaks.toml

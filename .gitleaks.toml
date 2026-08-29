@@ -1,0 +1,29 @@
+# .gitleaks.toml
+# Configuration de l'analyse de secrets.
+#
+# On part de la configuration par defaut, qu'on ne remplace pas : les regles
+# specifiques aux fournisseurs — cles Stripe, jetons GitHub, cles AWS —
+# restent actives partout, y compris dans les fichiers d'essai. C'est la ou
+# une vraie fuite se produirait.
+#
+# La seule exception porte sur la regle generique, dans les seuls fichiers
+# d'essai et scripts de demonstration. Un mot de passe fictif y ressemble
+# necessairement a un secret, et l'outil ne peut pas trancher. Elargir cette
+# exception aux fichiers de production reviendrait a desactiver l'analyse.
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+  [rules.allowlist]
+  description = """
+  Identifiants fictifs des essais et du script de repetition. Les regles
+  propres aux fournisseurs restent actives sur ces memes fichiers.
+  """
+  paths = [
+    '''.*\.test\.ts$''',
+    '''.*vitest\.setup\.ts$''',
+    '''apps/api/scripts/.*\.ts$''',
+  ]
