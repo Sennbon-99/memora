@@ -72,6 +72,14 @@ jobs:
   securite:
     name: Analyse de securite
     runs-on: ubuntu-latest
+
+    # Sur une demande de fusion, l'analyse de secrets lit la liste des
+    # commits de la demande. Le jeton fourni par defaut ne le permet pas :
+    # l'etape echouait avec un 403, sans rapport avec un secret trouve.
+    permissions:
+      contents: read
+      pull-requests: read
+
     steps:
       - uses: actions/checkout@v4
 
