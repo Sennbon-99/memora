@@ -35,6 +35,56 @@ section{padding:66px 0;border-bottom:1px solid var(--rule)}
 .shead h2{font-size:clamp(24px,3.2vw,34px);font-weight:800;letter-spacing:-.022em}
 .sdek{font-family:var(--serif);font-size:16.5px;line-height:1.65;color:var(--paper-2);max-width:66ch;margin:10px 0 28px}
 
+
+/* --- Coquille : barre d'onglets et menu --------------------------- */
+.tabs{flex:none;display:flex;border-top:1px solid var(--ln);background:var(--surf);padding:7px 4px 20px;position:relative}
+.tabs > button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9.5px;color:var(--dim);padding-top:3px}
+.tabs > button[aria-current="true"]{color:var(--ac)}
+.tabs s{text-decoration:none;width:19px;height:19px;display:block;background:currentColor;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain}
+.i-soiree{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M12 2l2.6 6.3L21 9l-4.8 4.3L17.6 20 12 16.6 6.4 20l1.4-6.7L3 9l6.4-.7z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M12 2l2.6 6.3L21 9l-4.8 4.3L17.6 20 12 16.6 6.4 20l1.4-6.7L3 9l6.4-.7z'/%3E%3C/svg%3E")}
+.i-photos{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M3 5h5l1.5-2h5L16 5h5v15H3z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M3 5h5l1.5-2h5L16 5h5v15H3z'/%3E%3C/svg%3E")}
+.i-gens{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Ccircle cx='9' cy='8' r='4'/%3E%3Cpath d='M1 21c0-4.4 3.6-8 8-8s8 3.6 8 8z'/%3E%3Ccircle cx='18' cy='9' r='3'/%3E%3Cpath d='M18 14c3.3 0 6 2.7 6 6h-6z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Ccircle cx='9' cy='8' r='4'/%3E%3Cpath d='M1 21c0-4.4 3.6-8 8-8s8 3.6 8 8z'/%3E%3Ccircle cx='18' cy='9' r='3'/%3E%3Cpath d='M18 14c3.3 0 6 2.7 6 6h-6z'/%3E%3C/svg%3E")}
+/* L'indicateur glisse : il dit d'ou l'on vient, pas seulement ou l'on est. */
+.tabs i.slide{position:absolute;top:0;height:2px;width:calc(33.333% - 22px);margin-left:11px;
+  background:var(--ac);border-radius:2px;transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.menu{position:absolute;inset:0;z-index:40;display:none}
+.menu.on{display:block}
+.menu .scrim{position:absolute;inset:0;background:rgb(0 0 0 / .55);animation:fade-in .2s ease}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+.menu .card2{position:absolute;left:12px;right:12px;bottom:12px;background:var(--surf);
+  border:1px solid var(--ln);border-radius:20px;padding:8px;animation:rise .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+.menu .card2 p{font-family:var(--mono);font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);padding:9px 12px 5px}
+.menu .card2 button{width:100%;text-align:left;padding:11px 12px;border-radius:12px;font-size:13px;color:var(--tx);display:flex;align-items:center;gap:10px}
+.menu .card2 button:active{background:rgb(242 237 228 / .07)}
+.menu .card2 button.sep{border-top:1px solid var(--ln);margin-top:5px;padding-top:13px;color:#E5533D}
+.menu .card2 button b{margin-left:auto;font-weight:400;font-size:11px;color:var(--dim)}
+
+/* --- Onglet invites : les trois variantes -------------------------- */
+.glist{display:flex;flex-direction:column;gap:7px}
+.grow{display:flex;align-items:center;gap:11px;border:1px solid var(--ln);border-radius:15px;padding:10px 12px;background:var(--surf)}
+.gav{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex:none;background:rgb(201 124 30 / .18);color:var(--ac)}
+.gav.anon{background:rgb(242 237 228 / .07);color:var(--dim);font-weight:400;font-size:15px}
+.grow .who{min-width:0;flex:1}
+.grow .who b{display:block;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grow .who span{display:block;font-size:10px;color:var(--dim);margin-top:2px}
+.grow .st{font-size:9.5px;font-weight:700;border-radius:999px;padding:3px 8px;white-space:nowrap}
+.st-todo{background:rgb(201 124 30 / .18);color:var(--ac)}
+.st-done{background:rgb(63 158 124 / .16);color:#3F9E7C}
+.st-warn{background:rgb(229 83 61 / .16);color:#E5533D}
+.chev{color:var(--dim);font-size:15px;flex:none}
+.progline{display:flex;align-items:center;gap:9px;font-size:10.5px;color:var(--dim)}
+.progline .bar{flex:1;height:3px;border-radius:2px;background:rgb(242 237 228 / .1);overflow:hidden}
+.progline .bar i{display:block;height:100%;background:var(--ac);border-radius:2px}
+.chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;margin:0 -2px}
+.chiprow button{flex:none;border:1px solid var(--ln);border-radius:999px;padding:6px 11px;font-size:11px;color:var(--dim);white-space:nowrap}
+.chiprow button[aria-pressed="true"]{background:var(--ac);border-color:var(--ac);color:var(--acT);font-weight:700}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.g3 > div{aspect-ratio:1;border-radius:8px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start}
+@media (max-width:980px){.three{grid-template-columns:1fr;justify-items:center}}
+
 /* --- Chassis ------------------------------------------------------- */
 .phone{width:288px;border-radius:38px;padding:9px;background:linear-gradient(158deg,#3A342C,#161412 44%,#2A2620);box-shadow:0 28px 60px -24px rgb(0 0 0 / .9),0 0 0 1px rgb(240 237 232 / .07)}
 .phone .scr{height:584px;border-radius:30px;overflow:hidden;position:relative;background:#1C1916;display:flex;flex-direction:column}
@@ -338,9 +388,164 @@ section{padding:66px 0;border-bottom:1px solid var(--rule)}
   </div>
 </section>
 
+
 <section>
   <div class="wrap">
-    <div class="shead"><span class="snum">02</span><h2>Le tri</h2></div>
+    <div class="shead"><span class="snum">02</span><h2>La coquille</h2></div>
+    <p class="sdek">Trois onglets sous le pouce, et tout le reste derrière l'avatar. Kit QR et réglages servent deux fois dans la vie d'une soirée : leur donner un onglet permanent volerait de la place à ce qu'on ouvre en boucle. Touchez les onglets, ouvrez le menu.</p>
+
+    <div class="stage">
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="h">
+          <div class="head">
+            <span class="brand">memora<em>.</em></span>
+            <span class="sel">Léa &amp; Tom ▾</span>
+            <button class="av" id="sh-av">LT</button>
+          </div>
+
+          <div class="main" id="sh-body"></div>
+
+          <div class="tabs" id="sh-tabs">
+            <i class="slide" id="sh-slide"></i>
+            <button data-t="0" aria-current="true"><s class="i-soiree"></s>Soirée</button>
+            <button data-t="1"><s class="i-photos"></s>Photos</button>
+            <button data-t="2"><s class="i-gens"></s>Invités</button>
+          </div>
+
+          <div class="menu" id="sh-menu">
+            <div class="scrim" id="sh-scrim"></div>
+            <div class="card2">
+              <p>Cette soirée</p>
+              <button>Kit QR à imprimer <b>12 tables</b></button>
+              <button>Réglages de la soirée <b>24 poses</b></button>
+              <button>Moments forts <b>2 préparés</b></button>
+              <button>Télécharger l'album <b>1,4 Go</b></button>
+              <p>Compte</p>
+              <button>Changer de soirée</button>
+              <button>Facturation</button>
+              <button class="sep">Se déconnecter</button>
+            </div>
+          </div>
+        </div>
+      </div></div>
+
+      <div class="side">
+        <p class="note">L'indicateur au-dessus des onglets <b>glisse</b> d'un onglet à l'autre. Il ne dit pas seulement où l'on est, il dit d'où l'on vient — c'est la seule animation de navigation qui apporte une information que le texte ne donne pas déjà.</p>
+        <p class="note">Le menu monte du bas et non du haut : la main qui l'a ouvert est en bas de l'écran, la liste doit apparaître là où le pouce est déjà. Chaque entrée porte sa valeur à droite — <b>12 tables</b>, <b>24 poses</b>, <b>1,4 Go</b> — pour qu'on sache ce qu'on va trouver avant d'y aller.</p>
+        <p class="note">La liste des soirées, elle, n'a <b>aucune barre d'onglets</b> : c'est le niveau au-dessus. Les onglets appartiennent à une soirée, pas au compte.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead"><span class="snum">03</span><h2>L'onglet Invités, trois façons</h2></div>
+    <p class="sdek">Vous triez par pellicule d'invité : reste à décider si cet onglet <em>est</em> l'entrée du tri, ou seulement une liste de qui est venu. Les trois écrans montrent la même soirée.</p>
+
+    <div class="three">
+      <div class="spec">
+        <div class="phone"><div class="scr"><div class="island"></div>
+          <div class="h">
+            <div class="head"><span class="brand">memora<em>.</em></span><span class="sel">Léa &amp; Tom ▾</span><span class="av">LT</span></div>
+            <div class="main">
+              <div>
+                <h5>Pellicules</h5>
+                <p class="lead2">Touchez une pellicule pour la trier.</p>
+              </div>
+              <div class="progline"><span>3 sur 12 triées</span><span class="bar"><i style="width:25%"></i></span></div>
+              <div class="glist">
+                <div class="grow"><span class="gav">C</span><span class="who"><b>Camille</b><span>Table 2 · 24 photos</span></span><span class="st st-todo">à trier</span></div>
+                <div class="grow"><span class="gav anon">?</span><span class="who"><b>Anonyme</b><span>Table 2 · 18 photos</span></span><span class="st st-todo">à trier</span></div>
+                <div class="grow"><span class="gav">M</span><span class="who"><b>Marc</b><span>Table 5 · 24 photos</span></span><span class="st st-done">14 gardées</span></div>
+                <div class="grow"><span class="gav anon">?</span><span class="who"><b>Anonyme</b><span>Sans table · 7 photos</span></span><span class="st st-warn">retrait</span></div>
+                <div class="grow"><span class="gav">S</span><span class="who"><b>Sofia</b><span>Table 1 · 24 photos</span></span><span class="st st-done">9 gardées</span></div>
+              </div>
+            </div>
+            <div class="tabs"><i class="slide" style="transform:translateX(200%)"></i>
+              <button><s class="i-soiree"></s>Soirée</button>
+              <button><s class="i-photos"></s>Photos</button>
+              <button aria-current="true"><s class="i-gens"></s>Invités</button>
+            </div>
+          </div>
+        </div></div>
+        <div class="cap">
+          <b>A · L'onglet est le tri</b><i>recommandé</i>
+          <p>La pellicule porte son état : à trier, tant de gardées, une demande de retrait. On en touche une, on trie ses 24 photos, on revient. La barre de progression donne une fin visible. L'onglet Photos devient alors l'album déjà trié, sans doublon.</p>
+        </div>
+      </div>
+
+      <div class="spec">
+        <div class="phone"><div class="scr"><div class="island"></div>
+          <div class="h">
+            <div class="head"><span class="brand">memora<em>.</em></span><span class="sel">Léa &amp; Tom ▾</span><span class="av">LT</span></div>
+            <div class="main">
+              <div>
+                <h5>Invités</h5>
+                <p class="lead2">Qui est venu, et ce que chacun a photographié.</p>
+              </div>
+              <div class="kpis" style="grid-template-columns:1fr 1fr 1fr">
+                <div class="kpi"><small>Venus</small><b>12</b></div>
+                <div class="kpi"><small>Tables</small><b>5</b></div>
+                <div class="kpi"><small>Retraits</small><b>1</b></div>
+              </div>
+              <div class="glist">
+                <div class="grow"><span class="gav">C</span><span class="who"><b>Camille</b><span>Table 2 · arrivée 20:40</span></span><span class="st st-todo">24</span><span class="chev">›</span></div>
+                <div class="grow"><span class="gav anon">?</span><span class="who"><b>Anonyme</b><span>Table 2 · arrivé 21:05</span></span><span class="st st-todo">18</span><span class="chev">›</span></div>
+                <div class="grow"><span class="gav">M</span><span class="who"><b>Marc</b><span>Table 5 · arrivé 20:12</span></span><span class="st st-todo">24</span><span class="chev">›</span></div>
+                <div class="grow"><span class="gav anon">?</span><span class="who"><b>Anonyme</b><span>Demande de retrait</span></span><span class="st st-warn">!</span><span class="chev">›</span></div>
+              </div>
+            </div>
+            <div class="tabs"><i class="slide" style="transform:translateX(200%)"></i>
+              <button><s class="i-soiree"></s>Soirée</button>
+              <button><s class="i-photos"></s>Photos</button>
+              <button aria-current="true"><s class="i-gens"></s>Invités</button>
+            </div>
+          </div>
+        </div></div>
+        <div class="cap">
+          <b>B · L'onglet est un annuaire</b><i>tri ailleurs</i>
+          <p>Ici on consulte : qui est venu, à quelle heure, quelle table, qui demande un retrait. Le tri vit dans l'onglet Photos, avec son propre sélecteur de pellicule. Séparation plus nette — mais ce sélecteur redit la liste d'à côté.</p>
+        </div>
+      </div>
+
+      <div class="spec">
+        <div class="phone"><div class="scr"><div class="island"></div>
+          <div class="h">
+            <div class="head"><span class="brand">memora<em>.</em></span><span class="sel">Léa &amp; Tom ▾</span><span class="av">LT</span></div>
+            <div class="main">
+              <div>
+                <h5>Photos</h5>
+                <p class="lead2">1 204 photographies · 216 à trier</p>
+              </div>
+              <div class="chiprow">
+                <button aria-pressed="true">Toutes</button>
+                <button>Camille</button>
+                <button>Anonyme 3</button>
+                <button>Marc</button>
+                <button>Table 2</button>
+              </div>
+              <div class="g3 f-c"></div>
+              <div class="g3 f-c2"></div>
+            </div>
+            <div class="tabs" style="--n:2"><i class="slide" style="width:calc(50% - 22px);transform:translateX(100%)"></i>
+              <button><s class="i-soiree"></s>Soirée</button>
+              <button aria-current="true"><s class="i-photos"></s>Photos</button>
+            </div>
+          </div>
+        </div></div>
+        <div class="cap">
+          <b>C · Deux onglets, un filtre</b><i>fusion</i>
+          <p>Plus d'onglet Invités : une rangée de filtres en haut des photos. Deux onglets au lieu de trois, rien en double, cibles plus larges. Mais la vue « qui est venu » disparaît, avec les tables et les demandes de retrait — qu'il faudra loger ailleurs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead"><span class="snum">04</span><h2>Le tri</h2></div>
     <p class="sdek">Un seul écran, deux niveaux de lecture. La rafale traite le volume ; touchez une photographie et elle s'ouvre en grand, où vous décidez à l'aise et passez à la suivante. Ce n'est pas un mode à choisir, c'est un zoom.</p>
 
     <div class="stage">
@@ -381,7 +586,7 @@ section{padding:66px 0;border-bottom:1px solid var(--rule)}
 
 <section>
   <div class="wrap">
-    <div class="shead"><span class="snum">03</span><h2>Les directions écartées</h2></div>
+    <div class="shead"><span class="snum">05</span><h2>Les directions écartées</h2></div>
     <p class="sdek">Gardées comme trace de la décision. Chambre noire l'emporte : c'est la seule qui prolonge le parcours invité, et les photographies ressortent mieux sur fond sombre.</p>
 
     <div class="four">
@@ -420,7 +625,7 @@ section{padding:66px 0;border-bottom:1px solid var(--rule)}
 
 <section style="border-bottom:0">
   <div class="wrap">
-    <div class="shead"><span class="snum">04</span><h2>Ce qui reste à trancher</h2></div>
+    <div class="shead"><span class="snum">06</span><h2>Ce qui reste à trancher</h2></div>
     <div class="two" style="margin-top:22px">
       <div class="panel"><h4>Garder par défaut, ou masquer par défaut ?</h4><p class="note">La maquette suppose que le non-choix est le rejet. L'inverse est défendable : dans un mariage, la plupart des photos sont montrables, et le travail de l'hôte est surtout d'<b>écarter les ratées</b>. Sur 1 204 images, la différence est de mille gestes.</p></div>
       <div class="panel"><h4>Trier par tranches</h4><p class="note">Plutôt qu'affronter les 1 204 d'un bloc, ne proposer qu'une tranche : les photos d'un <b>moment fort</b>, d'une <b>heure</b>, ou d'une <b>table</b>. L'hôte publie au fil de l'eau, et la tâche a une fin visible.</p></div>
@@ -583,6 +788,56 @@ section{padding:66px 0;border-bottom:1px solid var(--rule)}
     document.getElementById('z-keep').textContent = batch[zi].kept ? 'Gardée ✓' : 'Garder';
     if (zi < LOT - 1) setTimeout(() => step(1), 180); else { z.classList.remove('on'); paintBatch(); }
   });
+
+
+  // --- Coquille : onglets et menu ---------------------------------------
+  const ONGLETS = [
+    { titre: 'Mariage de Léa & Tom', sous: 'En cours · ferme dans 3 h 20', corps: 'bord' },
+    { titre: 'Photos', sous: '1 204 photographies · 216 à trier', corps: 'photos' },
+    { titre: 'Pellicules', sous: 'Touchez une pellicule pour la trier.', corps: 'gens' },
+  ];
+  const shBody = document.getElementById('sh-body');
+
+  function peindreOnglet(i){
+    const o = ONGLETS[i];
+    let dedans = '';
+    if (o.corps === 'bord') {
+      dedans = `<div class="kpis">
+          <div class="kpi"><small>Invités</small><b>87</b><u>+12 cette heure</u></div>
+          <div class="kpi"><small>Photos</small><b>1204</b><u>+143 cette heure</u></div>
+          <div class="kpi"><small>À trier</small><b>216</b><u>988 déjà vues</u></div>
+          <div class="kpi"><small>Poses restantes</small><b>884</b><u>42 % du total</u></div>
+        </div>
+        <div class="row"><div><b>216 photos à trier</b><span>Depuis 23:40</span></div><span class="go">Trier →</span></div>
+        <div class="row"><div><b>Ouverture du bal</b><span>Moment fort · 5 poses offertes</span></div><span class="badge b-soon">Déclencher</span></div>`;
+    } else if (o.corps === 'photos') {
+      dedans = `<div class="chiprow"><button aria-pressed="true">Publiées</button><button>À trier</button><button>Masquées</button></div>
+        <div class="g3 sh-g"></div><div class="g3 sh-g"></div><div class="g3 sh-g"></div>`;
+    } else {
+      dedans = `<div class="progline"><span>3 sur 12 triées</span><span class="bar"><i style="width:25%"></i></span></div>
+        <div class="glist">
+          <div class="grow"><span class="gav">C</span><span class="who"><b>Camille</b><span>Table 2 · 24 photos</span></span><span class="st st-todo">à trier</span></div>
+          <div class="grow"><span class="gav anon">?</span><span class="who"><b>Anonyme</b><span>Table 2 · 18 photos</span></span><span class="st st-todo">à trier</span></div>
+          <div class="grow"><span class="gav">M</span><span class="who"><b>Marc</b><span>Table 5 · 24 photos</span></span><span class="st st-done">14 gardées</span></div>
+        </div>`;
+    }
+    shBody.innerHTML = `<div><h5>${o.titre}</h5><p class="lead2">${o.sous}</p></div>${dedans}`;
+    shBody.querySelectorAll('.sh-g').forEach(g => {
+      g.innerHTML = Array.from({length:3}, () => `<div style="background:${photo()}"></div>`).join('');
+    });
+  }
+
+  document.querySelectorAll('#sh-tabs button').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.t;
+    document.querySelectorAll('#sh-tabs button').forEach(o => o.setAttribute('aria-current', String(o === b)));
+    document.getElementById('sh-slide').style.transform = `translateX(${i * 100}%)`;
+    peindreOnglet(i);
+  }));
+  document.getElementById('sh-av').addEventListener('click', () => document.getElementById('sh-menu').classList.add('on'));
+  document.getElementById('sh-scrim').addEventListener('click', () => document.getElementById('sh-menu').classList.remove('on'));
+  peindreOnglet(0);
+
+  fill('.f-c', 3); fill('.f-c2', 3);
 
   newBatch();
 })();
