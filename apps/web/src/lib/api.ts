@@ -6,7 +6,7 @@
 // a la compilation, pas en production.
 
 import type {
-  ConsentInput, CreateEventInput, JoinEventInput, LoginInput,
+  ConsentInput, CreateEventInput, CreateMomentInput, JoinEventInput, LoginInput,
   RecoveryCodeInput, RegisterInput, ReservePhotoInput,
 } from '@memora/types';
 
@@ -286,6 +286,27 @@ export interface PublishResult {
   pending: number;
 }
 
+export interface RemovalRequest {
+  id: string;
+  reason: string;
+  state: 'PENDING' | 'ACCEPTED' | 'REFUSED';
+  createdAt: string;
+  handledAt: string | null;
+  photo: { id: string; url: string; takenAt: string; status: string };
+  firstName: string | null;
+  tableLabel: string | null;
+}
+
+export const removalApi = {
+  list: (eventId: string) =>
+    call<{ removals: RemovalRequest[] }>(`/events/${eventId}/removals`),
+  handle: (requestId: string, accept: boolean) =>
+    call<{ id: string; state: string }>(`/removals/${requestId}`, {
+      method: 'POST',
+      body: { accept },
+    }),
+};
+
 export const albumApi = {
   forHost: (eventId: string) => call<{ photos: AlbumPhoto[] }>(`/events/${eventId}/album`),
   /** Publie ce qui a ete trie. La portee n'est demandee qu'une fois. */
@@ -294,6 +315,27 @@ export const albumApi = {
       method: 'POST',
       body: scope ? { scope } : {},
     }),
+};
+
+export interface Moment {
+  id: string;
+  label: string;
+  plannedAt: string | null;
+  startedAt: string | null;
+  durationMinutes: number;
+  bonusShots: number;
+  active: boolean;
+  photoCount: number;
+}
+
+export const momentApi = {
+  list: (eventId: string) => call<{ moments: Moment[] }>(`/events/${eventId}/moments`),
+  create: (eventId: string, body: CreateMomentInput) =>
+    call<{ moment: Moment }>(`/events/${eventId}/moments`, { method: 'POST', body }),
+  trigger: (eventId: string, momentId: string) =>
+    call<{ moment: Moment }>(`/events/${eventId}/moments/${momentId}/trigger`, { method: 'POST' }),
+  close: (eventId: string, momentId: string) =>
+    call<{ moment: Moment }>(`/events/${eventId}/moments/${momentId}/close`, { method: 'POST' }),
 };
 
 export const eventApi = {

@@ -47,8 +47,12 @@ export function TabBar({ eventId }: { eventId: string }) {
   // L'indicateur glisse d'un onglet a l'autre : il ne dit pas seulement ou
   // l'on est, il dit d'ou l'on vient. C'est la seule animation de navigation
   // qui apporte une information que le texte ne donne pas deja.
-  const active = Math.max(0, tabs.findLastIndex((tab) =>
-    tab.end ? pathname === tab.to : pathname.startsWith(tab.to)));
+  //
+  // Il disparait quand aucun onglet ne correspond — un ecran pousse comme
+  // les moments forts ou le kit QR. Le rabattre sur le premier onglet
+  // ferait affirmer a la barre une position fausse.
+  const active = tabs.findLastIndex((tab) =>
+    tab.end ? pathname === tab.to : pathname.startsWith(tab.to));
 
   return (
     <nav
@@ -72,12 +76,18 @@ export function TabBar({ eventId }: { eventId: string }) {
         };
       }}
     >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 h-0.5 rounded-full bg-[var(--accent)]
-          transition-transform duration-300 ease-out motion-reduce:transition-none"
-        style={{ width: 'calc(25% - 22px)', marginLeft: 11, transform: `translateX(${active * 100}%)` }}
-      />
+      {active >= 0 && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 top-0 h-0.5 rounded-full bg-[var(--accent)]
+            transition-transform duration-300 ease-out motion-reduce:transition-none"
+          style={{
+            width: 'calc(25% - 22px)',
+            marginLeft: 11,
+            transform: `translateX(${active * 100}%)`,
+          }}
+        />
+      )}
 
       {tabs.map((tab) => (
         <NavLink

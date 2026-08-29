@@ -23,6 +23,19 @@ export const albumForHost: RequestHandler = async (req, res, next) => {
   }
 };
 
+/** GET /api/events/:id/removals — les demandes de retrait de la soiree. */
+export const listRemovals: RequestHandler = async (req, res, next) => {
+  try {
+    const removals = await publicationService.listRemovals(
+      routeParam(req, 'id'),
+      currentUserId(req),
+    );
+    res.status(200).json({ removals });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const publishReviewedSchema = z.object({
   // Obligatoire a la premiere publication seulement : ensuite la portee est
   // fixee pour la soiree.

@@ -153,6 +153,41 @@ export async function getPublicAlbum(
  * Arbitrage d'une demande de retrait par l'hote.
  * Accepter retire definitivement, refuser remet la photographie en ligne.
  */
+/**
+ * Les demandes de retrait d'une soiree.
+ *
+ * L'invite reste anonyme : on rend son prenom s'il l'a donne, sa table s'il
+ * en a une, et rien d'autre. L'hote doit pouvoir repondre a la demande sans
+ * apprendre qui l'a faite.
+ */
+export async function listRemovals(eventId: string, userId: string) {
+  await assertCanManage(eventId, userId);
+
+  const requests = await prisma.removalRequest.findMany({
+    where: { photo: { roll: { eventId } } },
+    orderBy: [{ state: 'asc' }, { createdAt: 'desc' }],
+    select: {
+      id: true, reason: true, state: true, createdAt: true, handledAt: true,
+      photo: { select: { id: true, objectKey: true, takenAt: true, status: true } },
+      roll: { select: { firstName: true, table: { select: { label: true } } } },
+    },
+  });
+
+  return Promise.all(requests.map(async ({ photo, roll, ...request }) => ({
+    ...request,
+    photo: {
+      id: photo.id,
+      takenAt: photo.takenAt,
+      status: photo.status,
+      // L'hote doit voir la photographie pour juger : une demande sans
+      // image ne lui apprend rien.
+      url: await signRead(photo.objectKey),
+    },
+    firstName: roll.firstName,
+    tableLabel: roll.table?.label ?? null,
+  })));
+}
+
 export async function handleRemoval(
   requestId: string,
   userId: string,

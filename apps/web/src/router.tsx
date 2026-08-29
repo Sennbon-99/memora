@@ -16,7 +16,9 @@ import { GuestsScreen } from './features/host/screens/GuestsScreen.js';
 import { PhotosScreen } from './features/host/screens/PhotosScreen.js';
 import { SettingsScreen } from './features/host/screens/SettingsScreen.js';
 import { LoginScreen } from './features/host/screens/LoginScreen.js';
+import { MomentsScreen } from './features/host/screens/MomentsScreen.js';
 import { QrKitScreen } from './features/host/screens/QrKitScreen.js';
+import { RemovalsScreen } from './features/host/screens/RemovalsScreen.js';
 import { ReviewScreen } from './features/host/screens/ReviewScreen.js';
 
 export const router = createBrowserRouter([
@@ -42,6 +44,8 @@ export const router = createBrowserRouter([
           { path: '/hote/:eventId/reglages', element: <SettingsScreen /> },
           // Ecrans pousses par-dessus les onglets.
           { path: '/hote/:eventId/kit', element: <QrKitScreen /> },
+          { path: '/hote/:eventId/moments', element: <MomentsScreen /> },
+          { path: '/hote/:eventId/retraits', element: <RemovalsScreen /> },
         ],
       },
       // Le tri occupe tout l'ecran : la barre d'onglets disparait, comme

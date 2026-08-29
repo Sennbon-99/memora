@@ -19,6 +19,9 @@ hostAlbumRouter.post('/publish', publicationController.publish);
 // POST /api/events/:id/publish-reviewed — publier ce qui vient d'etre trie
 hostAlbumRouter.post('/publish-reviewed', publicationController.publishReviewed);
 
+// GET /api/events/:id/removals — les demandes de retrait, obligation RGPD
+hostAlbumRouter.get('/removals', publicationController.listRemovals);
+
 /** Monte sous /api/album — consultation par lien de partage, sans compte. */
 export const publicAlbumRouter: Router = Router();
 
