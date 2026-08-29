@@ -15,7 +15,13 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY packages/types/package.json ./packages/types/
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
-RUN pnpm install --frozen-lockfile
+# --prod=false est explicite et non redondant : la plateforme de
+# deploiement injecte les variables de l'application comme arguments de
+# construction, dont NODE_ENV=production. pnpm omet alors les dependances
+# de developpement — dont prisma, typescript et vite — et la construction
+# echoue trois etapes plus loin sur un « prisma: not found » qui ne dit
+# rien de sa cause.
+RUN pnpm install --frozen-lockfile --prod=false
 
 COPY . .
 RUN pnpm --filter @memora/types build
