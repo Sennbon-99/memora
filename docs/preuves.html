@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>Preuves — Memora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0E0D0C;font-family:'Bricolage Grotesque',system-ui,sans-serif;color:#F2EDE4}
+.fig{width:1000px;margin:0 auto 40px;background:#15130F;border:1px solid rgb(242 237 228 / .12);border-radius:14px;overflow:hidden}
+.fig > header{display:flex;align-items:center;gap:10px;padding:12px 18px;background:#1E1B16;border-bottom:1px solid rgb(242 237 228 / .1)}
+.fig > header b{font-size:14px;font-weight:800;letter-spacing:-.01em}
+.fig > header span{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#8B8378}
+.dots{display:flex;gap:6px}
+.dots i{width:10px;height:10px;border-radius:50%;background:#3A342C;display:block}
+pre{margin:0;padding:18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.55;color:#D8D2C8;white-space:pre;overflow-x:auto}
+.ok{color:#5FBF95}.warn{color:#E0A93D}.acc{color:#D98C2B}.dim{color:#7C746A}
+.two{display:grid;grid-template-columns:1fr 1fr}
+.two > div{padding:18px}
+.two > div + div{border-left:1px solid rgb(242 237 228 / .1)}
+.two h3{margin:0 0 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#8B8378;font-weight:400}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+td{padding:6px 0;border-bottom:1px solid rgb(242 237 228 / .07);font-family:'JetBrains Mono',monospace}
+td:first-child{color:#8B8378;width:44%}
+tr:last-child td{border-bottom:0}
+.swatch{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:7px}
+.cap{width:1000px;margin:0 auto 34px;font-size:12.5px;color:#8B8378;line-height:1.6;padding:0 4px}
+/* Un parametre d'adresse isole une figure : chaque capture est prise
+   seule, a sa taille exacte, par Chrome sans interface. */
+body.solo .fig{display:none}
+body.solo .fig.montre{display:block;margin:0}
+</style></head><body style="padding:30px 0">
+<script>
+  const seule = new URLSearchParams(location.search).get('f');
+  if (seule) {
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.classList.add('solo');
+      document.body.style.padding = '0';
+      document.getElementById('f-' + seule)?.classList.add('montre');
+    });
+  }
+</script>
+
+<div class="fig" id="f-couverture">
+  <header><span class="dots"><i></i><i></i><i></i></span><b>pnpm --filter @memora/api test --coverage</b><span>204 tests · 19 fichiers</span></header>
+  <pre> % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    94.4 |    93.18 |   91.35 |    94.4 |                   
+ features/auth     |     100 |      100 |     100 |     100 |                   
+  auth.service.ts  |     100 |      100 |     100 |     100 |                   
+  ...rd.service.ts |     100 |      100 |     100 |     100 |                   
+ features/download |     100 |      100 |     100 |     100 |                   
+  ...ad.service.ts |     100 |      100 |     100 |     100 |                   
+ features/events   |   91.34 |    91.17 |    87.5 |   91.34 |                   
+  event.service.ts |   91.34 |    91.17 |    87.5 |   91.34 | 92-95,153-157     
+ features/guests   |    93.1 |    93.33 |      80 |    93.1 |                   
+  guest.service.ts |   86.53 |       92 |   66.66 |   86.53 | 170-188           
+  roll.service.ts  |     100 |       95 |     100 |     100 | 143               
+ features/moments  |     100 |    90.47 |     100 |     100 |                   
+  ...nt.service.ts |     100 |    90.47 |     100 |     100 | 75,131            
+  push.service.ts  |     100 |    86.66 |     100 |     100 | 28,54             
+ features/payments |    97.4 |       88 |     100 |    97.4 |                   
+  ...nt.service.ts |    97.4 |       88 |     100 |    97.4 | 30-31             
+ features/photos   |     100 |    94.87 |     100 |     100 |                   
+  photo.service.ts |     100 |    94.87 |     100 |     100 | 120,202           
+  ...on.service.ts |   86.09 |    92.68 |   83.33 |   86.09 | 121-123,163-189   
+  visibility.ts    |     100 |      100 |     100 |     100 |                   
+ features/qrkit    |     100 |      100 |     100 |     100 |                   
+  qrkit.cards.ts   |     100 |      100 |     100 |     100 |                   
+ features/team     |   87.01 |    86.95 |      80 |   87.01 |                   
+  team.service.ts  |   87.01 |    86.95 |      80 |   87.01 | 62-72,114         
+ utils             |    93.1 |       96 |    91.3 |    93.1 |                   
+  errors.ts        |     100 |      100 |     100 |     100 |                   
+  hash.ts          |     100 |      100 |     100 |     100 |                   
+  jwt.ts           |   81.81 |      100 |   83.33 |   81.81 | 40-45             
+  object.ts        |     100 |      100 |     100 |     100 |                   
+  slug.ts          |   89.47 |       75 |      75 |   89.47 | 35-36             
+-------------------|---------|----------|---------|---------|-------------------</pre>
+</div>
+
+<div class="fig" id="f-exif">
+  <header><span class="dots"><i></i><i></i><i></i></span><b>Effacement des métadonnées, avant et après le canvas</b><span>lib/image.ts</span></header>
+  <div class="two">
+    <div>
+      <h3>Avant — le fichier tel qu'il sort de l'appareil</h3>
+      <table>
+        <tr><td>Fabricant</td><td>Apple</td></tr>
+        <tr><td>Modèle</td><td>iPhone 17 Pro</td></tr>
+        <tr><td>Prise de vue</td><td>2026:08:29 23:14:07</td></tr>
+        <tr><td>Droits</td><td>Copyright Camille</td></tr>
+        <tr><td>Latitude</td><td class="warn">N 48° 51' 29.99"</td></tr>
+        <tr><td>Longitude</td><td class="warn">E 2° 21' 3.00"</td></tr>
+        <tr><td>Altitude</td><td class="warn">35 m</td></tr>
+        <tr><td>Balises EXIF</td><td class="warn">12</td></tr>
+        <tr><td>Poids</td><td>66 258 octets</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Après — re-encodé dans le canvas du navigateur</h3>
+      <table>
+        <tr><td>Fabricant</td><td class="dim">absent</td></tr>
+        <tr><td>Modèle</td><td class="dim">absent</td></tr>
+        <tr><td>Prise de vue</td><td class="dim">absent</td></tr>
+        <tr><td>Droits</td><td class="dim">absent</td></tr>
+        <tr><td>Latitude</td><td class="ok">absente</td></tr>
+        <tr><td>Longitude</td><td class="ok">absente</td></tr>
+        <tr><td>Altitude</td><td class="ok">absente</td></tr>
+        <tr><td>Balises EXIF</td><td class="ok">0</td></tr>
+        <tr><td>Poids</td><td>49 111 octets</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="fig" id="f-contraste">
+  <header><span class="dots"><i></i><i></i><i></i></span><b>Contraste WCAG des cinq couleurs d'événement</b><span>relativeLuminance, lib/theme.ts</span></header>
+  <div style="padding:18px">
+    <table>
+      <tr><td style="color:#F2EDE4;width:24%">Couleur</td><td style="width:19%">Texte calculé</td><td style="width:19%">Ratio</td><td style="width:19%">AA (4,5:1)</td><td>AAA (7:1)</td></tr>
+      <tr><td><span class="swatch" style="background:#C97C1E"></span>Ambre #C97C1E</td><td>#17110A</td><td>5,70:1</td><td class="ok">conforme</td><td class="dim">non</td></tr>
+      <tr><td><span class="swatch" style="background:#7B3FE4"></span>Violet #7B3FE4</td><td>#FFFFFF</td><td>5,72:1</td><td class="ok">conforme</td><td class="dim">non</td></tr>
+      <tr><td><span class="swatch" style="background:#1FA97A"></span>Vert #1FA97A</td><td>#17110A</td><td>6,26:1</td><td class="ok">conforme</td><td class="dim">non</td></tr>
+      <tr><td><span class="swatch" style="background:#E0533D"></span>Corail #E0533D</td><td>#17110A</td><td>4,88:1</td><td class="ok">conforme</td><td class="dim">non</td></tr>
+      <tr><td><span class="swatch" style="background:#2F6BE0"></span>Bleu #2F6BE0</td><td>#FFFFFF</td><td>4,88:1</td><td class="ok">conforme</td><td class="dim">non</td></tr>
+      <tr><td><span class="swatch" style="background:#1C1916;outline:1px solid #3A342C"></span>Fond #1C1916 · texte #F2EDE4</td><td>—</td><td class="ok">15,01:1</td><td class="ok">conforme</td><td class="ok">conforme</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="fig" id="f-minio">
+  <header><span class="dots"><i></i><i></i><i></i></span><b>mc ls --recursive memora/memora-photos</b><span>stockage objet</span></header>
+  <pre>[2026-08-29 20:33:41 CEST]  45KiB  cmtepyffn0002fwzin6bbp9gx/cmtepyfh3000qfwzil0xuw4nx/50e4de47-b61f-4bcb-ba7b-1fb202e39571.jpg
+[2026-08-29 20:33:41 CEST]  45KiB  cmtepyffn0002fwzin6bbp9gx/cmtepyfh3000qfwzil0xuw4nx/80638a77-f08d-477c-aa93-f05a2253ca64.jpg
+[2026-08-29 20:33:41 CEST]  41KiB  cmtepyffn0002fwzin6bbp9gx/cmtepyfh3000qfwzil0xuw4nx/99fa5875-3ce3-41c6-8b0b-7523884810a9.jpg
+[2026-08-29 20:33:41 CEST]  45KiB  cmtepyffn0002fwzin6bbp9gx/cmtepyfh3000qfwzil0xuw4nx/ad3ce6a4-c568-4b55-8547-3c898190f2f6.jpg
+[2026-08-29 20:33:41 CEST]  47KiB  cmtepyffn0002fwzin6bbp9gx/cmtepyfh3000qfwzil0xuw4nx/f7909706-1be9-421c-abed-68a4d157adbc.jpg
+
+<span class="dim">Chemin : &lt;identifiant de l'événement&gt; / &lt;identifiant de la pellicule&gt; / &lt;uuid&gt;.jpg
+Aucun nom de fichier d'origine, aucune date lisible, aucune information sur l'invité.</span>
+
+<span class="acc">$ mc du memora/memora-photos</span>
+15MiB   366 objects   memora-photos</pre>
+</div>
+
+</body></html>
