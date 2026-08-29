@@ -10,9 +10,15 @@ RUN corepack enable
 
 # On copie d'abord les manifestes seuls : tant qu'ils ne changent pas, Docker
 # reutilise cette couche et l'installation n'est pas rejouee a chaque commit.
+# Tous les manifestes de l'espace de travail, y compris ceux dont cette
+# image n'a pas besoin. Sans eux, pnpm install --frozen-lockfile travaille
+# sur un espace incomplet : il ne remonte aucune erreur, mais certaines
+# dependances ne sont pas installees. C'est ainsi que prisma manquait a
+# l'etape suivante, avec pour seul indice « prisma: not found ».
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY packages/types/package.json ./packages/types/
 COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
 RUN pnpm install --frozen-lockfile
 
 # --- Etape 2 : compilation -------------------------------------------------

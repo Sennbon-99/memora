@@ -8,8 +8,12 @@ FROM node:22-alpine AS build
 WORKDIR /app
 RUN corepack enable
 
+# Tous les manifestes de l'espace de travail : voir la note du Dockerfile
+# de l'API. Un espace incomplet produit une installation partielle et
+# silencieuse.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY packages/types/package.json ./packages/types/
+COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 RUN pnpm install --frozen-lockfile
 
