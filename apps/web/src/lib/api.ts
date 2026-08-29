@@ -223,6 +223,48 @@ export const authApi = {
   me: () => call<{ user: HostUser }>('/auth/me'),
 };
 
+export interface RollSummary {
+  id: string;
+  firstName: string | null;
+  tableLabel: string | null;
+  photos: number;
+  hidden: number;
+  reviewed: boolean;
+  pendingRemoval: boolean;
+}
+
+export interface AlbumPhoto {
+  id: string;
+  url: string;
+  takenAt: string;
+  status: 'RESERVED' | 'UPLOADED' | 'HIDDEN' | 'REMOVED';
+  published: boolean;
+  width: number;
+  height: number;
+  rollId: string;
+  firstName: string | null;
+  tableLabel: string | null;
+  moment: { id: string; label: string } | null;
+}
+
+export const rollApi = {
+  list: (eventId: string) => call<{ rolls: RollSummary[] }>(`/events/${eventId}/rolls`),
+  review: (eventId: string, rollId: string, hiddenPhotoIds: string[]) =>
+    call<{ rollId: string; hidden: number }>(`/events/${eventId}/rolls/${rollId}/review`, {
+      method: 'POST',
+      body: { hiddenPhotoIds },
+    }),
+};
+
+export const albumApi = {
+  forHost: (eventId: string) => call<AlbumPhoto[]>(`/events/${eventId}/album`),
+  publish: (eventId: string, scope: string, photoIds: string[]) =>
+    call<{ scope: string }>(`/events/${eventId}/publish`, {
+      method: 'POST',
+      body: { scope, photoIds },
+    }),
+};
+
 export const eventApi = {
   list: () => call<{ events: EventSummary[] }>('/events'),
   detail: (id: string) => call<{ event: EventSummary }>(`/events/${id}`),

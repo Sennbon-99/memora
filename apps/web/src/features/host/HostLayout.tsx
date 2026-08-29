@@ -8,7 +8,8 @@
 import { Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Spinner } from '../../ui/Spinner.js';
 import { useEvent, useEvents } from './useEvents.js';
-import { useLogout, useSession } from './useAuth.js';
+import { useSession } from './useAuth.js';
+import { TabBar } from '../../ui/TabBar.js';
 import { useState } from 'react';
 
 /** Protege toutes les routes de l'espace hote. */
@@ -24,18 +25,23 @@ export function RequireHost() {
   return <Outlet />;
 }
 
-/** Barre haute avec selecteur d'evenement. */
+/**
+ * Coquille de l'espace hote : barre haute et barre d'onglets.
+ *
+ * Un seul motif de navigation, pas deux. Tout ce qui etait derriere l'avatar
+ * en haut a droite est passe dans l'onglet Reglages : sur un ecran de 6,9
+ * pouces, le coin superieur droit est le point le plus difficile a atteindre
+ * d'une seule main, et c'est exactement la ou se tient l'hote pendant la fete.
+ *
+ * La barre d'onglets appartient a une soiree. La liste des evenements et le
+ * formulaire de creation ne l'affichent pas : il n'y a rien a naviguer.
+ */
 export function HostLayout() {
   const { eventId = '' } = useParams();
   const navigate = useNavigate();
-  const { data: session } = useSession();
   const { data: list } = useEvents();
   const { data: current } = useEvent(eventId);
-  const logout = useLogout();
   const [open, setOpen] = useState(false);
-
-  const initials = (session?.name ?? '')
-    .split(' ').map((part) => part[0] ?? '').join('').slice(0, 2).toUpperCase();
 
   return (
     <div className="flex min-h-full flex-col">
@@ -86,17 +92,12 @@ export function HostLayout() {
           </div>
         )}
 
-        <button
-          onClick={() => logout.mutate(undefined, { onSuccess: () => navigate('/hote/connexion') })}
-          title="Se déconnecter"
-          className={`grid h-8 w-8 place-items-center rounded-full bg-[var(--accent)]
-            text-[11px] font-extrabold text-[var(--accent-text)] ${current ? '' : 'ml-auto'}`}
-        >
-          {initials || '·'}
-        </button>
       </header>
 
       <div className="flex-1"><Outlet /></div>
+
+      {/* La barre n'apparait qu'une fois une soiree choisie. */}
+      {current && <TabBar eventId={eventId} />}
     </div>
   );
 }

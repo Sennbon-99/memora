@@ -12,6 +12,9 @@ import { HostLayout, RequireHost } from './features/host/HostLayout.js';
 import { CreateEventScreen } from './features/host/screens/CreateEventScreen.js';
 import { DashboardScreen } from './features/host/screens/DashboardScreen.js';
 import { EventListScreen } from './features/host/screens/EventListScreen.js';
+import { GuestsScreen } from './features/host/screens/GuestsScreen.js';
+import { PhotosScreen } from './features/host/screens/PhotosScreen.js';
+import { SettingsScreen } from './features/host/screens/SettingsScreen.js';
 import { LoginScreen } from './features/host/screens/LoginScreen.js';
 import { QrKitScreen } from './features/host/screens/QrKitScreen.js';
 
@@ -31,7 +34,12 @@ export const router = createBrowserRouter([
         children: [
           { path: '/hote', element: <EventListScreen /> },
           { path: '/hote/nouvelle', element: <CreateEventScreen /> },
+          // Les quatre onglets d'une soiree.
           { path: '/hote/:eventId', element: <DashboardScreen /> },
+          { path: '/hote/:eventId/photos', element: <PhotosScreen /> },
+          { path: '/hote/:eventId/invites', element: <GuestsScreen /> },
+          { path: '/hote/:eventId/reglages', element: <SettingsScreen /> },
+          // Ecrans pousses par-dessus les onglets.
           { path: '/hote/:eventId/kit', element: <QrKitScreen /> },
         ],
       },

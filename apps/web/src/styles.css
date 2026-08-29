@@ -53,3 +53,11 @@ input, textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Entree en cascade des listes : le mouvement dit que le contenu vient
+   d'arriver, et conduit le regard du haut vers le bas. Il est neutralise
+   par la regle prefers-reduced-motion plus haut. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
