@@ -58,6 +58,7 @@ export function GuestJourney() {
       <IdentityScreen
         slug={slug}
         useTableCodes={event.useTableCodes}
+        tables={event.tables}
         onDone={() => setIdentityDone(true)}
       />
     );

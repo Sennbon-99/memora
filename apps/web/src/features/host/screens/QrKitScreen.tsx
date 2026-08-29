@@ -4,8 +4,10 @@
 // C'est le seul objet physique du produit. Tout le reste est immateriel :
 // si l'hote n'imprime pas ce kit, aucun invite ne peut entrer.
 
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { eventApi, type ApiError } from '../../../lib/api.js';
+import { eventApi, tableApi, type ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
@@ -16,6 +18,19 @@ export function QrKitScreen() {
   const navigate = useNavigate();
   const { data, isPending } = useEvent(eventId);
   const { open } = useEventState(eventId);
+  const client = useQueryClient();
+  const [count, setCount] = useState(8);
+
+  // Les tables ne sont pas decoratives : le champ que l'invite remplit
+  // attend l'identifiant d'une table existante. Sans elles, la question
+  // « quelle table ? » n'a aucune reponse valide.
+  const tables = useMutation({
+    mutationFn: () => tableApi.create(
+      eventId,
+      Array.from({ length: count }, (_, index) => `Table ${index + 1}`),
+    ),
+    onSuccess: () => void client.invalidateQueries({ queryKey: ['host', 'event', eventId] }),
+  });
 
   if (isPending || !data) return <Spinner label="Préparation du kit" />;
   const { event } = data;
@@ -90,6 +105,55 @@ export function QrKitScreen() {
           Imprimez, posez sur les tables. Aucun invité n’aura à télécharger
           quoi que ce soit : le QR code ouvre directement sa pellicule.
         </p>
+
+        {event.useTableCodes && (
+          <div className="w-full rounded-3xl border border-white/10 bg-white/4 p-5">
+            <h2 className="text-base font-bold">Vos tables</h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-white/55">
+              Vous demandez le numéro de table à vos invités. Créez-les ici :
+              chacune reçoit son propre QR code dans le kit.
+            </p>
+
+            {tables.isSuccess ? (
+              <p role="status" className="mt-4 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm
+                text-emerald-400">
+                {tables.data.tables.length} tables créées.
+              </p>
+            ) : (
+              <>
+                <div className="mt-4 flex items-center gap-3.5">
+                  <button
+                    onClick={() => setCount((value) => Math.max(1, value - 1))}
+                    aria-label="Une table de moins"
+                    className="h-11 w-11 rounded-xl bg-white/8 text-xl"
+                  >−</button>
+                  <b className="min-w-12 text-center font-mono text-2xl font-semibold
+                    tabular-nums text-[var(--accent)]">{count}</b>
+                  <button
+                    onClick={() => setCount((value) => Math.min(40, value + 1))}
+                    aria-label="Une table de plus"
+                    className="h-11 w-11 rounded-xl bg-white/8 text-xl"
+                  >+</button>
+                  <span className="text-xs text-white/35">tables</span>
+                </div>
+                <Button
+                  tone="ghost"
+                  full
+                  className="mt-4"
+                  disabled={tables.isPending}
+                  onClick={() => tables.mutate()}
+                >
+                  {tables.isPending ? 'Création…' : 'Créer les tables'}
+                </Button>
+                {tables.error && (
+                  <p role="alert" className="mt-2 text-sm text-red-300">
+                    {(tables.error as ApiError).message}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
         {event.state === 'DRAFT' && (
           <p className="rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)]

@@ -7,6 +7,7 @@
 
 import { prisma } from '../../config/prisma.js';
 import { assertCanManage } from '../events/event.service.js';
+import { isActive } from '../moments/moment.service.js';
 
 export interface DashboardStats {
   activeGuests: number;
@@ -50,7 +51,7 @@ export async function getStats(eventId: string, userId: string): Promise<Dashboa
     prisma.moment.findMany({
       where: { eventId },
       select: {
-        label: true, startedAt: true, durationMinutes: true,
+        label: true, startedAt: true, endedAt: true, durationMinutes: true,
         _count: { select: { photos: true } },
       },
     }),
@@ -85,9 +86,11 @@ export async function getStats(eventId: string, userId: string): Promise<Dashboa
       .map((moment) => ({
         label: moment.label,
         photos: moment._count.photos,
-        active:
-          moment.startedAt !== null &&
-          Date.now() < moment.startedAt.getTime() + moment.durationMinutes * 60_000,
+        // La regle vient du module des moments, elle n'est pas recopiee ici.
+        // Elle l'etait, et la fermeture anticipee a ete corrigee d'un cote
+        // seulement : le tableau de bord annoncait un moment termine comme
+        // encore en cours.
+        active: isActive(moment),
       }))
       .sort((a, b) => b.photos - a.photos),
   };

@@ -8,7 +8,12 @@ model Moment {
   plannedAt       DateTime? @db.Timestamptz
   /// Heure du declenchement reel, qui differe presque toujours de l'heure prevue.
   /// Tant qu'elle est nulle, le moment n'a pas commence.
-  startedAt       DateTime? @db.Timestamptz
+  startedAt       DateTime?
+  /// Fermeture anticipee par l'hote. Sans cette date, clore un moment
+  /// revenait a ramener sa duree au temps ecoule arrondi a la minute
+  /// superieure : ferme au bout de vingt secondes, il restait affiche comme
+  /// en cours pendant quarante secondes de plus.
+  endedAt         DateTime? @db.Timestamptz
   durationMinutes Int       @db.SmallInt
   bonusShots      Int       @db.SmallInt
 

@@ -18,8 +18,14 @@ import { compact } from '../../utils/object.js';
 import { AppError, NotFoundError } from '../../utils/errors.js';
 
 /** Un moment est actif s'il a demarre et que sa fenetre n'est pas expiree. */
-export function isActive(moment: { startedAt: Date | null; durationMinutes: number }): boolean {
+export function isActive(moment: {
+  startedAt: Date | null;
+  endedAt?: Date | null;
+  durationMinutes: number;
+}): boolean {
   if (!moment.startedAt) return false;
+  // Une fermeture anticipee fait foi, quelle que soit la duree prevue.
+  if (moment.endedAt) return false;
   return Date.now() < moment.startedAt.getTime() + moment.durationMinutes * 60_000;
 }
 
@@ -41,7 +47,7 @@ export async function listMoments(eventId: string, userId: string) {
     where: { eventId },
     orderBy: [{ plannedAt: 'asc' }, { label: 'asc' }],
     select: {
-      id: true, label: true, plannedAt: true, startedAt: true,
+      id: true, label: true, plannedAt: true, startedAt: true, endedAt: true,
       durationMinutes: true, bonusShots: true,
       _count: { select: { photos: true } },
     },
@@ -120,7 +126,7 @@ export async function triggerMoment(momentId: string, userId: string) {
 export async function closeMoment(momentId: string, userId: string) {
   const moment = await prisma.moment.findUnique({
     where: { id: momentId },
-    select: { id: true, eventId: true, startedAt: true, durationMinutes: true },
+    select: { id: true, eventId: true, startedAt: true, endedAt: true, durationMinutes: true },
   });
   if (!moment) throw new NotFoundError('Moment');
   await assertCanManage(moment.eventId, userId);
@@ -137,10 +143,10 @@ export async function closeMoment(momentId: string, userId: string) {
   // tout en restant coherent si une requete arrive au meme instant.
   await Promise.all(rolls.map((roll) => grantBonusShots(roll.id, 0, 1)));
 
-  // La duree est ramenee au temps ecoule : le moment est clos, et isActive
-  // le confirmera pour toute lecture ulterieure.
-  const elapsed = Math.max(1, Math.ceil((Date.now() - moment.startedAt!.getTime()) / 60_000));
-  await prisma.moment.update({ where: { id: momentId }, data: { durationMinutes: elapsed } });
+  // On pose la date de fin plutot que de rogner la duree. Rogner obligeait
+  // a arrondir a la minute superieure, et un moment ferme au bout de vingt
+  // secondes restait annonce comme en cours pendant quarante secondes.
+  await prisma.moment.update({ where: { id: momentId }, data: { endedAt: new Date() } });
 
   return { id: moment.id, closed: true };
 }

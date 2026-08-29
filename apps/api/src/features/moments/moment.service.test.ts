@@ -151,3 +151,25 @@ describe('listMoments', () => {
     expect(moments[0]!.photoCount).toBe(42);
   });
 });
+
+describe('isActive apres fermeture anticipee', () => {
+  it('rend faux des qu une date de fin existe', () => {
+    // Le defaut d origine : la cloture ramenait la duree au temps ecoule,
+    // arrondi a la minute superieure. Ferme au bout de vingt secondes, le
+    // moment restait annonce comme en cours pendant quarante secondes, et
+    // l hote voyait son geste sans effet.
+    const commence = new Date(Date.now() - 20_000);
+
+    expect(isActive({ startedAt: commence, endedAt: null, durationMinutes: 15 })).toBe(true);
+    expect(isActive({ startedAt: commence, endedAt: new Date(), durationMinutes: 15 })).toBe(false);
+  });
+
+  it('reste faux pour un moment jamais declenche', () => {
+    expect(isActive({ startedAt: null, endedAt: null, durationMinutes: 10 })).toBe(false);
+  });
+
+  it('rend faux quand la fenetre est simplement expiree', () => {
+    const vieux = new Date(Date.now() - 20 * 60_000);
+    expect(isActive({ startedAt: vieux, endedAt: null, durationMinutes: 10 })).toBe(false);
+  });
+});

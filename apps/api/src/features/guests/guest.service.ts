@@ -38,6 +38,14 @@ export interface GuestSession {
     welcomeMessage: string | null;
     closesAt: Date;
     useTableCodes: boolean;
+    /**
+     * Les tables de la soiree, quand l'hote les demande.
+     *
+     * Elles sont indispensables : le champ tableId attend l'identifiant
+     * d'une table existante, pas un numero saisi a la main. Sans cette
+     * liste, l'invite ne pourrait jamais renseigner sa table.
+     */
+    tables: { id: string; label: string }[];
     /** Etat de la soiree : le client en deduit l'ecran a montrer. */
     state: string;
     /** Vrai des que l'hote a publie : c'est ce qui ouvre l'album. */
@@ -61,6 +69,7 @@ export async function joinEvent(
     select: {
       id: true, name: true, state: true, quotaShots: true, previewMode: true,
       color: true, welcomeMessage: true, closesAt: true, useTableCodes: true,
+      tables: { select: { id: true, label: true }, orderBy: { label: 'asc' } },
       _count: { select: { rolls: true } },
     },
   });
@@ -129,6 +138,7 @@ function buildSession(
       name: event.name, quotaShots: event.quotaShots, previewMode: event.previewMode,
       color: event.color, welcomeMessage: event.welcomeMessage,
       closesAt: event.closesAt, useTableCodes: event.useTableCodes,
+      tables: event.tables,
       state: event.state,
       albumPublished: event.state === 'PUBLISHED',
     },
