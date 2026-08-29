@@ -35,7 +35,14 @@ server {
     }
 
     location /api/ {
-        proxy_pass ${API_UPSTREAM};
+        # Le nom de l'API est resolu a chaque requete, et non une seule fois
+        # au demarrage. Sans cette precaution, nginx refuse de demarrer si
+        # l'API n'est pas encore la — et un redeploiement de l'API, qui lui
+        # donne un nouveau conteneur, laisserait le client pointer dans le
+        # vide jusqu'a son propre redemarrage.
+        resolver 127.0.0.11 valid=10s ipv6=off;
+        set $amont ${API_UPSTREAM};
+        proxy_pass $amont;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
