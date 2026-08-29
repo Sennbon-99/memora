@@ -45,7 +45,13 @@ RUN corepack enable
 # Utilisateur non privilegie : un processus compromis ne doit pas etre root.
 RUN addgroup -S memora && adduser -S memora -G memora
 
+# Avec pnpm, les dependances vivent a deux endroits : le magasin partage a
+# la racine, et un dossier de liens propre a chaque paquet. Ne copier que
+# la racine laisse une image qui se construit sans erreur et refuse de
+# demarrer, sur un « Cannot find package socket.io » a l'execution.
 COPY --from=build --chown=memora:memora /app/node_modules ./node_modules
+COPY --from=build --chown=memora:memora /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=build --chown=memora:memora /app/packages/types/node_modules ./packages/types/node_modules
 COPY --from=build --chown=memora:memora /app/packages/types/dist ./packages/types/dist
 COPY --from=build --chown=memora:memora /app/packages/types/package.json ./packages/types/
 COPY --from=build --chown=memora:memora /app/apps/api/dist ./apps/api/dist
