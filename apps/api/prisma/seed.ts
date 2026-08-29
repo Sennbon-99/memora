@@ -6,6 +6,9 @@
 // retrait en attente. C'est ce jeu qui sert aux essais manuels et aux
 // captures d'ecran du dossier.
 
+// Le seed est lance hors de l'application : personne n'a charge le .env
+// avant lui, il doit le faire lui-meme et avant d'instancier le client.
+import 'dotenv/config';
 import { randomUUID } from 'node:crypto';
 import { PrismaClient } from '../generated/prisma/index.js';
 import bcrypt from 'bcrypt';

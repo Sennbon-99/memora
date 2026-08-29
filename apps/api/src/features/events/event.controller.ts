@@ -6,6 +6,7 @@ import { z } from 'zod';
 import * as eventService from './event.service.js';
 import { currentUserId, routeParam } from '../../utils/http.js';
 import { UnauthorizedError } from '../../utils/errors.js';
+import { emitToEvent } from '../../realtime/broadcast.js';
 
 export const create: RequestHandler = async (req, res, next) => {
   try {
@@ -55,7 +56,7 @@ export const close: RequestHandler = async (req, res, next) => {
   try {
     const event = await eventService.closeEvent(routeParam(req, 'id'), currentUserId(req));
     // On previent les invites connectes que la pellicule est terminee.
-    req.io.to(`event:${event.id}`).emit('event:closed', { eventId: event.id });
+    emitToEvent(req, event.id, 'event:closed', { eventId: event.id });
     res.status(200).json({ event });
   } catch (err) {
     next(err);

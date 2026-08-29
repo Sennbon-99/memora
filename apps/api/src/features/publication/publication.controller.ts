@@ -11,6 +11,7 @@ import type { Viewer } from './visibility.js';
 import { verifyDeviceToken } from '../../utils/jwt.js';
 import { DEVICE_COOKIE } from '../../middlewares/requireGuest.js';
 import { UnauthorizedError } from '../../utils/errors.js';
+import { emitToEvent } from '../../realtime/broadcast.js';
 
 /** GET /api/events/:id/album — l'album complet, reserve a l'hote. */
 export const albumForHost: RequestHandler = async (req, res, next) => {
@@ -29,7 +30,7 @@ export const publish: RequestHandler = async (req, res, next) => {
     const result = await publicationService.publishAlbum(routeParam(req, 'id'), currentUserId(req), input);
 
     // Les invites connectes sont prevenus que l'album est en ligne.
-    req.io.to(`event:${routeParam(req, 'id')}`).emit('album:published', { scope: result.scope });
+    emitToEvent(req, routeParam(req, 'id'), 'album:published', { scope: result.scope });
 
     // La notification qui fait revenir l'invite : c'est le seul moment ou
     // il decouvre ce qu'il a photographie.

@@ -6,6 +6,7 @@ import { confirmPhotoSchema, removalRequestSchema, reservePhotoSchema } from '@m
 import * as photoService from './photo.service.js';
 import { currentRoll } from '../../utils/http.js';
 import { UnauthorizedError } from '../../utils/errors.js';
+import { emitToEvent } from '../../realtime/broadcast.js';
 
 /** POST /api/photos/reserve — reserver une pose et obtenir l'adresse d'envoi. */
 export const reserve: RequestHandler = async (req, res, next) => {
@@ -25,9 +26,7 @@ export const confirm: RequestHandler = async (req, res, next) => {
     const result = await photoService.confirmUpload(currentRoll(req), idempotencyKey);
 
     // Le tableau de bord de l'hote se met a jour sans rechargement.
-    req.io.to(`event:${currentRoll(req).eventId}`).emit('photo:uploaded', {
-      photoId: result.photoId,
-    });
+    emitToEvent(req, currentRoll(req).eventId, 'photo:uploaded', { photoId: result.photoId });
 
     res.status(200).json(result);
   } catch (err) {

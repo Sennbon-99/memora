@@ -24,11 +24,15 @@ export const io = new SocketServer(server, {
 // dans le vide.
 setupRealtime(io);
 
-// Injection de io dans chaque requete, pour que les controleurs emettent.
-app.use((req, _res, next) => {
-  req.io = io;
-  next();
-});
+// Mise a disposition de io pour les controleurs.
+//
+// Un app.use enregistre ici serait ajoute APRES le routeur monte dans
+// createApp : Express execute les middlewares dans l'ordre d'enregistrement,
+// l'injection ne se serait donc jamais executee. C'est le defaut qui faisait
+// echouer la confirmation de photographie contre la vraie infrastructure.
+// app.set, lui, ne depend d'aucun ordre : les controleurs lisent l'instance
+// au moment de la requete, via emitToEvent.
+app.set('io', io);
 
 server.listen(env.PORT, () => {
   console.log(` API Memora sur le port ${env.PORT} (${env.NODE_ENV})`);
@@ -45,12 +49,3 @@ async function shutdown(signal: string) {
 process.on('SIGTERM', () => void shutdown('SIGTERM'));
 process.on('SIGINT', () => void shutdown('SIGINT'));
 
-// Declaration du champ io ajoute a la requete Express.
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Express {
-    interface Request {
-      io: SocketServer;
-    }
-  }
-}

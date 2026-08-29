@@ -6,6 +6,7 @@ import * as momentService from './moment.service.js';
 import { notifyEvent } from '../notifications/push.service.js';
 import { currentUserId, routeParam } from '../../utils/http.js';
 import { UnauthorizedError } from '../../utils/errors.js';
+import { emitToEvent } from '../../realtime/broadcast.js';
 
 /** POST /api/events/:id/moments — programmer un moment. */
 export const create: RequestHandler = async (req, res, next) => {
@@ -36,7 +37,7 @@ export const trigger: RequestHandler = async (req, res, next) => {
     // Les invites connectes sont prevenus immediatement. Ceux qui n'ont pas
     // l'application ouverte verront le bandeau a leur retour, tant que la
     // fenetre n'est pas expiree.
-    req.io.to(`event:${routeParam(req, 'id')}`).emit('moment:started', {
+    emitToEvent(req, routeParam(req, 'id'), 'moment:started', {
       momentId: moment.id,
       label: moment.label,
       endsAt: moment.endsAt,
@@ -61,7 +62,7 @@ export const trigger: RequestHandler = async (req, res, next) => {
 export const close: RequestHandler = async (req, res, next) => {
   try {
     const result = await momentService.closeMoment(routeParam(req, 'momentId'), currentUserId(req));
-    req.io.to(`event:${routeParam(req, 'id')}`).emit('moment:ended', { momentId: result.id });
+    emitToEvent(req, routeParam(req, 'id'), 'moment:ended', { momentId: result.id });
     res.status(200).json(result);
   } catch (err) {
     next(err);
