@@ -1,17 +1,27 @@
 // apps/api/prisma/schema/pushSubscription.prisma
-// Abonnement d'un appareil aux notifications web push.
+// Abonnement d'un appareil aux notifications.
+
+/// Deux canaux coexistent. Le navigateur passe par le protocole Web Push et
+/// fournit une adresse accompagnee de deux cles de chiffrement. L'application
+/// installee sur iPhone passe par le service d'Apple, qui ne fournit qu'un
+/// jeton d'appareil : c'est lui qui occupe alors le champ endpoint.
+enum PushKind {
+  WEB
+  APNS
+}
 
 /// Un appareil peut avoir plusieurs abonnements — navigateur et application
-/// installee sur l'ecran d'accueil sont deux contextes distincts.
+/// installee sont deux contextes distincts, avec chacun leur jeton.
 model PushSubscription {
   id        String   @id @default(cuid())
-  /// Adresse fournie par le service de notification du navigateur.
+  kind      PushKind @default(WEB)
+  /// Adresse Web Push, ou jeton d'appareil APNs selon le canal.
   /// Unique : c'est elle qui identifie l'abonnement, pas notre identifiant.
   endpoint  String   @unique @db.Text
-  /// Cles de chiffrement du navigateur, sans lesquelles le message ne peut
-  /// pas etre dechiffre par l'appareil destinataire.
-  p256dh    String
-  auth      String
+  /// Cles de chiffrement du navigateur. Absentes sur le canal APNs, ou le
+  /// chiffrement est assure par le transport lui-meme.
+  p256dh    String?
+  auth      String?
   createdAt DateTime @default(now())
 
   rollId    String

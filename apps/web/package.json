@@ -9,12 +9,13 @@
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
-    "ios:sync": "pnpm build && cap sync ios",
+    "ios:sync": "vite build --mode native && cap sync ios",
     "ios:open": "cap open ios"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
+    "@capacitor/push-notifications": "^8.1.2",
     "@hookform/resolvers": "^3.10.0",
     "@memora/types": "workspace:*",
     "@tanstack/react-query": "^5.62.0",

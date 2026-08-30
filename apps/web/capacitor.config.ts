@@ -25,6 +25,16 @@ const config: CapacitorConfig = {
     iosScheme: 'https',
   },
 
+  plugins: {
+    // Les requetes partent du natif et non de la WKWebView. C'est la seule
+    // facon de conserver les cookies d'authentification : la page est servie
+    // depuis capacitor://localhost, l'API vit sur un autre domaine, et un
+    // cookie SameSite=Strict n'est jamais envoye entre deux sites. Le client
+    // HTTP natif possede son propre magasin de cookies, indexe par domaine,
+    // auquel cette regle de navigateur ne s'applique pas.
+    CapacitorHttp: { enabled: true },
+  },
+
   ios: {
     // La barre d'etat se superpose au contenu : les ecrans utilisent deja
     // les zones sures, et le viseur doit occuper toute la hauteur.

@@ -13,3 +13,6 @@ apps/api/generated/
 apps/web/ios/App/App/public/
 apps/web/ios/App/Pods/
 apps/web/ios/.build/
+
+# Origine du serveur pour la construction native : depend du deploiement.
+apps/web/.env.native

@@ -14,6 +14,7 @@
 import webpush from 'web-push';
 import { prisma } from '../../config/prisma.js';
 import { env } from '../../config/env.js';
+import { apnsConfigured, sendApns } from './apns.js';
 
 let configured = false;
 
@@ -51,11 +52,14 @@ export interface PushPayload {
  * passage, sinon la table grossirait indefiniment.
  */
 export async function notifyEvent(eventId: string, payload: PushPayload): Promise<number> {
-  if (!ensureConfigured()) return 0;
+  const web = ensureConfigured();
+  const apple = apnsConfigured();
+  // Aucun canal configure : inutile d'interroger la base pour rien.
+  if (!web && !apple) return 0;
 
   const subscriptions = await prisma.pushSubscription.findMany({
     where: { roll: { eventId } },
-    select: { id: true, endpoint: true, p256dh: true, auth: true },
+    select: { id: true, kind: true, endpoint: true, p256dh: true, auth: true },
   });
 
   const body = JSON.stringify(payload);
@@ -63,9 +67,21 @@ export async function notifyEvent(eventId: string, payload: PushPayload): Promis
 
   const results = await Promise.allSettled(
     subscriptions.map(async (sub) => {
+      // L'application installee sur iPhone passe par le service d'Apple :
+      // le Web Push n'y fonctionne pas, c'est toute la raison de ce canal.
+      if (sub.kind === 'APNS') {
+        if (!apple) throw new Error('Canal APNs non configure');
+        const garder = await sendApns(sub.endpoint, {
+          title: payload.title, body: payload.body, url: payload.url,
+        });
+        if (!garder) expired.push(sub.id);
+        return;
+      }
+
+      if (!web) throw new Error('Canal Web Push non configure');
       try {
         await webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh as string, auth: sub.auth as string } },
           body,
         );
       } catch (err) {
@@ -84,7 +100,7 @@ export async function notifyEvent(eventId: string, payload: PushPayload): Promis
   return results.filter((r) => r.status === 'fulfilled').length;
 }
 
-/** Enregistre l'abonnement d'un appareil. */
+/** Enregistre l'abonnement Web Push d'un navigateur. */
 export async function subscribe(
   rollId: string,
   subscription: { endpoint: string; keys: { p256dh: string; auth: string } },
@@ -93,11 +109,28 @@ export async function subscribe(
     where: { endpoint: subscription.endpoint },
     create: {
       rollId,
+      kind: 'WEB',
       endpoint: subscription.endpoint,
       p256dh: subscription.keys.p256dh,
       auth: subscription.keys.auth,
     },
-    update: { rollId },
+    update: { rollId, kind: 'WEB' },
+    select: { id: true },
+  });
+}
+
+/**
+ * Enregistre le jeton d'un appareil iOS.
+ *
+ * Apple renouvelle ce jeton sans prevenir : l'ecriture est donc une mise a
+ * jour par jeton, et non une creation. Un meme appareil qui rejoint une
+ * autre soiree ecrase simplement sa pellicule d'attache.
+ */
+export async function subscribeDevice(rollId: string, deviceToken: string) {
+  return prisma.pushSubscription.upsert({
+    where: { endpoint: deviceToken },
+    create: { rollId, kind: 'APNS', endpoint: deviceToken },
+    update: { rollId, kind: 'APNS' },
     select: { id: true },
   });
 }
