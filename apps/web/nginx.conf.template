@@ -13,6 +13,27 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # En-tetes de securite du client.
+    #
+    # Helmet ne protege que l'API : le client, lui, est servi par nginx, qui
+    # ne posait rien. La page que charge reellement un navigateur etait donc
+    # cadrable dans une iframe et sujette au reniflement de type MIME, alors
+    # que l'interface de programmation derriere elle etait, elle, protegee.
+    #
+    # always : sans ce mot-cle, nginx omet l'en-tete sur les reponses 4xx et
+    # 5xx — exactement celles qu'un attaquant cherche a provoquer.
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), payment=()" always;
+
+    # La camera est la seule permission que le produit demande, et seulement
+    # depuis sa propre origine. Les images viennent du stockage objet, les
+    # connexions aussi. data: est necessaire aux apercus produits par le
+    # canvas avant envoi, blob: aux fichiers mis en file d'attente hors ligne.
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' https: wss:; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" always;
+
     # Compression : le paquet JavaScript pese environ 500 Ko, et la salle
     # des fetes n'a pas la fibre.
     gzip on;
@@ -24,6 +45,13 @@ server {
     location /assets/ {
         expires 1y;
         add_header Cache-Control "public, immutable";
+        # nginx n'herite pas les en-tetes du bloc parent des qu'un
+        # add_header apparait ici : il faut donc les repeter, sinon les
+        # fichiers servis par ce bloc partiraient sans protection.
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
         try_files $uri =404;
     }
 
@@ -31,6 +59,13 @@ server {
     # qui decide quand le reste est renouvele.
     location = /sw.js {
         add_header Cache-Control "no-cache, no-store, must-revalidate";
+        # nginx n'herite pas les en-tetes du bloc parent des qu'un
+        # add_header apparait ici : il faut donc les repeter, sinon les
+        # fichiers servis par ce bloc partiraient sans protection.
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
         try_files $uri =404;
     }
 
