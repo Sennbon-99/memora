@@ -28,30 +28,30 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
             {consent.isPending ? 'Un instant...' : "J'accepte, je prends mes photos"}
           </Button>
           <p className="text-center text-xs text-white/40">
-            Refuser ferme simplement cette page. Aucune donnee n'est conservee.
+            Refuser ferme simplement cette page. Aucune donnée n'est conservée.
           </p>
         </div>
       }
     >
       <div className="mt-10 space-y-5 text-[15px] leading-relaxed text-white/70">
         <p>
-          Vos photographies sont visibles par l'organisateur de l'evenement, puis
-          par les invites si l'organisateur decide de les publier.
+          Vos photographies sont visibles par l'organisateur de l'événement, puis
+          par les invités si l'organisateur décide de les publier.
         </p>
         <p>
-          Elles sont conservees trente jours, puis supprimees automatiquement.
+          Elles sont conservées trente jours, puis supprimées automatiquement.
           Vous pouvez demander le retrait de l'une d'elles a tout moment.
         </p>
         <p className="text-white/50">
-          Aucun compte, aucun nom, aucune adresse electronique ne vous est
-          demande. La position et le modele de votre telephone sont effaces
+          Aucun compte, aucun nom, aucune adresse électronique ne vous est
+          demandé. La position et le modèle de votre téléphone sont effacés
           avant l'envoi.
         </p>
       </div>
 
       {consent.isError && (
         <p role="alert" className="mt-6 rounded-xl bg-red-500/10 p-4 text-sm text-red-300">
-          L'enregistrement n'a pas abouti. Verifiez votre connexion et reessayez.
+          L'enregistrement n'a pas abouti. Vérifiez votre connexion et réessayez.
         </p>
       )}
     </Screen>

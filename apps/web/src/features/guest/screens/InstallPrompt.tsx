@@ -45,7 +45,7 @@ export function InstallPrompt() {
   if (deferred) {
     return (
       <Button tone="ghost" full onClick={() => void deferred.prompt()}>
-        Ajouter Memora a mon ecran d'accueil
+        Ajouter Memora à mon écran d'accueil
       </Button>
     );
   }
@@ -53,8 +53,8 @@ export function InstallPrompt() {
   if (isIOS()) {
     return (
       <p className="text-center text-xs leading-relaxed text-white/40">
-        Pour etre prevenu de la publication : touchez Partager, puis
-        « Sur l'ecran d'accueil ».
+        Pour être prévenu de la publication : touchez Partager, puis
+        « Sur l'écran d'accueil ».
       </p>
     );
   }

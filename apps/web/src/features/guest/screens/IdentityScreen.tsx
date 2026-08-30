@@ -38,7 +38,7 @@ export function IdentityScreen({ slug, useTableCodes, tables, onDone }: Identity
   return (
     <Screen
       title="Comment vous appeler ?"
-      subtitle="Facultatif. Cela sert seulement a retrouver vos photos si vous changez de telephone."
+      subtitle="Facultatif. Cela sert seulement à retrouver vos photos si vous changez de téléphone."
       footer={
         <div className="flex flex-col gap-3">
           <Button full onClick={submit} disabled={identity.isPending}>

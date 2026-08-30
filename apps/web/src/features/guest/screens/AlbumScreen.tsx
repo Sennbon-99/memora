@@ -40,7 +40,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
 
   if (isError) {
     return (
-      <Screen title="Album indisponible" subtitle="Verifiez votre connexion et rechargez la page.">
+      <Screen title="Album indisponible" subtitle="Vérifiez votre connexion et rechargez la page.">
         <span />
       </Screen>
     );
@@ -55,7 +55,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
     >
       {photos.length === 0 ? (
         <p className="mt-12 text-center text-sm text-white/50">
-          Rien a montrer pour l'instant. Les maries n'ont pas encore publie.
+          Rien à montrer pour l'instant. Les mariés n'ont pas encore publié.
         </p>
       ) : (
         <ul className="mt-8 grid grid-cols-2 gap-2 pb-10">

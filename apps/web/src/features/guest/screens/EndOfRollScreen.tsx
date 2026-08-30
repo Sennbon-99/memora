@@ -34,7 +34,7 @@ export function EndOfRollScreen({
       await guestApi.saveCode(slug, code);
       setSaved(true);
     } catch {
-      setError("Le code n'a pas pu etre enregistre. Reessayez.");
+      setError("Le code n'a pas pu être enregistré. Réessayez.");
     }
   };
 
@@ -44,7 +44,7 @@ export function EndOfRollScreen({
       subtitle={
         queued > 0
           ? `${queued} ${queued > 1 ? 'photos partent' : 'photo part'} des que le reseau revient.`
-          : 'Vos photos sont arrivees. Elles apparaitront ici quand les maries les auront publiees.'
+          : 'Vos photos sont arrivées. Elles apparaîtront ici quand les mariés les auront publiées.'
       }
       footer={
         <div className="flex flex-col gap-3">
@@ -58,7 +58,7 @@ export function EndOfRollScreen({
       <div className="mt-10 rounded-3xl bg-white/5 p-6">
         <h2 className="text-base font-semibold">Retrouver vos photos plus tard</h2>
         <p className="mt-2 text-sm leading-relaxed text-white/60">
-          Ce telephone se souvient de vous. Choisissez un code a quatre chiffres
+          Ce téléphone se souvient de vous. Choisissez un code à quatre chiffres
           si vous voulez aussi y acceder depuis un autre appareil
           {firstName ? `, avec le prenom ${firstName}` : ''}.
         </p>
@@ -71,7 +71,7 @@ export function EndOfRollScreen({
         ) : (
           <div className="mt-5 flex gap-3">
             <label className="flex-1">
-              <span className="sr-only">Code a quatre chiffres</span>
+              <span className="sr-only">Code à quatre chiffres</span>
               <input
                 value={code}
                 onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 4))}
