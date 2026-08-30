@@ -37,8 +37,8 @@ export function CameraDeniedScreen({
       title={denied ? 'Camera non autorisee' : 'Camera indisponible'}
       subtitle={
         denied
-          ? "Vous pouvez continuer sans rien changer : le bouton ci-dessous ouvre l'appareil photo de votre telephone."
-          : "Votre navigateur ne donne pas acces a la camera. Le bouton ci-dessous ouvre l'appareil photo de votre telephone."
+          ? "Vous pouvez continuer sans rien changer : le bouton ci-dessous ouvre l'appareil photo de votre téléphone."
+          : "Votre navigateur ne donne pas accès à la caméra. Le bouton ci-dessous ouvre l'appareil photo de votre téléphone."
       }
       footer={
         <div className="flex flex-col gap-3">
@@ -51,7 +51,7 @@ export function CameraDeniedScreen({
           </Button>
           {denied && (
             <p className="text-center text-xs text-white/40">
-              Pour revenir au viseur, autorisez la camera dans les reglages de
+              Pour revenir au viseur, autorisez la caméra dans les réglages de
               votre navigateur, puis rechargez la page.
             </p>
           )}
