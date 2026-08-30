@@ -104,8 +104,8 @@ export function MomentsScreen() {
       }
     >
       {!live && !adding && (
-        <p className="mt-6 rounded-2xl border border-white/12 bg-white/5 px-4 py-3.5 text-xs
-          leading-relaxed text-white/50">
+        <p className="mt-6 rounded-lg border border-gold/18 bg-paper/5 px-4 py-3.5 text-xs
+          leading-relaxed text-paper/50">
           {eventData?.event.state === 'DRAFT'
             ? 'Préparez vos moments dès maintenant : vous pourrez les déclencher une fois la pellicule ouverte.'
             : 'La soirée est terminée. Les moments forts ne se déclenchent que pendant la prise de vue.'}
@@ -113,7 +113,7 @@ export function MomentsScreen() {
       )}
 
       {failure && (
-        <p role="alert" className="mt-4 rounded-2xl bg-red-500/10 p-3.5 text-sm leading-relaxed
+        <p role="alert" className="mt-4 rounded-lg bg-red-500/10 p-3.5 text-sm leading-relaxed
           text-red-300">
           {failure.message}
         </p>
@@ -122,7 +122,7 @@ export function MomentsScreen() {
       {/* Le moment en cours occupe le haut, en couleur : il doit se voir
           d'un coup d'oeil, sans lecture. */}
       {running && (
-        <div className="mt-6 rounded-3xl bg-[var(--accent)] p-5 text-[var(--accent-text)]">
+        <div className="mt-6 rounded-xl bg-[var(--accent)] p-5 text-[var(--accent-text)]">
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] opacity-70">
             En cours
           </p>
@@ -162,7 +162,7 @@ export function MomentsScreen() {
                 <button
                   key={name}
                   onClick={() => setLabel(name)}
-                  className="rounded-full border border-white/12 px-3 py-1.5 text-xs text-white/55"
+                  className="rounded-full border border-gold/18 px-3 py-1.5 text-xs text-paper/55"
                 >
                   {name}
                 </button>
@@ -187,8 +187,8 @@ export function MomentsScreen() {
             note={`${durationMinutes} minutes`}
           />
 
-          <p className="rounded-2xl border border-white/12 bg-white/5 px-3.5 py-3 text-xs
-            leading-relaxed text-white/50">
+          <p className="rounded-lg border border-gold/18 bg-paper/5 px-3.5 py-3 text-xs
+            leading-relaxed text-paper/50">
             Les poses offertes expirent avec la fenêtre. Celles qui n’ont pas
             été utilisées ne sont pas reportées.
           </p>
@@ -196,7 +196,7 @@ export function MomentsScreen() {
       ) : (
         <ul className="mt-6 flex flex-col gap-2 pb-6">
           {moments.length === 0 && (
-            <p className="mt-10 text-center text-sm leading-relaxed text-white/45">
+            <p className="mt-10 text-center text-sm leading-relaxed text-paper/45">
               Aucun moment préparé.<br />
               Préparez-les avant la soirée : le jour J, une touche suffira.
             </p>
@@ -210,11 +210,11 @@ export function MomentsScreen() {
                 className="animate-[rise_.3s_ease_backwards] motion-reduce:animate-none"
                 style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
               >
-                <div className="flex items-center gap-3 rounded-2xl border border-white/10
-                  bg-white/4 px-4 py-3">
+                <div className="flex items-center gap-3 rounded-lg border border-gold/18
+                  bg-paper/4 px-4 py-3">
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[13px] font-bold">{moment.label}</span>
-                    <span className="block text-[11px] text-white/45">
+                    <span className="block text-[11px] text-paper/45">
                       {moment.bonusShots} pose{moment.bonusShots > 1 ? 's' : ''} offerte
                       {moment.bonusShots > 1 ? 's' : ''} · {moment.durationMinutes} min
                       {done && ` · ${moment.photoCount} photos`}
@@ -222,8 +222,8 @@ export function MomentsScreen() {
                   </span>
 
                   {done ? (
-                    <span className="rounded-full bg-white/8 px-2.5 py-1 text-[10px]
-                      font-bold text-white/45">terminé</span>
+                    <span className="rounded-full bg-paper/8 px-2.5 py-1 text-[10px]
+                      font-bold text-paper/45">terminé</span>
                   ) : (
                     // Une touche, sans confirmation : on ne vise pas deux
                     // fois de suite en dansant. Le retour en arriere est la
@@ -243,14 +243,14 @@ export function MomentsScreen() {
           })}
 
           {running && (
-            <p className="mt-2 text-center text-[11px] text-white/35">
+            <p className="mt-2 text-center text-[11px] text-paper/35">
               Un seul moment à la fois. Fermez celui en cours pour en lancer un autre.
             </p>
           )}
 
           <button
             onClick={() => navigate(`/hote/${eventId}/reglages`)}
-            className="mt-4 text-center text-xs text-white/35"
+            className="mt-4 text-center text-xs text-paper/35"
           >
             ‹ Retour aux réglages
           </button>
@@ -267,21 +267,21 @@ function Stepper({ label, value, min, max, onChange, note }: {
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-semibold text-white/60">{label}</span>
+      <span className="text-sm font-semibold text-paper/60">{label}</span>
       <div className="flex items-center gap-3.5">
         <button
           onClick={() => onChange(Math.max(min, value - 1))}
           aria-label={`${label} : diminuer`}
-          className="h-11 w-11 rounded-xl bg-white/8 text-xl active:bg-white/14"
+          className="h-11 w-11 rounded-xl bg-paper/8 text-xl active:bg-paper/14"
         >−</button>
         <b className="min-w-12 text-center font-mono text-2xl font-semibold tabular-nums
           text-[var(--accent)]">{value}</b>
         <button
           onClick={() => onChange(Math.min(max, value + 1))}
           aria-label={`${label} : augmenter`}
-          className="h-11 w-11 rounded-xl bg-white/8 text-xl active:bg-white/14"
+          className="h-11 w-11 rounded-xl bg-paper/8 text-xl active:bg-paper/14"
         >+</button>
-        <span className="text-xs text-white/35">{note}</span>
+        <span className="text-xs text-paper/35">{note}</span>
       </div>
     </div>
   );

@@ -66,16 +66,16 @@ export function BillingScreen() {
     >
       <div className="mt-7 flex flex-col gap-4 pb-6">
         {data?.paid ? (
-          <div className="rounded-3xl border border-emerald-500/25 bg-emerald-500/10 p-5">
+          <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-5">
             <p className="text-base font-bold text-emerald-400">Soirée réglée</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-white/55">
+            <p className="mt-1.5 text-sm leading-relaxed text-paper/55">
               Vous pouvez ouvrir la pellicule quand vous le souhaitez.
             </p>
           </div>
         ) : (
-          <div className="rounded-3xl border border-white/10 bg-white/4 p-5">
+          <div className="rounded-xl border border-gold/18 bg-paper/4 p-5">
             <p className="text-base font-bold">Cette soirée n’est pas encore réglée</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-white/55">
+            <p className="mt-1.5 text-sm leading-relaxed text-paper/55">
               Votre première soirée est offerte, limitée à {FREE_TIER.shots} poses
               par invité et {FREE_TIER.guests} participants. Au-delà, chaque
               soirée se règle avant l’ouverture de la pellicule.
@@ -83,11 +83,11 @@ export function BillingScreen() {
           </div>
         )}
 
-        <div className="rounded-2xl border border-white/10 bg-white/3 p-4">
-          <p className="font-mono text-[9px] uppercase tracking-[0.13em] text-white/40">
+        <div className="rounded-lg border border-gold/18 bg-paper/3 p-4">
+          <p className="font-mono text-[9px] uppercase tracking-[0.13em] text-paper/40">
             Ce que comprend une soirée
           </p>
-          <ul className="mt-3 flex flex-col gap-2 text-[13px] text-white/65">
+          <ul className="mt-3 flex flex-col gap-2 text-[13px] text-paper/65">
             <li>Jusqu’à 200 invités, sans application à installer</li>
             <li>{event.quotaShots} vues par invité, réglables avant l’ouverture</li>
             <li>Kit de QR codes imprimable</li>
@@ -96,7 +96,7 @@ export function BillingScreen() {
           </ul>
         </div>
 
-        <p className="px-1 text-[11px] leading-relaxed text-white/35">
+        <p className="px-1 text-[11px] leading-relaxed text-paper/35">
           Le paiement est traité par Stripe. Aucun numéro de carte ne passe
           par Memora, ni n’y est conservé.
         </p>

@@ -27,13 +27,13 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
           <Button full onClick={() => consent.mutate()} disabled={consent.isPending}>
             {consent.isPending ? 'Un instant...' : "J'accepte, je prends mes photos"}
           </Button>
-          <p className="text-center text-xs text-white/40">
+          <p className="text-center text-xs text-paper/40">
             Refuser ferme simplement cette page. Aucune donnée n'est conservée.
           </p>
         </div>
       }
     >
-      <div className="mt-10 space-y-5 text-[15px] leading-relaxed text-white/70">
+      <div className="mt-10 space-y-5 text-[15px] leading-relaxed text-paper/70">
         <p>
           Vos photographies sont visibles par l'organisateur de l'événement, puis
           par les invités si l'organisateur décide de les publier.
@@ -42,7 +42,7 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
           Elles sont conservées trente jours, puis supprimées automatiquement.
           Vous pouvez demander le retrait de l'une d'elles à tout moment.
         </p>
-        <p className="text-white/50">
+        <p className="text-paper/50">
           Aucun compte, aucun nom, aucune adresse électronique ne vous est
           demandé. La position et le modèle de votre téléphone sont effacés
           avant l'envoi.

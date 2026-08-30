@@ -38,8 +38,8 @@ export function stateSentence(state: string, closesInMinutes: number): string {
 
 function Stat({ label, value, note }: { label: string; value: number | string; note?: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/4 px-3.5 py-3">
-      <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-white/45">{label}</p>
+    <div className="rounded-lg border border-gold/18 bg-paper/4 px-3.5 py-3">
+      <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-paper/45">{label}</p>
       <p className="mt-1 text-2xl font-extrabold tracking-tight tabular-nums">{value}</p>
       {note && <p className="text-[11px] text-[var(--accent)]">{note}</p>}
     </div>
@@ -52,12 +52,12 @@ function Action({ title, note, cta, onClick }: {
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-2xl border border-white/10
-        bg-white/4 px-4 py-3.5 text-left transition active:bg-white/8"
+      className="flex w-full items-center gap-3 rounded-lg border border-gold/18
+        bg-paper/4 px-4 py-3.5 text-left transition active:bg-paper/8"
     >
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-bold">{title}</span>
-        <span className="block truncate text-[11px] text-white/45">{note}</span>
+        <span className="block truncate text-[11px] text-paper/45">{note}</span>
       </span>
       <span className="whitespace-nowrap text-[11px] font-bold text-[var(--accent)]">{cta}</span>
     </button>
@@ -123,7 +123,7 @@ export function DashboardScreen() {
         </div>
       }
     >
-      <p className="mt-2 flex items-center gap-2 text-xs text-white/50">
+      <p className="mt-2 flex items-center gap-2 text-xs text-paper/50">
         {live && (
           <span
             className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(52,211,153,.2)]"
@@ -176,21 +176,21 @@ export function DashboardScreen() {
       </div>
 
       {stats && stats.byTable.length > 0 && (
-        <div className="rounded-2xl border border-white/10 bg-white/4 p-4 pb-2">
-          <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-white/45">
+        <div className="rounded-lg border border-gold/18 bg-paper/4 p-4 pb-2">
+          <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-paper/45">
             Photos par table
           </p>
           <ul className="mt-3 flex flex-col gap-2">
             {stats.byTable.slice(0, 5).map((row) => (
               <li key={row.label} className="flex items-center gap-3 pb-1 text-xs">
-                <span className="w-16 shrink-0 truncate text-white/60">{row.label}</span>
-                <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/8">
+                <span className="w-16 shrink-0 truncate text-paper/60">{row.label}</span>
+                <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-paper/8">
                   <span
                     className="block h-full rounded-full bg-[var(--accent)]"
                     style={{ width: `${(row.photos / stats.byTable[0]!.photos) * 100}%` }}
                   />
                 </span>
-                <span className="w-8 text-right font-mono tabular-nums text-white/45">
+                <span className="w-8 text-right font-mono tabular-nums text-paper/45">
                   {row.photos}
                 </span>
               </li>

@@ -54,7 +54,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
       subtitle={`${photos.length} ${photos.length > 1 ? 'images' : 'image'} de la soiree.`}
     >
       {photos.length === 0 ? (
-        <p className="mt-12 text-center text-sm text-white/50">
+        <p className="mt-12 text-center text-sm text-paper/50">
           Rien à montrer pour l'instant. Les mariés n'ont pas encore publié.
         </p>
       ) : (
@@ -65,7 +65,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                 src={photo.url}
                 alt={`Photographie prise le ${new Date(photo.takenAt).toLocaleString('fr-FR')}`}
                 loading="lazy"
-                className="aspect-square w-full rounded-xl bg-white/5 object-cover"
+                className="aspect-square w-full rounded-xl bg-paper/5 object-cover"
               />
               {done.includes(photo.id) ? (
                 <span className="absolute inset-x-1.5 bottom-1.5 rounded-lg bg-black/70 px-2
@@ -98,10 +98,10 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
             onClick={() => setAsking(null)}
             className="absolute inset-0 bg-black/60 animate-[fade_.2s_ease] motion-reduce:animate-none"
           />
-          <div className="relative m-3 rounded-3xl border border-white/10 bg-[#252119] p-5
+          <div className="relative m-3 rounded-xl border border-gold/18 bg-[#0E0A13] p-5
             animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
             <h2 className="text-lg font-extrabold tracking-tight">Demander le retrait</h2>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-white/50">
+            <p className="mt-1.5 text-[13px] leading-relaxed text-paper/50">
               Votre demande est transmise à l’organisateur, qui décide. Dites
               en quelques mots pourquoi.
             </p>
@@ -114,8 +114,8 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                 rows={3}
                 maxLength={280}
                 placeholder="Je préfère ne pas apparaître sur cette photographie."
-                className="w-full rounded-2xl bg-white/7 p-3.5 text-sm text-paper
-                  placeholder:text-white/25 focus:outline-2 focus:outline-[var(--accent)]"
+                className="w-full rounded-lg bg-paper/7 p-3.5 text-sm text-paper
+                  placeholder:text-paper/25 focus:outline-2 focus:outline-[var(--accent)]"
               />
             </label>
 

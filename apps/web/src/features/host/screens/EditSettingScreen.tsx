@@ -98,8 +98,8 @@ export function EditSettingScreen() {
     >
       <div className="mt-7 flex flex-col gap-5 pb-6">
         {locked && (
-          <p className="rounded-2xl border border-white/12 bg-white/5 px-4 py-3.5 text-xs
-            leading-relaxed text-white/55">
+          <p className="rounded-lg border border-gold/18 bg-paper/5 px-4 py-3.5 text-xs
+            leading-relaxed text-paper/55">
             Le nombre de poses ne se modifie plus une fois la pellicule ouverte.
             Vos invités portent déjà leur compteur : le changer maintenant
             créerait deux règles dans la même soirée.
@@ -111,14 +111,14 @@ export function EditSettingScreen() {
             <button
               disabled={locked}
               onClick={() => set('quotaShots', Math.max(QUOTA_MIN, value('quotaShots', event.quotaShots) - 1))}
-              className="h-11 w-11 rounded-xl bg-white/8 text-xl disabled:opacity-30"
+              className="h-11 w-11 rounded-xl bg-paper/8 text-xl disabled:opacity-30"
             >−</button>
             <b className="min-w-14 text-center font-mono text-3xl font-semibold tabular-nums
               text-[var(--accent)]">{value('quotaShots', event.quotaShots)}</b>
             <button
               disabled={locked}
               onClick={() => set('quotaShots', Math.min(QUOTA_MAX, value('quotaShots', event.quotaShots) + 1))}
-              className="h-11 w-11 rounded-xl bg-white/8 text-xl disabled:opacity-30"
+              className="h-11 w-11 rounded-xl bg-paper/8 text-xl disabled:opacity-30"
             >+</button>
           </div>
         )}
@@ -132,7 +132,7 @@ export function EditSettingScreen() {
               columns={2}
               options={PREVIEW_MODES.map((mode) => ({ value: mode, label: PREVIEW_LABEL[mode] }))}
             />
-            <p className="rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)]
+            <p className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)]
               px-3.5 py-3 text-xs leading-relaxed text-[#E8C79A]">
               {PREVIEW_HINT[value('previewMode', event.previewMode)]}
             </p>
@@ -176,7 +176,7 @@ export function EditSettingScreen() {
 
         {setting === 'color' && (
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-white/60">Couleur de la soirée</span>
+            <span className="text-sm font-semibold text-paper/60">Couleur de la soirée</span>
             <div className="flex gap-2.5">
               {COLORS.map((color) => (
                 <button
@@ -190,7 +190,7 @@ export function EditSettingScreen() {
                 />
               ))}
             </div>
-            <p className="mt-1 text-xs leading-relaxed text-white/40">
+            <p className="mt-1 text-xs leading-relaxed text-paper/40">
               Le changement est immédiat pour les invités déjà connectés.
             </p>
           </div>

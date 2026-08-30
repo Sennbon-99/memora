@@ -162,5 +162,11 @@ input, textarea {
 
 .bande-gauche span { transform: rotate(180deg); }
 
-/* Le contenu se decale de la largeur des bandes. */
-.entre-bandes { padding-left: 26px; padding-right: 26px; }
+/* Le contenu se decale de la largeur des bandes. Le decalage est pose sur
+   la racine et non sur chaque ecran : applique plus bas, il entrait en
+   concurrence avec le padding interne au lieu de s'y ajouter, et le texte
+   venait toucher les perforations. */
+#root { padding-left: 26px; padding-right: 26px; }
+
+/* Le viseur doit deborder : il occupe la surface entiere, bandes comprises. */
+.pleine-largeur { margin-left: -26px; margin-right: -26px; }

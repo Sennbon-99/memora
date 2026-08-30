@@ -62,16 +62,16 @@ export function GuestsScreen() {
   return (
     <Screen title="Pellicules" subtitle="Touchez une pellicule pour la trier.">
       {rolls.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-white/45">
+        <p className="mt-14 text-center text-sm leading-relaxed text-paper/45">
           Aucun invité n’a encore scanné le QR code.
         </p>
       ) : (
         <>
-          <div className="mt-6 flex items-center gap-3 text-[11px] text-white/50">
+          <div className="mt-6 flex items-center gap-3 text-[11px] text-paper/50">
             <span className="whitespace-nowrap">
               {progress.done} sur {progress.total} triée{progress.total > 1 ? 's' : ''}
             </span>
-            <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
+            <span className="h-1 flex-1 overflow-hidden rounded-full bg-paper/10">
               <span
                 className="block h-full rounded-full bg-[var(--accent)] transition-[width]
                   duration-500 ease-out motion-reduce:transition-none"
@@ -93,15 +93,15 @@ export function GuestsScreen() {
                 <button
                   onClick={() => navigate(`/hote/${eventId}/tri/${roll.id}`)}
                   disabled={roll.photos === 0}
-                  className="flex w-full items-center gap-3 rounded-2xl border border-white/10
-                    bg-white/4 px-3 py-2.5 text-left transition active:bg-white/9
+                  className="flex w-full items-center gap-3 rounded-lg border border-gold/18
+                    bg-paper/4 px-3 py-2.5 text-left transition active:bg-paper/9
                     disabled:opacity-40"
                 >
                   <span
                     className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-extrabold
                       ${roll.firstName
                         ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
-                        : 'bg-white/7 text-base font-normal text-white/45'}`}
+                        : 'bg-paper/7 text-base font-normal text-paper/45'}`}
                   >
                     {initial(roll)}
                   </span>
@@ -110,7 +110,7 @@ export function GuestsScreen() {
                     <span className="block truncate text-[13px] font-bold">
                       {roll.firstName ?? 'Anonyme'}
                     </span>
-                    <span className="block truncate text-[11px] text-white/45">{subtitle(roll)}</span>
+                    <span className="block truncate text-[11px] text-paper/45">{subtitle(roll)}</span>
                   </span>
 
                   <Badge roll={roll} />

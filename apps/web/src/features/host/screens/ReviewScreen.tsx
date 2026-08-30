@@ -88,24 +88,24 @@ export function ReviewScreen() {
       <header className="flex items-center gap-3 px-5 pt-3">
         <button
           onClick={() => navigate(`/hote/${eventId}/invites`)}
-          className="text-sm text-white/50"
+          className="text-sm text-paper/50"
         >
           ‹ Pellicules
         </button>
-        <span className="ml-auto font-mono text-[11px] tabular-nums text-white/45">
+        <span className="ml-auto font-mono text-[11px] tabular-nums text-paper/45">
           lot {lot + 1} / {lots}
         </span>
       </header>
 
       <div className="mt-3 px-5">
         <h1 className="text-2xl font-extrabold tracking-tight">{who}</h1>
-        <p className="mt-1 text-xs text-white/45">
+        <p className="mt-1 text-xs text-paper/45">
           {data.roll.tableLabel ?? 'Sans table'} · {photos.length} photographies ·
           {' '}touchez celles à écarter
         </p>
       </div>
 
-      <div className="mx-5 mt-3 h-0.5 overflow-hidden rounded-full bg-white/10">
+      <div className="mx-5 mt-3 h-0.5 overflow-hidden rounded-full bg-paper/10">
         <span
           className="block h-full rounded-full bg-[var(--accent)] transition-[width]
             duration-300 ease-out motion-reduce:transition-none"
@@ -125,7 +125,7 @@ export function ReviewScreen() {
         ))}
       </ul>
 
-      <footer className="flex gap-2 border-t border-white/10 bg-[#252119] px-5 py-3 safe-bottom">
+      <footer className="flex gap-2 border-t border-gold/18 bg-[#0E0A13] px-5 py-3 safe-bottom">
         <Button
           tone="ghost"
           className="flex-1"
@@ -197,7 +197,7 @@ function PhotoTile({ photo, hidden, onToggle, onZoom }: {
           <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center
             rounded-full bg-red-500 text-xs font-bold text-white">✕</span>
         )}
-        <span className="absolute bottom-1 left-2 font-mono text-[9px] text-white/60
+        <span className="absolute bottom-1 left-2 font-mono text-[9px] text-paper/60
           [text-shadow:0_1px_3px_rgb(0_0_0/.8)]">
           {heure(photo.takenAt)}
         </span>

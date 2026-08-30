@@ -61,19 +61,19 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
             sans promettre une duree qu'on ne connait pas. */}
         <span
           aria-hidden="true"
-          className="relative h-24 w-24 rounded-full border-2 border-white/12
+          className="relative h-24 w-24 rounded-full border-2 border-gold/18
             after:absolute after:-inset-0.5 after:rounded-full after:border-2
             after:border-transparent after:border-t-[var(--accent)]
             after:animate-[spin_2.4s_linear_infinite] motion-reduce:after:animate-none"
         />
 
-        <div className="w-full rounded-3xl bg-white/5 p-5">
+        <div className="w-full rounded-xl bg-paper/5 p-5">
           <h2 className="text-base font-bold">
             {queued > 0
               ? `${queued} ${queued > 1 ? 'photos partent' : 'photo part'} dès le retour du réseau`
               : 'Vos photographies sont déposées'}
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-white/55">
+          <p className="mt-2 text-sm leading-relaxed text-paper/55">
             Rien ne se perd : elles sont conservées trente jours. Vous pouvez
             fermer cette page.
           </p>
@@ -81,10 +81,10 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
 
         {/* La proposition n'apparait que quand elle a un sens. */}
         {canAsk && (
-          <div className="w-full rounded-3xl border border-[var(--accent-border)]
+          <div className="w-full rounded-xl border border-[var(--accent-border)]
             bg-[var(--accent-soft)] p-5">
             <h2 className="text-base font-bold">Être prévenu ?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-white/60">
+            <p className="mt-2 text-sm leading-relaxed text-paper/60">
               Une seule notification, quand l’album sera en ligne. Rien d’autre.
             </p>
             <Button full className="mt-4" onClick={ask} disabled={outcome === 'busy'}>
@@ -94,7 +94,7 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
         )}
 
         {state === 'needs-install' && (
-          <p className="text-center text-xs leading-relaxed text-white/40">
+          <p className="text-center text-xs leading-relaxed text-paper/40">
             Pour être prévenu sur iPhone, ajoutez d’abord Memora à votre écran
             d’accueil&nbsp;: touchez Partager, puis « Sur l’écran d’accueil ».
             La proposition apparaîtra ensuite.
@@ -107,7 +107,7 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
           </p>
         )}
         {outcome === 'refused' && (
-          <p role="status" className="text-center text-xs leading-relaxed text-white/40">
+          <p role="status" className="text-center text-xs leading-relaxed text-paper/40">
             Pas de notification. Revenez sur cette page dans un jour ou deux,
             l’album y sera.
           </p>

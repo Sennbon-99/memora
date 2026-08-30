@@ -25,8 +25,8 @@ const PREVIEW_LABEL: Record<PreviewMode, string> = {
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-7">
-      <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-white/40">{title}</h2>
-      <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-white/4">
+      <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-paper/40">{title}</h2>
+      <div className="mt-2 overflow-hidden rounded-lg border border-gold/18 bg-paper/4">
         {children}
       </div>
     </section>
@@ -43,13 +43,13 @@ function Line({ label, value, onClick, danger }: {
     <button
       onClick={onClick}
       disabled={!onClick}
-      className={`flex w-full items-center gap-3 border-b border-white/8 px-4 py-3.5 text-left
-        text-[13px] last:border-b-0 transition active:bg-white/6 disabled:active:bg-transparent
+      className={`flex w-full items-center gap-3 border-b border-paper/8 px-4 py-3.5 text-left
+        text-[13px] last:border-b-0 transition active:bg-paper/6 disabled:active:bg-transparent
         ${danger ? 'text-red-400' : ''}`}
     >
       <span className="flex-1">{label}</span>
-      {value && <span className="shrink-0 text-[12px] text-white/45">{value}</span>}
-      {onClick && !danger && <span aria-hidden="true" className="text-white/30">›</span>}
+      {value && <span className="shrink-0 text-[12px] text-paper/45">{value}</span>}
+      {onClick && !danger && <span aria-hidden="true" className="text-paper/30">›</span>}
     </button>
   );
 }
@@ -112,7 +112,7 @@ export function SettingsScreen() {
         />
       </Group>
 
-      <p className="mt-8 pb-4 text-center text-[11px] leading-relaxed text-white/25">
+      <p className="mt-8 pb-4 text-center text-[11px] leading-relaxed text-paper/25">
         Les photographies de cette soirée seront effacées automatiquement
         trente jours après sa fermeture.
       </p>

@@ -52,7 +52,7 @@ export function InstallPrompt() {
 
   if (isIOS()) {
     return (
-      <p className="text-center text-xs leading-relaxed text-white/40">
+      <p className="text-center text-xs leading-relaxed text-paper/40">
         Pour être prévenu de la publication : touchez Partager, puis
         « Sur l'écran d'accueil ».
       </p>

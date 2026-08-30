@@ -72,27 +72,27 @@ export function TeamScreen() {
       subtitle="Les co-hôtes trient et publient comme vous. Le photographe, lui, photographie sans limite."
     >
       <section className="mt-7">
-        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-white/40">
+        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-paper/40">
           Co-hôtes
         </h2>
 
         <ul className="mt-2 flex flex-col gap-2">
-          <li className="flex items-center gap-3 rounded-2xl border border-white/10
-            bg-white/4 px-4 py-3">
+          <li className="flex items-center gap-3 rounded-lg border border-gold/18
+            bg-paper/4 px-4 py-3">
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[13px] font-bold">{session?.name}</span>
-              <span className="block truncate text-[11px] text-white/45">{session?.email}</span>
+              <span className="block truncate text-[11px] text-paper/45">{session?.email}</span>
             </span>
             <span className="rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-[10px]
               font-bold text-[var(--accent)]">vous</span>
           </li>
 
           {data.coHosts.map((coHost) => (
-            <li key={coHost.id} className="flex items-center gap-3 rounded-2xl
-              border border-white/10 bg-white/4 px-4 py-3">
+            <li key={coHost.id} className="flex items-center gap-3 rounded-lg
+              border border-gold/18 bg-paper/4 px-4 py-3">
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13px] font-bold">{coHost.name}</span>
-                <span className="block truncate text-[11px] text-white/45">{coHost.email}</span>
+                <span className="block truncate text-[11px] text-paper/45">{coHost.email}</span>
               </span>
               <button
                 onClick={() => remove.mutate(coHost.id)}
@@ -128,16 +128,16 @@ export function TeamScreen() {
       </section>
 
       <section className="mt-9 pb-6">
-        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-white/40">
+        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-paper/40">
           Photographe officiel
         </h2>
-        <p className="mt-2 px-1 text-xs leading-relaxed text-white/45">
+        <p className="mt-2 px-1 text-xs leading-relaxed text-paper/45">
           Un lien à lui transmettre. Il ouvre une pellicule sans limite de
           poses, sans compte et sans passer par le QR code des invités.
         </p>
 
         {link ? (
-          <div className="mt-3 rounded-2xl border border-[var(--accent-border)]
+          <div className="mt-3 rounded-lg border border-[var(--accent-border)]
             bg-[var(--accent-soft)] p-4">
             <p className="break-all font-mono text-[11px] leading-relaxed text-[#E8C79A]">
               {link}
@@ -145,7 +145,7 @@ export function TeamScreen() {
             <Button full className="mt-3" onClick={() => copy(link)}>
               {copied ? 'Lien copié' : 'Copier le lien'}
             </Button>
-            <p className="mt-2.5 text-[11px] leading-relaxed text-white/40">
+            <p className="mt-2.5 text-[11px] leading-relaxed text-paper/40">
               Ce lien vaut accès : ne le publiez pas, transmettez-le à une
               seule personne.
             </p>
@@ -165,7 +165,7 @@ export function TeamScreen() {
 
       <button
         onClick={() => navigate(`/hote/${eventId}/reglages`)}
-        className="pb-4 text-center text-xs text-white/35"
+        className="pb-4 text-center text-xs text-paper/35"
       >
         ‹ Retour aux réglages
       </button>

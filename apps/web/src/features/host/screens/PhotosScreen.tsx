@@ -132,7 +132,7 @@ export function PhotosScreen() {
             className={`rounded-full border px-3.5 py-1.5 text-xs transition
               ${filter === option.value
                 ? 'border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-text)]'
-                : 'border-white/12 text-white/50'}`}
+                : 'border-gold/18 text-paper/50'}`}
           >
             {option.label}
           </button>
@@ -140,7 +140,7 @@ export function PhotosScreen() {
       </div>
 
       {shown.length === 0 ? (
-        <p className="mt-14 text-center text-sm text-white/45">
+        <p className="mt-14 text-center text-sm text-paper/45">
           {filter === 'hidden' ? 'Aucune photographie masquée.' : 'Rien à montrer ici.'}
         </p>
       ) : (

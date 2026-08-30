@@ -50,7 +50,7 @@ export function CameraDeniedScreen({
             {shot.isPending ? 'Envoi...' : 'Prendre une photo'}
           </Button>
           {denied && (
-            <p className="text-center text-xs text-white/40">
+            <p className="text-center text-xs text-paper/40">
               Pour revenir au viseur, autorisez la caméra dans les réglages de
               votre navigateur, puis rechargez la page.
             </p>

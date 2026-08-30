@@ -30,7 +30,7 @@ export function ShotCounter({ shotsLeft, bonusShots, queued = 0 }: ShotCounterPr
           <div className="text-gold">dont {bonusShots} offertes</div>
         )}
         {queued > 0 && (
-          <div className="text-amber-400">{queued} en attente d'envoi</div>
+          <div className="text-gold">{queued} en attente d'envoi</div>
         )}
       </div>
     </div>

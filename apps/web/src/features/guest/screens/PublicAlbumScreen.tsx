@@ -84,7 +84,7 @@ export function PublicAlbumScreen() {
       subtitle={`${data.photos.length} photographie${data.photos.length > 1 ? 's' : ''} de la soirée.`}
     >
       {data.photos.length === 0 ? (
-        <p className="mt-14 text-center text-sm text-white/45">
+        <p className="mt-14 text-center text-sm text-paper/45">
           L’album est vide pour le moment.
         </p>
       ) : (

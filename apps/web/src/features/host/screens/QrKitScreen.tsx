@@ -89,7 +89,7 @@ export function QrKitScreen() {
       <div className="mt-10 flex flex-col items-center gap-6">
         {/* Apercu decoratif : le vrai QR code est dans le PDF, genere par le
             serveur avec le bon niveau de correction d'erreur. */}
-        <div className="grid h-44 w-44 place-items-center rounded-3xl bg-paper" aria-hidden="true">
+        <div className="grid h-44 w-44 place-items-center rounded-xl bg-paper" aria-hidden="true">
           <div
             className="h-32 w-32"
             style={{
@@ -101,15 +101,15 @@ export function QrKitScreen() {
           />
         </div>
 
-        <p className="max-w-xs text-center text-sm leading-relaxed text-white/50">
+        <p className="max-w-xs text-center text-sm leading-relaxed text-paper/50">
           Imprimez, posez sur les tables. Aucun invité n’aura à télécharger
           quoi que ce soit : le QR code ouvre directement sa pellicule.
         </p>
 
         {event.useTableCodes && (
-          <div className="w-full rounded-3xl border border-white/10 bg-white/4 p-5">
+          <div className="w-full rounded-xl border border-gold/18 bg-paper/4 p-5">
             <h2 className="text-base font-bold">Vos tables</h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-white/55">
+            <p className="mt-1.5 text-sm leading-relaxed text-paper/55">
               Vous demandez le numéro de table à vos invités. Créez-les ici :
               chacune reçoit son propre QR code dans le kit.
             </p>
@@ -125,16 +125,16 @@ export function QrKitScreen() {
                   <button
                     onClick={() => setCount((value) => Math.max(1, value - 1))}
                     aria-label="Une table de moins"
-                    className="h-11 w-11 rounded-xl bg-white/8 text-xl"
+                    className="h-11 w-11 rounded-xl bg-paper/8 text-xl"
                   >−</button>
                   <b className="min-w-12 text-center font-mono text-2xl font-semibold
                     tabular-nums text-[var(--accent)]">{count}</b>
                   <button
                     onClick={() => setCount((value) => Math.min(40, value + 1))}
                     aria-label="Une table de plus"
-                    className="h-11 w-11 rounded-xl bg-white/8 text-xl"
+                    className="h-11 w-11 rounded-xl bg-paper/8 text-xl"
                   >+</button>
-                  <span className="text-xs text-white/35">tables</span>
+                  <span className="text-xs text-paper/35">tables</span>
                 </div>
                 <Button
                   tone="ghost"
@@ -156,7 +156,7 @@ export function QrKitScreen() {
         )}
 
         {event.state === 'DRAFT' && (
-          <p className="rounded-2xl border border-[var(--accent-border)] bg-[var(--accent-soft)]
+          <p className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)]
             px-4 py-3 text-xs leading-relaxed text-[#E8C79A]">
             La pellicule est encore fermée. Ouvrez-la le jour J : avant, un
             invité qui scanne verra que la soirée n’a pas commencé.

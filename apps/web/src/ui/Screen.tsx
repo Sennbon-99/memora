@@ -70,7 +70,7 @@ export function Screen({
       <Bande cote="gauche" haut={code?.hautGauche ?? 'MEMORA 400'} bas={code?.basGauche} />
       <Bande cote="droite" haut={code?.hautDroite} bas={code?.basDroite} />
 
-      <main className="entre-bandes mx-auto flex w-full max-w-md flex-1 flex-col px-5 pt-10">
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pt-10">
         <h1
           className={
             hideTitle
@@ -92,7 +92,7 @@ export function Screen({
           la verrait. */}
       {footer && (
         <div
-          className="entre-bandes sticky z-20 border-t border-gold/20 bg-film/95
+          className="sticky z-20 border-t border-gold/20 bg-film/95
             px-5 pb-6 pt-3 backdrop-blur"
           style={{ bottom: 'var(--tabbar, 0px)' }}
         >

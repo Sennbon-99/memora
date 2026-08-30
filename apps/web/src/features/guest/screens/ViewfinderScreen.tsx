@@ -82,11 +82,11 @@ export function ViewfinderScreen({
       )}
 
       <header className="relative z-20 flex items-start justify-between gap-4 px-5 pt-4 safe-top">
-        <div className="rounded-2xl bg-black/50 px-4 py-2 backdrop-blur">
+        <div className="rounded-lg bg-black/50 px-4 py-2 backdrop-blur">
           <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
         </div>
         <span className="mt-2 max-w-32 truncate rounded-full bg-black/50 px-3 py-1
-          text-xs text-white/70 backdrop-blur">
+          text-xs text-paper/70 backdrop-blur">
           {eventName}
         </span>
       </header>
@@ -94,10 +94,10 @@ export function ViewfinderScreen({
       {!online && (
         <p
           role="status"
-          className="relative z-20 mx-5 mt-3 rounded-xl bg-amber-500/20 px-4 py-2.5
-            text-center text-sm text-amber-100 backdrop-blur"
+          className="relative z-20 mx-5 mt-3 rounded-xl bg-gold/18 ring-1 ring-gold/35 px-4 py-2.5
+            text-center text-sm text-gold backdrop-blur"
         >
-          Hors ligne. Continuez, vos photos partiront au retour du reseau.
+          Hors ligne. Continuez, vos vues partiront au retour du réseau.
         </p>
       )}
 
@@ -124,7 +124,7 @@ export function ViewfinderScreen({
           onClick={takeShot}
           disabled={shot.isPending || total === 0}
           aria-label={`Prendre une photo, ${total} restantes`}
-          className="h-20 w-20 rounded-full bg-white ring-4 ring-white/30
+          className="h-20 w-20 rounded-full bg-white ring-4 ring-paper/30
             transition active:scale-95 disabled:opacity-40
             focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-white"
         >

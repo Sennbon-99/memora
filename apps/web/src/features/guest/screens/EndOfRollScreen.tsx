@@ -55,9 +55,9 @@ export function EndOfRollScreen({
         </div>
       }
     >
-      <div className="mt-10 rounded-3xl bg-white/5 p-6">
+      <div className="mt-10 rounded-xl bg-paper/5 p-6">
         <h2 className="text-base font-semibold">Retrouver vos photos plus tard</h2>
-        <p className="mt-2 text-sm leading-relaxed text-white/60">
+        <p className="mt-2 text-sm leading-relaxed text-paper/60">
           Ce téléphone se souvient de vous. Choisissez un code à quatre chiffres
           si vous voulez aussi y acceder depuis un autre appareil
           {firstName ? `, avec le prenom ${firstName}` : ''}.
@@ -78,8 +78,8 @@ export function EndOfRollScreen({
                 inputMode="numeric"
                 autoComplete="off"
                 placeholder="0000"
-                className="h-12 w-full rounded-2xl bg-white/8 px-4 text-center font-mono
-                  text-xl tracking-[0.4em] text-paper placeholder:text-white/20
+                className="h-12 w-full rounded-lg bg-paper/8 px-4 text-center font-mono
+                  text-xl tracking-[0.4em] text-paper placeholder:text-paper/20
                   focus:outline-2 focus:outline-[var(--accent)]"
               />
             </label>

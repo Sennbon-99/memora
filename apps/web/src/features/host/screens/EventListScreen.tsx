@@ -11,11 +11,11 @@ import type { EventSummary } from '../../../lib/api.js';
 /** Etat de la soiree, dit avec les mots de l'hote et non ceux de la base. */
 function stateLabel(event: EventSummary): { text: string; tone: string } {
   switch (event.state) {
-    case 'DRAFT': return { text: 'brouillon', tone: 'bg-white/8 text-white/50' };
+    case 'DRAFT': return { text: 'brouillon', tone: 'bg-paper/8 text-paper/50' };
     case 'OPEN': return { text: 'en cours', tone: 'bg-emerald-500/15 text-emerald-400' };
     case 'CLOSED': return { text: 'à trier', tone: 'bg-[var(--accent-soft)] text-[var(--accent)]' };
-    case 'PUBLISHED': return { text: 'album publié', tone: 'bg-white/8 text-white/50' };
-    case 'PURGED': return { text: 'effacée', tone: 'bg-white/6 text-white/35' };
+    case 'PUBLISHED': return { text: 'album publié', tone: 'bg-paper/8 text-paper/50' };
+    case 'PURGED': return { text: 'effacée', tone: 'bg-paper/6 text-paper/35' };
   }
 }
 
@@ -49,7 +49,7 @@ export function EventListScreen() {
       }
     >
       {events.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-white/45">
+        <p className="mt-14 text-center text-sm leading-relaxed text-paper/45">
           Rien pour l’instant.<br />Créez votre première soirée, imprimez le kit,
           et vos invités photographient.
         </p>
@@ -61,8 +61,8 @@ export function EventListScreen() {
               <li key={event.id}>
                 <button
                   onClick={() => navigate(`/hote/${event.id}`)}
-                  className="w-full overflow-hidden rounded-3xl border border-white/10
-                    bg-white/4 text-left transition active:bg-white/8"
+                  className="w-full overflow-hidden rounded-xl border border-gold/18
+                    bg-paper/4 text-left transition active:bg-paper/8"
                 >
                   <div className="px-4 py-3.5">
                     {/* La teinte choisie par l'hote sert de reperage entre
@@ -78,17 +78,17 @@ export function EventListScreen() {
                       />
                       {event.name}
                     </p>
-                    <p className="mt-1.5 flex items-center gap-2 text-xs text-white/45">
+                    <p className="mt-1.5 flex items-center gap-2 text-xs text-paper/45">
                       {dateFr(event.eventDate)}
                       <span className={`rounded-full px-2 py-0.5 font-bold ${badge.tone}`}>
                         {badge.text}
                       </span>
                     </p>
                     {event._count && (
-                      <p className="mt-1 text-xs text-white/35">
+                      <p className="mt-1 text-xs text-paper/35">
                         {event._count.rolls} invité{event._count.rolls > 1 ? 's' : ''}
                         {' · '}
-                        {event._count.photos} photo{event._count.photos > 1 ? 's' : ''}
+                        {event._count.photos} vue{event._count.photos > 1 ? 's' : ''}
                       </p>
                     )}
                   </div>
