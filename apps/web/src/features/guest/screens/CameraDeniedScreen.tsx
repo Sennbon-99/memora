@@ -34,7 +34,7 @@ export function CameraDeniedScreen({
 
   return (
     <Screen
-      title={denied ? 'Camera non autorisee' : 'Camera indisponible'}
+      title={denied ? 'Caméra non autorisée' : 'Caméra indisponible'}
       subtitle={
         denied
           ? "Vous pouvez continuer sans rien changer : le bouton ci-dessous ouvre l'appareil photo de votre téléphone."

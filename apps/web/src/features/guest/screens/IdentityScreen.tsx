@@ -52,7 +52,7 @@ export function IdentityScreen({ slug, useTableCodes, tables, onDone }: Identity
     >
       <form className="mt-10 flex flex-col gap-5" onSubmit={submit}>
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-white/70">Prenom</span>
+          <span className="text-sm font-medium text-white/70">Prénom</span>
           <input
             {...register('firstName')}
             autoComplete="given-name"

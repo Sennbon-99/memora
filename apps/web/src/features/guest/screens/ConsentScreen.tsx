@@ -40,7 +40,7 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
         </p>
         <p>
           Elles sont conservées trente jours, puis supprimées automatiquement.
-          Vous pouvez demander le retrait de l'une d'elles a tout moment.
+          Vous pouvez demander le retrait de l'une d'elles à tout moment.
         </p>
         <p className="text-white/50">
           Aucun compte, aucun nom, aucune adresse électronique ne vous est
