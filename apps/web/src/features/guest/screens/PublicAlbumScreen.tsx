@@ -9,7 +9,7 @@
 // La visibilite reste decidee par le serveur, photographie par
 // photographie : ce lien donne acces a l'album, pas a tout.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { publicAlbumApi, ApiError } from '../../../lib/api.js';
@@ -18,7 +18,6 @@ import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
-import { useEffect } from 'react';
 
 export function PublicAlbumScreen() {
   const { token = '' } = useParams();
@@ -35,7 +34,21 @@ export function PublicAlbumScreen() {
   const color = data?.event.color;
   useEffect(() => { if (color) applyEventTheme(color); }, [color]);
 
-  if (isPending) return <Spinner label="Ouverture de l’album" />;
+  // L'attente garde l'enveloppe : les bandes de pellicule ne doivent pas
+  // disparaitre le temps que l'album arrive.
+  if (isPending) {
+    return (
+      <Screen
+        title="Album"
+        hideTitle
+        code={{ hautGauche: 'MEMORA 400', basGauche: 'ALBUM', hautDroite: 'OUVERTURE' }}
+      >
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner label="Ouverture de l’album" />
+        </div>
+      </Screen>
+    );
+  }
 
   if (error) {
     const failure = error as ApiError;
@@ -47,22 +60,39 @@ export function PublicAlbumScreen() {
         <Screen
           title="Album protégé"
           subtitle="Les organisateurs ont ajouté un code à six chiffres."
+          code={{
+            hautGauche: 'MEMORA 400',
+            basGauche: 'ALBUM',
+            hautDroite: 'CODE REQUIS',
+          }}
           footer={
             <Button full disabled={code.length !== 6} onClick={() => setSubmitted(code)}>
               Ouvrir l’album
             </Button>
           }
         >
-          <div className="mt-9">
-            <Field
-              label="Code d’accès"
-              inputMode="numeric"
-              value={code}
-              onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="000000"
-              className="text-center font-mono text-xl tracking-[0.4em]"
-              error={failure.code === 'WRONG_CODE' ? 'Code incorrect.' : undefined}
-            />
+          <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+              Lien de partage
+            </p>
+
+            <div className="border-y border-gold/20 py-6">
+              <p className="max-w-[22ch] font-serif text-[26px] leading-[1.15] text-paper/80">
+                Six chiffres séparent cet album de vous.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
+              <Field
+                label="Code d’accès"
+                inputMode="numeric"
+                value={code}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
+                className="text-center font-mono text-xl tabular-nums tracking-[0.4em]"
+                error={failure.code === 'WRONG_CODE' ? 'Code incorrect.' : undefined}
+              />
+            </div>
           </div>
         </Screen>
       );
@@ -72,39 +102,85 @@ export function PublicAlbumScreen() {
       <Screen
         title="Album introuvable"
         subtitle="Ce lien n’est plus valide, ou l’album a été effacé au bout de trente jours."
+        code={{
+          hautGauche: 'MEMORA 400',
+          basGauche: 'ALBUM',
+          hautDroite: 'LIEN EXPIRÉ',
+        }}
       >
-        <span />
+        <div className="flex flex-1 flex-col justify-center pb-16">
+          <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+              Pellicule effacée
+            </p>
+            <p className="mt-3 text-[15px] leading-relaxed text-paper/60">
+              Un album Memora vit trente jours, puis s’efface : c’est la
+              promesse faite aux invités le soir de la soirée. Demandez un
+              nouveau lien à l’organisateur.
+            </p>
+          </div>
+        </div>
       </Screen>
     );
   }
 
+  const photos = data.photos;
+
   return (
     <Screen
       title={data.event.name}
-      subtitle={`${data.photos.length} photographie${data.photos.length > 1 ? 's' : ''} de la soirée.`}
+      subtitle="Les photographies publiées par l’organisateur."
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${photos.length} VUES`,
+        hautDroite: 'ALBUM PARTAGÉ',
+      }}
     >
-      {data.photos.length === 0 ? (
-        <p className="mt-14 text-center text-sm text-paper/45">
-          L’album est vide pour le moment.
-        </p>
+      {photos.length === 0 ? (
+        <div className="flex flex-1 flex-col justify-center pb-16">
+          <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+              Planche vide
+            </p>
+            <h2 className="mt-3 font-serif text-[26px] leading-[1.15]">
+              L’album est vide pour le moment.
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-paper/55">
+              Les photographies apparaîtront ici dès que l’organisateur aura
+              publié sa sélection.
+            </p>
+          </div>
+        </div>
       ) : (
-        <ul className="mt-7 grid grid-cols-2 gap-2 pb-8">
-          {data.photos.map((photo, index) => (
-            <li
-              key={photo.id}
-              className="animate-[rise_.3s_ease_backwards] motion-reduce:animate-none"
-              style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
-            >
-              <img
-                src={photo.url}
-                alt={`Photographie prise à ${new Date(photo.takenAt)
-                  .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
-                loading="lazy"
-                className="aspect-square w-full rounded-xl object-cover"
-              />
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="mt-8 flex items-baseline justify-between border-b border-gold/20 pb-3">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+              Planche contact
+            </p>
+            <p className="font-mono text-[12px] tabular-nums text-paper/50">
+              <span className="text-gold">{photos.length}</span>{' '}
+              {photos.length > 1 ? 'photographies' : 'photographie'}
+            </p>
+          </div>
+
+          <ul className="mt-4 grid grid-cols-2 gap-2 pb-8">
+            {photos.map((photo, index) => (
+              <li
+                key={photo.id}
+                className="animate-[rise_.3s_ease_backwards] motion-reduce:animate-none"
+                style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
+              >
+                <img
+                  src={photo.url}
+                  alt={`Photographie prise à ${new Date(photo.takenAt)
+                    .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
+                  loading="lazy"
+                  className="aspect-square w-full rounded-lg bg-paper/5 object-cover"
+                />
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </Screen>
   );

@@ -2,7 +2,7 @@
 // Modification d'un reglage de la soiree, un ecran par reglage.
 //
 // Une regle metier gouverne cet ecran, et elle n'est pas cosmetique : le
-// quota de poses n'est modifiable qu'en brouillon. Une fois la pellicule
+// quota de vues n'est modifiable qu'en brouillon. Une fois la pellicule
 // ouverte, chaque invite porte son compteur dans Redis. Le baisser de
 // vingt-quatre a dix ne retirerait rien a ceux qui sont deja la, et
 // creerait deux regles differentes dans la meme soiree. Le prolonger, en
@@ -76,6 +76,12 @@ export function EditSettingScreen() {
     <Screen
       title={TITLES[setting]}
       subtitle={event.name}
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${event.quotaShots} VUES`,
+        hautDroite: 'RÉGLAGE',
+        basDroite: locked ? 'VERROUILLÉ' : 'MODIFIABLE',
+      }}
       footer={
         <div className="flex flex-col gap-2.5">
           <div className="flex gap-2">
@@ -100,26 +106,31 @@ export function EditSettingScreen() {
         {locked && (
           <p className="rounded-lg border border-gold/18 bg-paper/5 px-4 py-3.5 text-xs
             leading-relaxed text-paper/55">
-            Le nombre de poses ne se modifie plus une fois la pellicule ouverte.
+            Le nombre de vues ne se modifie plus une fois la pellicule ouverte.
             Vos invités portent déjà leur compteur : le changer maintenant
             créerait deux règles dans la même soirée.
           </p>
         )}
 
         {setting === 'quota' && (
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-3.5 rounded-xl border border-gold/18
+            bg-paper/4 px-3.5 py-3">
             <button
               disabled={locked}
               onClick={() => set('quotaShots', Math.max(QUOTA_MIN, value('quotaShots', event.quotaShots) - 1))}
-              className="h-11 w-11 rounded-xl bg-paper/8 text-xl disabled:opacity-30"
+              aria-label="Une vue de moins"
+              className="h-11 w-11 rounded-lg bg-paper/8 text-xl disabled:opacity-30"
             >−</button>
-            <b className="min-w-14 text-center font-mono text-3xl font-semibold tabular-nums
-              text-[var(--accent)]">{value('quotaShots', event.quotaShots)}</b>
+            <b className="min-w-14 text-center font-mono text-3xl font-medium tabular-nums
+              text-gold">{value('quotaShots', event.quotaShots)}</b>
             <button
               disabled={locked}
               onClick={() => set('quotaShots', Math.min(QUOTA_MAX, value('quotaShots', event.quotaShots) + 1))}
-              className="h-11 w-11 rounded-xl bg-paper/8 text-xl disabled:opacity-30"
+              aria-label="Une vue de plus"
+              className="h-11 w-11 rounded-lg bg-paper/8 text-xl disabled:opacity-30"
             >+</button>
+            <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em]
+              text-paper/40">Vues</span>
           </div>
         )}
 
@@ -132,8 +143,8 @@ export function EditSettingScreen() {
               columns={2}
               options={PREVIEW_MODES.map((mode) => ({ value: mode, label: PREVIEW_LABEL[mode] }))}
             />
-            <p className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)]
-              px-3.5 py-3 text-xs leading-relaxed text-[#E8C79A]">
+            <p className="rounded-lg border border-gold/25 bg-gold/8 px-3.5 py-3 text-xs
+              leading-relaxed text-gold">
               {PREVIEW_HINT[value('previewMode', event.previewMode)]}
             </p>
           </>
@@ -185,8 +196,8 @@ export function EditSettingScreen() {
                   aria-pressed={value('color', event.color) === color}
                   onClick={() => { set('color', color); applyEventTheme(color); }}
                   style={{ background: color }}
-                  className={`h-10 w-10 rounded-xl border-2 ${
-                    value('color', event.color) === color ? 'border-white' : 'border-transparent'}`}
+                  className={`h-10 w-10 rounded-full border-2 ${
+                    value('color', event.color) === color ? 'border-paper' : 'border-paper/15'}`}
                 />
               ))}
             </div>

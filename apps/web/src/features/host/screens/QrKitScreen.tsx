@@ -39,6 +39,12 @@ export function QrKitScreen() {
     <Screen
       title="Votre kit est prêt"
       subtitle={`Un QR code par table pour ${event.name}, plus une affiche pour l’entrée.`}
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: 'À IMPRIMER',
+        hautDroite: 'KIT QR',
+        basDroite: event.state === 'DRAFT' ? 'BROUILLON' : 'OUVERTE',
+      }}
       footer={
         <div className="flex flex-col gap-3">
           {/* Telechargement direct : le PDF est genere par l'API, pas ici. */}
@@ -107,39 +113,46 @@ export function QrKitScreen() {
         </p>
 
         {event.useTableCodes && (
-          <div className="w-full rounded-xl border border-gold/18 bg-paper/4 p-5">
-            <h2 className="text-base font-bold">Vos tables</h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-paper/55">
+          <section className="w-full">
+            <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+              Vos tables
+            </h2>
+            <p className="mt-2 px-1 text-[13px] leading-relaxed text-paper/55">
               Vous demandez le numéro de table à vos invités. Créez-les ici :
               chacune reçoit son propre QR code dans le kit.
             </p>
 
             {tables.isSuccess ? (
-              <p role="status" className="mt-4 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm
-                text-emerald-400">
-                {tables.data.tables.length} tables créées.
+              <p role="status" className="mt-4 rounded-lg border border-emerald-500/25
+                bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+                <span className="font-mono tabular-nums">{tables.data.tables.length}</span> tables
+                {' '}créées.
               </p>
             ) : (
               <>
-                <div className="mt-4 flex items-center gap-3.5">
+                {/* Le nombre est un chiffre : mono, en or, entre ses deux
+                    boutons. Le libelle passe en petites capitales. */}
+                <div className="mt-4 flex items-center gap-3.5 rounded-xl border border-gold/18
+                  bg-paper/4 px-3.5 py-3">
                   <button
                     onClick={() => setCount((value) => Math.max(1, value - 1))}
                     aria-label="Une table de moins"
-                    className="h-11 w-11 rounded-xl bg-paper/8 text-xl"
+                    className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
                   >−</button>
-                  <b className="min-w-12 text-center font-mono text-2xl font-semibold
-                    tabular-nums text-[var(--accent)]">{count}</b>
+                  <b className="min-w-12 text-center font-mono text-2xl font-medium
+                    tabular-nums text-gold">{count}</b>
                   <button
                     onClick={() => setCount((value) => Math.min(40, value + 1))}
                     aria-label="Une table de plus"
-                    className="h-11 w-11 rounded-xl bg-paper/8 text-xl"
+                    className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
                   >+</button>
-                  <span className="text-xs text-paper/35">tables</span>
+                  <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em]
+                    text-paper/40">Tables</span>
                 </div>
                 <Button
                   tone="ghost"
                   full
-                  className="mt-4"
+                  className="mt-3"
                   disabled={tables.isPending}
                   onClick={() => tables.mutate()}
                 >
@@ -152,12 +165,12 @@ export function QrKitScreen() {
                 )}
               </>
             )}
-          </div>
+          </section>
         )}
 
         {event.state === 'DRAFT' && (
-          <p className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)]
-            px-4 py-3 text-xs leading-relaxed text-[#E8C79A]">
+          <p className="rounded-lg border border-gold/25 bg-gold/8 px-4 py-3 text-xs
+            leading-relaxed text-gold">
             La pellicule est encore fermée. Ouvrez-la le jour J : avant, un
             invité qui scanne verra que la soirée n’a pas commencé.
           </p>

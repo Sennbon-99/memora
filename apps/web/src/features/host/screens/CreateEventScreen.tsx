@@ -7,6 +7,10 @@
 //
 // Regle tenue partout : on ne demande jamais de choisir dans le vide. Chaque
 // reglage affiche la consequence de sa valeur, en francais et pas en jargon.
+//
+// Les chiffres — le quota, l'etape — sont en mono et en or ; l'or est
+// structurel. La couleur de la soiree n'apparait que dans les pastilles a
+// choisir, parce que c'est la son seul role : identifier une soiree.
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +27,7 @@ import { applyEventTheme } from '../../../lib/theme.js';
 import { defaultClosing, toDateInput, toDateTimeInput } from '../../../lib/datetime.js';
 import { useCreateEvent, useEvents } from '../useEvents.js';
 
-/** Ce que le nombre de poses veut dire, plutot que le nombre seul. */
+/** Ce que le nombre de vues veut dire, plutot que le nombre seul. */
 function quotaMeaning(shots: number): string {
   if (shots <= 8) return 'pour une petite soirée';
   if (shots <= 15) return 'pour un cocktail';
@@ -75,7 +79,7 @@ export function CreateEventScreen() {
 
   const { data: existing } = useEvents();
   const nameTooShort = name.trim().length < 3;
-  // La premiere soiree d'un compte est offerte, mais plafonnee en poses.
+  // La premiere soiree d'un compte est offerte, mais plafonnee en vues.
   const isFirst = (existing?.events.length ?? 0) === 0;
 
   const submit = async () => {
@@ -99,6 +103,12 @@ export function CreateEventScreen() {
   return (
     <Screen
       title={{ 1: "L'essentiel", 2: 'La pellicule', 3: "L'allure" }[step]}
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${quotaShots} VUES`,
+        hautDroite: 'NOUVELLE',
+        basDroite: `ÉTAPE ${step}/3`,
+      }}
       subtitle={{
         1: 'Ce que vos invités verront en scannant.',
         2: 'Combien de photographies chacun peut prendre, et ce qu’il voit après.',
@@ -136,7 +146,7 @@ export function CreateEventScreen() {
         {[1, 2, 3].map((n) => (
           <span
             key={n}
-            className={`h-1 flex-1 rounded-full ${n <= step ? 'bg-[var(--accent)]' : 'bg-paper/12'}`}
+            className={`h-1 flex-1 rounded-full ${n <= step ? 'bg-gold' : 'bg-paper/12'}`}
           />
         ))}
       </div>
@@ -179,20 +189,23 @@ export function CreateEventScreen() {
           <>
             <div className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-paper/60">Vues par invité</span>
-              <div className="flex items-center gap-3.5">
+              <div className="flex items-center gap-3.5 rounded-xl border border-gold/18
+                bg-paper/4 px-3.5 py-3">
                 <button
                   onClick={() => setQuotaShots((q) => Math.max(QUOTA_MIN, q - 1))}
                   aria-label="Une vue de moins"
-                  className="h-11 w-11 rounded-xl bg-paper/8 text-xl active:bg-paper/14"
+                  className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
                 >−</button>
-                <b className="min-w-14 text-center font-mono text-3xl font-semibold
-                  tabular-nums text-[var(--accent)]">{quotaShots}</b>
+                <b className="min-w-14 text-center font-mono text-3xl font-medium
+                  tabular-nums text-gold">{quotaShots}</b>
                 <button
                   onClick={() => setQuotaShots((q) => Math.min(QUOTA_MAX, q + 1))}
                   aria-label="Une vue de plus"
-                  className="h-11 w-11 rounded-xl bg-paper/8 text-xl active:bg-paper/14"
+                  className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
                 >+</button>
-                <span className="text-xs leading-snug text-paper/35">{quotaMeaning(quotaShots)}</span>
+                <span className="ml-auto text-right text-[11px] leading-tight text-paper/40">
+                  {quotaMeaning(quotaShots)}
+                </span>
               </div>
             </div>
 
@@ -203,20 +216,22 @@ export function CreateEventScreen() {
               columns={2}
               options={PREVIEW_MODES.map((value) => ({ value, label: PREVIEW_LABEL[value] }))}
             />
-            <p className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)]
-              px-3.5 py-3 text-xs leading-relaxed text-[#E8C79A]">
+            <p className="rounded-lg border border-gold/25 bg-gold/8 px-3.5 py-3 text-xs
+              leading-relaxed text-gold">
               {PREVIEW_HINT[previewMode]}
             </p>
 
             {/* Le palier gratuit plafonne la premiere soiree. Le dire ici
-                evite qu'un hote choisisse 24 poses et en obtienne 10 sans
+                evite qu'un hote choisisse 24 vues et en obtienne 10 sans
                 comprendre pourquoi. */}
             {isFirst && quotaShots > FREE_TIER.shots && (
               <p className="rounded-lg border border-gold/18 bg-paper/5 px-3.5 py-3
                 text-xs leading-relaxed text-paper/55">
-                Votre première soirée est offerte, et limitée à {FREE_TIER.shots} poses
-                par invité. Vous en avez choisi {quotaShots} : les soirées suivantes
-                les accepteront toutes.
+                Votre première soirée est offerte, et limitée à{' '}
+                <span className="font-mono tabular-nums text-gold">{FREE_TIER.shots}</span> vues
+                par invité. Vous en avez choisi{' '}
+                <span className="font-mono tabular-nums text-gold">{quotaShots}</span> : les
+                soirées suivantes les accepteront toutes.
               </p>
             )}
           </>
@@ -234,8 +249,8 @@ export function CreateEventScreen() {
                     aria-pressed={value === color}
                     onClick={() => { setColor(value); applyEventTheme(value); }}
                     style={{ background: value }}
-                    className={`h-9 w-9 rounded-xl border-2 ${
-                      value === color ? 'border-white' : 'border-transparent'}`}
+                    className={`h-9 w-9 rounded-full border-2 ${
+                      value === color ? 'border-paper' : 'border-paper/15'}`}
                   />
                 ))}
               </div>

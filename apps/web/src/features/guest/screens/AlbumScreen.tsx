@@ -36,12 +36,40 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
     },
   });
 
-  if (isPending) return <Spinner label="Chargement de l'album" />;
+  // L'attente reste dans l'enveloppe : un indicateur pose seul perdrait les
+  // bandes de pellicule, et l'application clignoterait a chaque chargement.
+  if (isPending) {
+    return (
+      <Screen
+        title="Album"
+        hideTitle
+        code={{ hautGauche: 'MEMORA 400', basGauche: 'ALBUM', hautDroite: 'OUVERTURE' }}
+      >
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner label="Chargement de l'album" />
+        </div>
+      </Screen>
+    );
+  }
 
   if (isError) {
     return (
-      <Screen title="Album indisponible" subtitle="Vérifiez votre connexion et rechargez la page.">
-        <span />
+      <Screen
+        title="Album indisponible"
+        subtitle="Vérifiez votre connexion, puis rechargez la page."
+        code={{ hautGauche: 'MEMORA 400', basGauche: 'ALBUM', hautDroite: 'HORS LIGNE' }}
+      >
+        <div className="flex flex-1 flex-col justify-center pb-16">
+          <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+              Planche indisponible
+            </p>
+            <p className="mt-3 text-[15px] leading-relaxed text-paper/60">
+              Vos photographies sont conservées trente jours : rien n’est perdu,
+              l’album se rouvrira au retour du réseau.
+            </p>
+          </div>
+        </div>
       </Screen>
     );
   }
@@ -51,40 +79,75 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
   return (
     <Screen
       title={firstName ? `Vos photos, ${firstName}` : 'Vos photos'}
-      subtitle={`${photos.length} ${photos.length > 1 ? 'images' : 'image'} de la soiree.`}
+      subtitle="Ce que l’organisateur a publié de la soirée."
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${photos.length} VUES`,
+        hautDroite: 'ALBUM',
+      }}
     >
       {photos.length === 0 ? (
-        <p className="mt-12 text-center text-sm text-paper/50">
-          Rien à montrer pour l'instant. Les mariés n'ont pas encore publié.
-        </p>
+        // La planche vide occupe la hauteur au lieu d'y flotter : une ligne
+        // centree perdue au milieu de l'ecran ressemble a une panne.
+        <div className="flex flex-1 flex-col justify-center pb-16">
+          <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+              Planche vide
+            </p>
+            <h2 className="mt-3 font-serif text-[26px] leading-[1.15]">
+              Rien à montrer pour l’instant.
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-paper/55">
+              L’organisateur n’a pas encore publié sa sélection de la soirée.
+              Revenez dans un jour ou deux.
+            </p>
+          </div>
+        </div>
       ) : (
-        <ul className="mt-8 grid grid-cols-2 gap-2 pb-10">
-          {photos.map((photo) => (
-            <li key={photo.id} className="relative">
-              <img
-                src={photo.url}
-                alt={`Photographie prise le ${new Date(photo.takenAt).toLocaleString('fr-FR')}`}
-                loading="lazy"
-                className="aspect-square w-full rounded-xl bg-paper/5 object-cover"
-              />
-              {done.includes(photo.id) ? (
-                <span className="absolute inset-x-1.5 bottom-1.5 rounded-lg bg-black/70 px-2
-                  py-1 text-center text-[10px] text-white backdrop-blur">
-                  Retrait demandé
-                </span>
-              ) : (
-                <button
-                  onClick={() => setAsking(photo.id)}
-                  aria-label="Demander le retrait de cette photographie"
-                  className="absolute right-1.5 top-1.5 grid h-8 w-8 place-items-center
-                    rounded-full bg-black/55 text-sm text-white backdrop-blur"
-                >
-                  ⋯
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="mt-8 flex items-baseline justify-between border-b border-gold/20 pb-3">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+              Planche contact
+            </p>
+            <p className="font-mono text-[12px] tabular-nums text-paper/50">
+              <span className="text-gold">{photos.length}</span>{' '}
+              {photos.length > 1 ? 'photographies' : 'photographie'}
+            </p>
+          </div>
+
+          <ul className="mt-4 grid grid-cols-2 gap-2 pb-10">
+            {photos.map((photo, index) => (
+              <li
+                key={photo.id}
+                className="relative animate-[rise_.3s_ease_backwards] motion-reduce:animate-none"
+                style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
+              >
+                <img
+                  src={photo.url}
+                  alt={`Photographie prise le ${new Date(photo.takenAt).toLocaleString('fr-FR')}`}
+                  loading="lazy"
+                  className="aspect-square w-full rounded-lg bg-paper/5 object-cover"
+                />
+                {done.includes(photo.id) ? (
+                  <span className="absolute inset-x-1.5 bottom-1.5 rounded-lg bg-film/80 px-2
+                    py-1 text-center font-mono text-[9px] uppercase tracking-[0.16em]
+                    text-gold backdrop-blur">
+                    Retrait demandé
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => setAsking(photo.id)}
+                    aria-label="Demander le retrait de cette photographie"
+                    className="absolute right-1.5 top-1.5 grid h-8 w-8 place-items-center
+                      rounded-full bg-film/70 text-sm text-paper backdrop-blur"
+                  >
+                    ⋯
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
       {asking && (
         <div
@@ -96,12 +159,15 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
           <button
             aria-label="Annuler"
             onClick={() => setAsking(null)}
-            className="absolute inset-0 bg-black/60 animate-[fade_.2s_ease] motion-reduce:animate-none"
+            className="absolute inset-0 bg-film/75 animate-[fade_.2s_ease] motion-reduce:animate-none"
           />
           <div className="relative m-3 rounded-xl border border-gold/18 bg-[#0E0A13] p-5
             animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
-            <h2 className="text-lg font-extrabold tracking-tight">Demander le retrait</h2>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-paper/50">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+              Droit à l’image
+            </p>
+            <h2 className="mt-2 font-serif text-[26px] leading-tight">Demander le retrait</h2>
+            <p className="mt-2 text-[13px] leading-relaxed text-paper/55">
               Votre demande est transmise à l’organisateur, qui décide. Dites
               en quelques mots pourquoi.
             </p>
@@ -114,7 +180,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                 rows={3}
                 maxLength={280}
                 placeholder="Je préfère ne pas apparaître sur cette photographie."
-                className="w-full rounded-lg bg-paper/7 p-3.5 text-sm text-paper
+                className="w-full rounded-lg bg-paper/8 p-3.5 text-sm text-paper
                   placeholder:text-paper/25 focus:outline-2 focus:outline-[var(--accent)]"
               />
             </label>

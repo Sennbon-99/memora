@@ -40,6 +40,11 @@ export function CameraDeniedScreen({
           ? "Vous pouvez continuer sans rien changer : le bouton ci-dessous ouvre l'appareil photo de votre téléphone."
           : "Votre navigateur ne donne pas accès à la caméra. Le bouton ci-dessous ouvre l'appareil photo de votre téléphone."
       }
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${total} VUES`,
+        hautDroite: 'SANS VISEUR',
+      }}
       footer={
         <div className="flex flex-col gap-3">
           <Button
@@ -47,10 +52,10 @@ export function CameraDeniedScreen({
             onClick={() => inputRef.current?.click()}
             disabled={shot.isPending || total === 0}
           >
-            {shot.isPending ? 'Envoi...' : 'Prendre une photo'}
+            {shot.isPending ? 'Envoi…' : 'Prendre une photo'}
           </Button>
           {denied && (
-            <p className="text-center text-xs text-paper/40">
+            <p className="text-center text-xs leading-relaxed text-paper/45">
               Pour revenir au viseur, autorisez la caméra dans les réglages de
               votre navigateur, puis rechargez la page.
             </p>
@@ -58,11 +63,37 @@ export function CameraDeniedScreen({
         </div>
       }
     >
-      {/* Le compteur suit l'invite jusque sur ce repli : sans lui il ne
-          saurait plus combien de poses il lui reste, et c'est la seule
-          information qui compte pendant la soiree. */}
-      <div className="mt-8">
-        <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
+      {/* Trois temps plutot qu'un compteur seul sous le titre : l'etat de la
+          pellicule, le decompte, ce que fait le declencheur. */}
+      <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          Repli sans viseur
+        </p>
+
+        {/* Le compteur suit l'invite jusque sur ce repli : sans lui il ne
+            saurait plus combien de vues il lui reste, et c'est la seule
+            information qui compte pendant la soiree. */}
+        <div className="border-y border-gold/20 py-5">
+          <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <div className="rounded-xl border border-gold/18 bg-paper/5 p-5">
+            <h2 className="font-serif text-[24px] leading-tight">La pellicule continue</h2>
+            <p className="mt-2.5 text-[14px] leading-relaxed text-paper/55">
+              Chaque vue prise par l’appareil photo de votre téléphone rejoint
+              votre pellicule, et le compteur baisse d’autant. Vous ne perdez
+              rien à passer par ce chemin.
+            </p>
+          </div>
+
+          {shot.isError && (
+            <p role="alert" className="rounded-lg border border-red-400/25 bg-red-500/10
+              p-4 text-sm leading-relaxed text-red-300">
+              {shot.error.message}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* capture environment demande la camera arriere directement, sans
@@ -75,11 +106,6 @@ export function CameraDeniedScreen({
         className="sr-only"
         onChange={(event) => void onPick(event.target.files?.[0])}
       />
-      {shot.isError && (
-        <p role="alert" className="mt-8 rounded-xl bg-red-500/10 p-4 text-sm text-red-300">
-          {shot.error.message}
-        </p>
-      )}
     </Screen>
   );
 }

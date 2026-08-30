@@ -4,6 +4,11 @@
 // Ce n'est pas une vitrine de chiffres, c'est une liste de choses a faire.
 // Quatre compteurs pour situer, puis les actions du moment, dans l'ordre ou
 // elles pressent. Le tri arrive en tete : c'est le seul vrai travail.
+//
+// Trois densites, trois formes. Les chiffres forment une plaque compacte,
+// comme le dos d'une boite de pellicule. Les actions sont des rangees nues
+// separees par un filet. Le releve par table est une liste. Quand tout est
+// une carte grise arrondie, plus rien n'a de rang.
 
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -36,30 +41,57 @@ export function stateSentence(state: string, closesInMinutes: number): string {
   return `En cours · ferme dans ${hours} h${rest ? ` ${String(rest).padStart(2, '0')}` : ''}`;
 }
 
-function Stat({ label, value, note }: { label: string; value: number | string; note?: string }) {
+/** Inscription courte de la bande laterale, pour situer l'etat d'un coup d'oeil. */
+function stateCode(state: string): string {
+  if (state === 'DRAFT') return 'BROUILLON';
+  if (state === 'OPEN') return 'EN COURS';
+  if (state === 'PUBLISHED') return 'PUBLIÉE';
+  return 'FERMÉE';
+}
+
+/**
+ * Un chiffre.
+ *
+ * Le nombre en mono et en or, le libelle en petites capitales espacees. La
+ * cellule n'a pas de cadre a elle : les filets viennent de la plaque, sans
+ * quoi quatre cadres a quatre pixels de distance donnent une grille de
+ * boites au lieu d'un compteur.
+ */
+function Stat({ label, value, unit, note, edge = '' }: {
+  label: string;
+  value: number | string;
+  /** Unite collee au chiffre, en plus petit : « % » ne se lit pas comme un nombre. */
+  unit?: string | undefined;
+  note?: string;
+  edge?: string;
+}) {
   return (
-    <div className="rounded-lg border border-gold/18 bg-paper/4 px-3.5 py-3">
-      <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-paper/45">{label}</p>
-      <p className="mt-1 text-2xl font-extrabold tracking-tight tabular-nums">{value}</p>
-      {note && <p className="text-[11px] text-[var(--accent)]">{note}</p>}
+    <div className={`px-3.5 py-3 ${edge}`}>
+      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/45">{label}</p>
+      <p className="mt-1.5 font-mono text-[26px] leading-none font-medium tabular-nums text-gold">
+        {value}
+        {unit && <span className="ml-0.5 align-baseline text-base text-gold/55">{unit}</span>}
+      </p>
+      {note && <p className="mt-1.5 text-[11px] leading-tight text-paper/40">{note}</p>}
     </div>
   );
 }
 
-function Action({ title, note, cta, onClick }: {
-  title: string; note: string; cta: string; onClick: () => void;
+/** Une action : ce qu'elle fait, la precision qui la situe, et la fleche. */
+function Action({ title, note, onClick }: {
+  title: string; note: string; onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-lg border border-gold/18
-        bg-paper/4 px-4 py-3.5 text-left transition active:bg-paper/8"
+      className="flex w-full items-center gap-3 border-b border-gold/12 px-1 py-3.5
+        text-left transition last:border-b-0 active:bg-paper/6"
     >
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-bold">{title}</span>
         <span className="block truncate text-[11px] text-paper/45">{note}</span>
       </span>
-      <span className="whitespace-nowrap text-[11px] font-bold text-[var(--accent)]">{cta}</span>
+      <span aria-hidden="true" className="shrink-0 text-sm text-gold/70">→</span>
     </button>
   );
 }
@@ -97,6 +129,12 @@ export function DashboardScreen() {
   return (
     <Screen
       title={event.name}
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${event.quotaShots} VUES`,
+        hautDroite: 'SOIRÉE',
+        basDroite: stateCode(event.state),
+      }}
       footer={
         <div className="flex flex-col gap-3">
           {event.state === 'DRAFT' ? (
@@ -123,32 +161,40 @@ export function DashboardScreen() {
         </div>
       }
     >
-      <p className="mt-2 flex items-center gap-2 text-xs text-paper/50">
+      <p className="mt-3 flex items-center gap-2 text-xs text-paper/55">
         {live && (
+          // Une bague de lumiere, pas une ombre portee : sur un fond sombre,
+          // seule la clarte se voit.
           <span
-            className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(52,211,153,.2)]"
+            className="h-1.5 w-1.5 rounded-full bg-emerald-400 ring-[3px] ring-emerald-400/20"
             aria-hidden="true"
           />
         )}
         {stateSentence(event.state, stats?.closesInMinutes ?? 0)}
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-2">
-        <Stat label="Invités" value={stats?.activeGuests ?? '—'} />
-        <Stat label="Photos" value={stats?.totalPhotos ?? '—'} />
+      {/* La plaque de chiffres : un seul cadre, des filets a l'interieur. */}
+      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-gold/18
+        bg-paper/4">
+        <Stat label="Invités" value={stats?.activeGuests ?? '—'} edge="border-b border-r border-gold/12" />
+        <Stat label="Photos" value={stats?.totalPhotos ?? '—'} edge="border-b border-gold/12" />
         <Stat
           label="Vues utilisées"
-          value={stats ? `${stats.quotaUsedPercent} %` : '—'}
+          value={stats?.quotaUsedPercent ?? '—'}
+          unit={stats ? '%' : undefined}
           note={`${event.quotaShots} vues par invité`}
+          edge="border-r border-gold/12"
         />
         <Stat label="Tables" value={stats?.byTable.length ?? '—'} />
       </div>
 
-      <div className="mt-4 flex flex-col gap-2 pb-6">
+      <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+        À faire
+      </h2>
+      <div className="mt-1 flex flex-col">
         <Action
           title="Trier les photographies"
           note="Une pellicule d’invité à la fois"
-          cta="Trier →"
           onClick={() => navigate(`/hote/${eventId}/invites`)}
         />
         <Action
@@ -158,45 +204,46 @@ export function DashboardScreen() {
               ? `${stats.topMoments.find((m) => m.active)!.label} en cours`
               : `${stats?.topMoments.length ?? 0} moments préparés`
           }
-          cta="Ouvrir →"
           onClick={() => navigate(`/hote/${eventId}/moments`)}
         />
         <Action
           title="Kit QR"
           note="À imprimer et poser sur les tables"
-          cta="Ouvrir →"
           onClick={() => navigate(`/hote/${eventId}/kit`)}
         />
         <Action
           title="Réglages de la soirée"
-          note={`${event.quotaShots} poses · ${event.useTableCodes ? 'avec' : 'sans'} numéros de table`}
-          cta="Ouvrir →"
+          note={`${event.quotaShots} vues · ${event.useTableCodes ? 'avec' : 'sans'} numéros de table`}
           onClick={() => navigate(`/hote/${eventId}/reglages`)}
         />
       </div>
 
       {stats && stats.byTable.length > 0 && (
-        <div className="rounded-lg border border-gold/18 bg-paper/4 p-4 pb-2">
-          <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-paper/45">
+        <section className="mt-8 pb-6">
+          <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
             Photos par table
-          </p>
-          <ul className="mt-3 flex flex-col gap-2">
+          </h2>
+          <ul className="mt-1 flex flex-col">
             {stats.byTable.slice(0, 5).map((row) => (
-              <li key={row.label} className="flex items-center gap-3 pb-1 text-xs">
+              <li
+                key={row.label}
+                className="flex items-center gap-3 border-b border-gold/12 px-1 py-2.5
+                  text-xs last:border-b-0"
+              >
                 <span className="w-16 shrink-0 truncate text-paper/60">{row.label}</span>
-                <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-paper/8">
+                <span className="h-1 flex-1 overflow-hidden rounded-full bg-paper/8">
                   <span
-                    className="block h-full rounded-full bg-[var(--accent)]"
+                    className="block h-full rounded-full bg-gold/70"
                     style={{ width: `${(row.photos / stats.byTable[0]!.photos) * 100}%` }}
                   />
                 </span>
-                <span className="w-8 text-right font-mono tabular-nums text-paper/45">
+                <span className="w-8 text-right font-mono tabular-nums text-gold/80">
                   {row.photos}
                 </span>
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
     </Screen>
   );

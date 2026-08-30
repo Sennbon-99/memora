@@ -6,7 +6,7 @@
 //
 // Un co-hote a un compte et les memes droits que l'hote : il trie, il
 // publie. Le photographe, lui, n'a pas de compte du tout — il recoit un
-// lien qui lui ouvre une pellicule sans limite de poses. C'est un invite
+// lien qui lui ouvre une pellicule sans limite de vues. C'est un invite
 // particulier, pas un administrateur.
 
 import { useState } from 'react';
@@ -70,26 +70,36 @@ export function TeamScreen() {
     <Screen
       title="Qui agit sur la soirée"
       subtitle="Les co-hôtes trient et publient comme vous. Le photographe, lui, photographie sans limite."
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${data.coHosts.length + 1} PERSONNES`,
+        hautDroite: 'ÉQUIPE',
+      }}
     >
-      <section className="mt-7">
-        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-paper/40">
+      <section className="mt-8">
+        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
           Co-hôtes
         </h2>
 
-        <ul className="mt-2 flex flex-col gap-2">
-          <li className="flex items-center gap-3 rounded-lg border border-gold/18
-            bg-paper/4 px-4 py-3">
+        {/* Deux ou trois personnes : une liste de rangees, pas une pile de
+            cartes qui donnerait a chacune le poids d'un ecran. */}
+        <ul className="mt-1 flex flex-col">
+          <li className="flex items-center gap-3 border-b border-gold/12 px-1 py-3
+            last:border-b-0">
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[13px] font-bold">{session?.name}</span>
               <span className="block truncate text-[11px] text-paper/45">{session?.email}</span>
             </span>
-            <span className="rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-[10px]
-              font-bold text-[var(--accent)]">vous</span>
+            <span className="shrink-0 rounded-full bg-gold/12 px-2.5 py-1 text-[10px]
+              font-bold text-gold">vous</span>
           </li>
 
           {data.coHosts.map((coHost) => (
-            <li key={coHost.id} className="flex items-center gap-3 rounded-lg
-              border border-gold/18 bg-paper/4 px-4 py-3">
+            <li
+              key={coHost.id}
+              className="flex items-center gap-3 border-b border-gold/12 px-1 py-3
+                last:border-b-0"
+            >
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13px] font-bold">{coHost.name}</span>
                 <span className="block truncate text-[11px] text-paper/45">{coHost.email}</span>
@@ -105,7 +115,7 @@ export function TeamScreen() {
           ))}
         </ul>
 
-        <div className="mt-4 flex flex-col gap-2.5">
+        <div className="mt-5 flex flex-col gap-2.5">
           <Field
             label="Inviter par adresse électronique"
             type="email"
@@ -128,18 +138,17 @@ export function TeamScreen() {
       </section>
 
       <section className="mt-9 pb-6">
-        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-paper/40">
+        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
           Photographe officiel
         </h2>
         <p className="mt-2 px-1 text-xs leading-relaxed text-paper/45">
           Un lien à lui transmettre. Il ouvre une pellicule sans limite de
-          poses, sans compte et sans passer par le QR code des invités.
+          vues, sans compte et sans passer par le QR code des invités.
         </p>
 
         {link ? (
-          <div className="mt-3 rounded-lg border border-[var(--accent-border)]
-            bg-[var(--accent-soft)] p-4">
-            <p className="break-all font-mono text-[11px] leading-relaxed text-[#E8C79A]">
+          <div className="mt-3 rounded-xl border border-gold/30 bg-gold/8 p-4">
+            <p className="break-all font-mono text-[11px] leading-relaxed text-gold">
               {link}
             </p>
             <Button full className="mt-3" onClick={() => copy(link)}>

@@ -11,6 +11,11 @@
 // les ratees. Sur un millier de photographies, cela represente cent gestes
 // au lieu de mille — et une pellicule abandonnee en cours de route reste
 // publiable telle quelle.
+//
+// Cet ecran ne passe pas par Screen : la planche de vignettes occupe toute
+// la hauteur et le pied lui appartient. Les bandes de pellicule sont donc
+// posees a la main, sans quoi les deux gouttieres de la racine resteraient
+// vides et l'ecran paraitrait sorti de l'application.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -73,6 +78,7 @@ export function ReviewScreen() {
       <Screen
         title="Pellicule vide"
         subtitle="Cet invité n’a déposé aucune photographie."
+        code={{ hautGauche: 'MEMORA 400', hautDroite: 'TRI', basGauche: '0 VUE' }}
         footer={<Button full onClick={() => navigate(`/hote/${eventId}/invites`)}>Retour</Button>}
       >
         <span />
@@ -84,7 +90,16 @@ export function ReviewScreen() {
   const who = data.roll.firstName ?? 'Anonyme';
 
   return (
-    <div className="flex min-h-full flex-col safe-top">
+    <div className="halo flex min-h-full flex-col safe-top">
+      <div className="bande bande-gauche" aria-hidden="true">
+        <span>MEMORA 400</span>
+        <span>{photos.length} VUES</span>
+      </div>
+      <div className="bande bande-droite" aria-hidden="true">
+        <span>TRI</span>
+        <span>LOT {lot + 1}/{lots}</span>
+      </div>
+
       <header className="flex items-center gap-3 px-5 pt-3">
         <button
           onClick={() => navigate(`/hote/${eventId}/invites`)}
@@ -92,22 +107,23 @@ export function ReviewScreen() {
         >
           ‹ Pellicules
         </button>
-        <span className="ml-auto font-mono text-[11px] tabular-nums text-paper/45">
-          lot {lot + 1} / {lots}
+        <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em] text-paper/45">
+          Lot <span className="tabular-nums text-gold">{lot + 1}</span> / {lots}
         </span>
       </header>
 
       <div className="mt-3 px-5">
-        <h1 className="text-2xl font-extrabold tracking-tight">{who}</h1>
-        <p className="mt-1 text-xs text-paper/45">
-          {data.roll.tableLabel ?? 'Sans table'} · {photos.length} photographies ·
+        <h1 className="font-serif text-[34px] leading-[0.95] tracking-tight">{who}</h1>
+        <p className="mt-1.5 text-xs text-paper/45">
+          {data.roll.tableLabel ?? 'Sans table'} ·{' '}
+          <span className="font-mono tabular-nums">{photos.length}</span> photographies ·
           {' '}touchez celles à écarter
         </p>
       </div>
 
       <div className="mx-5 mt-3 h-0.5 overflow-hidden rounded-full bg-paper/10">
         <span
-          className="block h-full rounded-full bg-[var(--accent)] transition-[width]
+          className="block h-full rounded-full bg-gold transition-[width]
             duration-300 ease-out motion-reduce:transition-none"
           style={{ width: `${((lot + 1) / lots) * 100}%` }}
         />
@@ -125,7 +141,8 @@ export function ReviewScreen() {
         ))}
       </ul>
 
-      <footer className="flex gap-2 border-t border-gold/18 bg-[#0E0A13] px-5 py-3 safe-bottom">
+      <footer className="sticky bottom-0 z-20 mt-3 flex gap-2 border-t border-gold/20
+        bg-film/95 px-5 py-3 backdrop-blur safe-bottom">
         <Button
           tone="ghost"
           className="flex-1"
@@ -184,7 +201,8 @@ function PhotoTile({ photo, hidden, onToggle, onZoom }: {
         onPointerCancel={cancel}
         aria-pressed={hidden}
         aria-label={`Photographie de ${heure(photo.takenAt)}${hidden ? ', écartée' : ''}`}
-        className="relative block aspect-square w-full overflow-hidden rounded-xl"
+        className="relative block aspect-square w-full overflow-hidden rounded-lg
+          ring-1 ring-gold/18"
       >
         <img
           src={photo.url}
@@ -197,7 +215,9 @@ function PhotoTile({ photo, hidden, onToggle, onZoom }: {
           <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center
             rounded-full bg-red-500 text-xs font-bold text-white">✕</span>
         )}
-        <span className="absolute bottom-1 left-2 font-mono text-[9px] text-paper/60
+        {/* L'ombre du texte n'est pas une elevation : elle detache l'heure
+            d'une image dont on ne connait pas la clarte. */}
+        <span className="absolute bottom-1 left-2 font-mono text-[9px] tabular-nums text-paper/70
           [text-shadow:0_1px_3px_rgb(0_0_0/.8)]">
           {heure(photo.takenAt)}
         </span>
@@ -250,10 +270,12 @@ function Zoom({ photos, index, hidden, onIndex, onToggle, onClose }: {
         <img src={photo.url} alt="" className="absolute inset-0 h-full w-full object-contain" />
 
         <div className="absolute inset-x-0 top-0 flex justify-between p-4 safe-top">
-          <span className="rounded-full bg-black/55 px-3 py-1.5 text-[11px] text-white backdrop-blur">
-            {index + 1} sur {photos.length}
+          <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-[11px]
+            tabular-nums text-white backdrop-blur">
+            {index + 1} / {photos.length}
           </span>
-          <span className="rounded-full bg-black/55 px-3 py-1.5 text-[11px] text-white backdrop-blur">
+          <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-[11px]
+            tabular-nums text-white backdrop-blur">
             {heure(photo.takenAt)}
           </span>
         </div>

@@ -16,3 +16,6 @@ apps/web/ios/.build/
 
 # Origine du serveur pour la construction native : depend du deploiement.
 apps/web/.env.native
+
+# Cache incremental de TypeScript : regenere a chaque compilation.
+*.tsbuildinfo

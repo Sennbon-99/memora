@@ -45,16 +45,20 @@ export function InstallPrompt() {
   if (deferred) {
     return (
       <Button tone="ghost" full onClick={() => void deferred.prompt()}>
-        Ajouter Memora à mon écran d'accueil
+        Ajouter Memora à mon écran d’accueil
       </Button>
     );
   }
 
   if (isIOS()) {
+    // Les deux mots a toucher sont portes par l'or : c'est une consigne
+    // gestuelle, pas une phrase — l'oeil doit trouver les deux reperes sans
+    // relire la ligne entiere.
     return (
-      <p className="text-center text-xs leading-relaxed text-paper/40">
-        Pour être prévenu de la publication : touchez Partager, puis
-        « Sur l'écran d'accueil ».
+      <p className="text-center text-xs leading-relaxed text-paper/45">
+        Pour être prévenu de la publication&nbsp;: touchez{' '}
+        <span className="text-gold">Partager</span>, puis
+        «&nbsp;<span className="text-gold">Sur l’écran d’accueil</span>&nbsp;».
       </p>
     );
   }
