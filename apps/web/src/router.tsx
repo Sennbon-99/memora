@@ -11,6 +11,8 @@ import { EntryScreen } from './features/guest/screens/EntryScreen.js';
 import { GuestJourney } from './features/guest/GuestJourney.js';
 import { PhotographerScreen } from './features/guest/screens/PhotographerScreen.js';
 import { PublicAlbumScreen } from './features/guest/screens/PublicAlbumScreen.js';
+import { ScanScreen } from './features/guest/screens/ScanScreen.js';
+import { DecouverteHote, DecouverteInvite } from './features/onboarding/routes.js';
 import { HostLayout, RequireHost } from './features/host/HostLayout.js';
 import { CreateEventScreen } from './features/host/screens/CreateEventScreen.js';
 import { DashboardScreen } from './features/host/screens/DashboardScreen.js';
@@ -34,6 +36,9 @@ export const router = createBrowserRouter([
 
   // Parcours invite : aucune session, aucun compte.
   { path: '/e/:slug', element: <GuestJourney /> },
+  // Un invite qui rouvre l'application sans son QR code sous les yeux.
+  { path: '/scan', element: <ScanScreen /> },
+  { path: '/decouvrir', element: <DecouverteInvite /> },
   // Album partage par lien : ni QR code ni pellicule.
   { path: '/album/:token', element: <PublicAlbumScreen /> },
   // Lien du photographe officiel : il echange son jeton puis rejoint
@@ -42,6 +47,7 @@ export const router = createBrowserRouter([
 
   // Espace hote.
   { path: '/hote/connexion', element: <LoginScreen /> },
+  { path: '/hote/decouvrir', element: <DecouverteHote /> },
   {
     element: <RequireHost />,
     children: [

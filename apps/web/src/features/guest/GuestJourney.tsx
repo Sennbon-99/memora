@@ -13,6 +13,7 @@ import { Screen } from '../../ui/Screen.js';
 import { Spinner } from '../../ui/Spinner.js';
 import { useGuestSession } from './useGuestSession.js';
 import { useMoment } from './useMoment.js';
+import { Onboarding, presentationVue } from '../onboarding/Onboarding.js';
 import { useOnline } from './useOnline.js';
 import { AlbumScreen } from './screens/AlbumScreen.js';
 import { ConsentScreen } from './screens/ConsentScreen.js';
@@ -30,6 +31,9 @@ export function GuestJourney() {
   // Les deux seules etapes qui ne se deduisent pas du serveur : l'identite,
   // que l'invite peut passer, et l'album, qu'il choisit d'ouvrir.
   const [identityDone, setIdentityDone] = useState(false);
+  // Lue une fois pour toutes au montage : marquer la presentation vue ne doit
+  // pas la faire disparaitre sous les doigts de l'invite en plein milieu.
+  const [presentationFaite, setPresentationFaite] = useState(() => presentationVue('invite'));
   const [showAlbum, setShowAlbum] = useState(false);
   const [seenEnd, setSeenEnd] = useState(false);
 
@@ -53,6 +57,15 @@ export function GuestJourney() {
     return (
       <ConsentScreen slug={slug} eventName={event.name} welcomeMessage={event.welcomeMessage} />
     );
+  }
+
+  // La presentation vient apres le consentement et avant l'identite : a ce
+  // moment l'invite est entre, il n'a encore rien fait, et les trois partis
+  // pris du produit — vues comptees, aucun apercu, album le lendemain —
+  // arrivent juste avant qu'il les rencontre. Avant le consentement, ils
+  // repousseraient l'entree ; apres la premiere photographie, trop tard.
+  if (!presentationFaite && roll.shotsLeft === event.quotaShots) {
+    return <Onboarding role="invite" onDone={() => setPresentationFaite(true)} />;
   }
 
   if (!identityDone && roll.firstName === null && roll.shotsLeft === event.quotaShots) {

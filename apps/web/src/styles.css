@@ -170,3 +170,66 @@ input, textarea {
 
 /* Le viseur doit deborder : il occupe la surface entiere, bandes comprises. */
 .pleine-largeur { margin-left: -26px; margin-right: -26px; }
+
+/* ---------------------------------------------------------------------------
+   L'obturateur
+   ---------------------------------------------------------------------------
+   Le viseur ne montre aucun apercu : la seule preuve qu'une photographie a ete
+   prise est ce que l'ecran fait au moment ou l'on appuie. Un aplat blanc de
+   cent vingt millisecondes le faisait mal — il se confond avec un
+   rafraichissement rate, et pendant une soiree l'invite appuyait deux fois.
+
+   Deux lamelles se rejoignent puis se rouvrent. C'est un obturateur a rideau,
+   celui d'un reflex, et non l'iris a lamelles d'un jetable : l'iris demande
+   d'animer un trou qui retrecit dans un aplat opaque, ce qui passe par un
+   masque et une propriete enregistree, la ou deux translations tiennent sur
+   le compositeur et ne sautent jamais. Le geste lu est le meme. */
+@keyframes lamelle-haute {
+  0%, 100% { transform: translateY(-100%); }
+  42%, 58% { transform: translateY(0); }
+}
+
+@keyframes lamelle-basse {
+  0%, 100% { transform: translateY(100%); }
+  42%, 58% { transform: translateY(0); }
+}
+
+/* L'eclair ne dure que la fermeture : au-dela il eclaire des lamelles
+   fermees, ce qui n'a aucun sens. */
+@keyframes eclair {
+  0%, 100% { opacity: 0; }
+  30% { opacity: 0.85; }
+  50% { opacity: 0; }
+}
+
+.obturateur { position: absolute; inset: 0; z-index: 30; pointer-events: none; }
+
+.obturateur span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%; /* Un demi-pixel de recouvrement : sinon un liseré clair
+                    subsiste a la jointure sur les ecrans a densite fractionnaire. */
+  background: #0b0810;
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(.3, 0, .2, 1);
+}
+
+.obturateur .haute { top: 0; animation-name: lamelle-haute; }
+.obturateur .basse { bottom: 0; animation-name: lamelle-basse; }
+
+.obturateur .eclair {
+  inset: 0;
+  height: 100%;
+  background: #fff;
+  animation-name: eclair;
+}
+
+/* Mouvement reduit : les lamelles restent ecartees et seul l'eclair confirme
+   la prise. Supprimer les deux retours laisserait l'invite sans confirmation
+   du tout, ce qui est pire qu'une animation. */
+@media (prefers-reduced-motion: reduce) {
+  .obturateur .haute, .obturateur .basse { animation: none; transform: translateY(-100%); }
+  .obturateur .basse { transform: translateY(100%); }
+  .obturateur .eclair { animation-duration: 200ms; }
+}

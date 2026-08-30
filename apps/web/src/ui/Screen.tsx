@@ -5,7 +5,39 @@
 // largeur maximale, le titre annonce aux lecteurs d'ecran, et les deux bandes
 // de pellicule qui bordent l'application.
 
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+
+/**
+ * Suit la sortie du titre hors de l'ecran.
+ *
+ * Rend l'ancre a poser sous le titre, et si celui-ci a quitte le champ. Le
+ * repli n'est arme que sur les ecrans qui le demandent : sur un ecran court,
+ * un bandeau qui apparait sans que rien n'ait defile serait un clignotement.
+ */
+function useTitreReplie(actif: boolean) {
+  const ancre = useRef<HTMLSpanElement | null>(null);
+  const [replie, setReplie] = useState(false);
+
+  useEffect(() => {
+    if (!actif) {
+      setReplie(false);
+      return;
+    }
+    const cible = ancre.current;
+    if (!cible) return;
+
+    const observateur = new IntersectionObserver(
+      ([entree]) => setReplie(entree !== undefined && !entree.isIntersecting),
+      // La marge remonte la frontiere sous le bandeau : sans elle, le titre
+      // reste techniquement visible derriere lui et le repli n'arrive jamais.
+      { rootMargin: '-56px 0px 0px 0px', threshold: 0 },
+    );
+    observateur.observe(cible);
+    return () => observateur.disconnect();
+  }, [actif]);
+
+  return { ancre, replie };
+}
 
 /** Ce que portent les bandes, de haut en bas, sur chaque cote. */
 export interface CodePellicule {
@@ -30,6 +62,19 @@ interface ScreenProps {
   code?: CodePellicule;
   /** Le viseur occupe toute la surface : il n'a ni bandes ni marges. */
   pleinCadre?: boolean;
+  /**
+   * Le titre se replie en bandeau quand il sort de l'ecran.
+   *
+   * Deux conditions, verifiees a l'usage :
+   *   - l'ecran doit defiler vraiment. Sur un ecran court le bandeau
+   *     n'apparaitrait jamais ; sur un ecran a peine plus haut que la
+   *     fenetre, il clignoterait.
+   *   - l'ecran ne doit pas deja porter d'en-tete colle. L'espace hote en a
+   *     un, en top-0 z-30 comme ce bandeau : les deux se recouvraient et la
+   *     marque disparaissait derriere le titre. Le repli sert donc les
+   *     ecrans de l'invite, qui n'ont pas d'en-tete.
+   */
+  titreRepliable?: boolean;
 }
 
 /**
@@ -53,8 +98,10 @@ function Bande({
 }
 
 export function Screen({
-  title, hideTitle, subtitle, children, footer, code, pleinCadre,
+  title, hideTitle, subtitle, children, footer, code, pleinCadre, titreRepliable,
 }: ScreenProps) {
+  const replie = useTitreReplie(titreRepliable === true && hideTitle !== true);
+
   // Le viseur se passe de tout : ni bandes, ni marges, ni titre visible.
   if (pleinCadre) {
     return (
@@ -70,6 +117,22 @@ export function Screen({
       <Bande cote="gauche" haut={code?.hautGauche ?? 'MEMORA 400'} bas={code?.basGauche} />
       <Bande cote="droite" haut={code?.hautDroite} bas={code?.basDroite} />
 
+      {/* Le bandeau replie. Il ne remplace pas le titre : il en est la trace,
+          et il n'existe que le temps ou le vrai titre est hors de l'ecran. */}
+      {titreRepliable && !hideTitle && (
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none fixed inset-x-0 top-0 z-30 border-b
+            border-gold/20 bg-film/92 px-5 py-3 backdrop-blur
+            transition-opacity duration-200 motion-reduce:transition-none
+            ${replie.replie ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <p className="mx-auto max-w-md truncate font-serif text-[19px] leading-none safe-top">
+            {title}
+          </p>
+        </div>
+      )}
+
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pt-10">
         <h1
           className={
@@ -83,6 +146,10 @@ export function Screen({
         {subtitle && !hideTitle && (
           <p className="mt-3 text-[15px] leading-relaxed text-paper/55">{subtitle}</p>
         )}
+        {/* Sentinelle : sa sortie de l'ecran declenche le repli. Un ecouteur
+            de defilement ferait le meme travail, mais a chaque image et sur
+            le fil principal ; l'observateur ne parle que deux fois. */}
+        <span ref={replie.ancre} aria-hidden="true" className="block h-px" />
         <div className="flex flex-1 flex-col">{children}</div>
       </main>
 

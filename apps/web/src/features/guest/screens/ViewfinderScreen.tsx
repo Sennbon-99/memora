@@ -5,9 +5,9 @@
 //   - aucun apercu apres la pose, sauf si l'hote a active un mode d'apercu ;
 //     on ne peut ni supprimer ni recommencer, comme avec un jetable
 //   - le declencheur reste actif hors ligne, la pose part en file d'attente
-//   - un flash blanc bref confirme la prise, faute d'apercu
+//   - un obturateur bref confirme la prise, faute d'apercu
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../ui/Button.js';
 import { ShotCounter } from '../../../ui/ShotCounter.js';
 import { useCamera } from '../useCamera.js';
@@ -31,7 +31,13 @@ export function ViewfinderScreen({
 }: ViewfinderScreenProps) {
   const { videoRef, state, start, capture } = useCamera();
   const shot = useShot(slug);
-  const [flashing, setFlashing] = useState(false);
+  // Zero : obturateur au repos. Sinon, le numero du declenchement en cours.
+  const [flashing, setFlashing] = useState(0);
+  const minuteur = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // La camera est liberee au demontage par useCamera ; le minuteur, lui,
+  // survivrait et appellerait setFlashing sur un composant demonte.
+  useEffect(() => () => clearTimeout(minuteur.current), []);
 
   useEffect(() => { void start(); }, [start]);
 
@@ -41,10 +47,16 @@ export function ViewfinderScreen({
   const takeShot = async () => {
     if (shot.isPending || total === 0 || state !== 'ready') return;
 
-    // Le flash part avant l'attente reseau : le retour doit etre immediat,
-    // sinon l'invite appuie deux fois.
-    setFlashing(true);
-    setTimeout(() => setFlashing(false), 120);
+    // L'obturateur part avant l'attente reseau : le retour doit etre
+    // immediat, sinon l'invite appuie deux fois. La cle change a chaque
+    // declenchement pour que React remonte l'element et rejoue l'animation
+    // — sans cela, deux poses rapprochees n'en montreraient qu'une.
+    setFlashing((tour) => tour + 1);
+    // Le retrait n'annule que le declenchement qu'il a lui-meme arme : deux
+    // poses a moins de 340 ms d'ecart, et le premier minuteur couperait
+    // l'animation de la seconde en plein vol.
+    clearTimeout(minuteur.current);
+    minuteur.current = setTimeout(() => setFlashing(0), 340);
 
     try {
       shot.mutate(await capture());
@@ -80,8 +92,12 @@ export function ViewfinderScreen({
         aria-label="Viseur"
       />
 
-      {flashing && (
-        <div className="pointer-events-none absolute inset-0 z-30 bg-white" aria-hidden="true" />
+      {flashing > 0 && (
+        <div key={flashing} className="obturateur" aria-hidden="true">
+          <span className="haute" />
+          <span className="basse" />
+          <span className="eclair" />
+        </div>
       )}
 
       <header className="relative z-20 flex items-start justify-between gap-4 px-5 pt-4 safe-top">
