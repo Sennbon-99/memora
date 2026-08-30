@@ -8,10 +8,17 @@
 
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../ui/Button.js';
+import { Icon } from '../../../ui/Icon.js';
 import { Screen } from '../../../ui/Screen.js';
+import { presentationVue } from '../../onboarding/Onboarding.js';
 
 export function EntryScreen() {
   const navigate = useNavigate();
+
+  // La presentation ne s'impose qu'une fois. Ensuite l'invite va droit au
+  // scan : a la deuxieme soiree, il sait deja ce qu'est une pellicule.
+  const rejoindre = () =>
+    navigate(presentationVue('invite') ? '/scan' : '/decouvrir');
 
   return (
     <Screen
@@ -19,9 +26,14 @@ export function EntryScreen() {
       hideTitle
       code={{ hautGauche: 'MEMORA 400', basGauche: '24 VUES', hautDroite: 'SANS COMPTE' }}
       footer={
-        <Button tone="ghost" full onClick={() => navigate('/hote')}>
-          Je suis l’organisateur
-        </Button>
+        <div className="flex flex-col gap-3">
+          <Button full onClick={rejoindre}>
+            Je suis un invité
+          </Button>
+          <Button tone="ghost" full onClick={() => navigate('/hote')}>
+            Je suis l’organisateur
+          </Button>
+        </div>
       }
     >
       {/* La page se compose en trois temps qui occupent toute la hauteur : la
@@ -40,19 +52,7 @@ export function EntryScreen() {
         </div>
 
         <div className="flex items-center gap-4 border-t border-gold/20 pt-6">
-          {/* Un carre de QR code stylise : il dit ce qu'on attend de l'invite
-              sans une ligne de texte de plus. */}
-          <div aria-hidden="true" className="size-16 shrink-0 rounded-md bg-surface p-3">
-            <div
-              className="h-full w-full opacity-70"
-              style={{
-                background:
-                  'conic-gradient(#C9A961 0 25%, transparent 0 50%, #C9A961 0 75%, transparent 0),' +
-                  'conic-gradient(#C9A961 0 25%, transparent 0 50%, #C9A961 0 75%, transparent 0) 4px 4px',
-                backgroundSize: '10px 10px, 6px 6px',
-              }}
-            />
-          </div>
+          <Icon nom="qr" taille={44} className="text-gold" />
           <p className="text-[14px] leading-relaxed text-paper/55">
             Scannez le QR code posé sur votre table. Il charge votre pellicule,
             sans compte ni inscription.

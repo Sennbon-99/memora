@@ -24,6 +24,7 @@ import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { useReviewRoll, useRollPhotos } from '../useRolls.js';
+import { Photo } from '../../../ui/Photo.js';
 
 /** Six par lot : a 375 pixels de large, neuf feraient des cibles de 88 px. */
 const LOT = 6;
@@ -204,7 +205,7 @@ function PhotoTile({ photo, hidden, onToggle, onZoom }: {
         className="relative block aspect-square w-full overflow-hidden rounded-lg
           ring-1 ring-gold/18"
       >
-        <img
+        <Photo
           src={photo.url}
           alt=""
           loading="lazy"
@@ -267,7 +268,7 @@ function Zoom({ photos, index, hidden, onIndex, onToggle, onClose }: {
         motion-reduce:animate-none"
     >
       <div className="relative flex-1">
-        <img src={photo.url} alt="" className="absolute inset-0 h-full w-full object-contain" />
+        <Photo src={photo.url} alt="" className="absolute inset-0 h-full w-full object-contain" />
 
         <div className="absolute inset-x-0 top-0 flex justify-between p-4 safe-top">
           <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-[11px]

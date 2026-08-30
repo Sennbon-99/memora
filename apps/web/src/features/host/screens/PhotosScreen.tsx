@@ -19,6 +19,7 @@ import { Spinner } from '../../../ui/Spinner.js';
 import { useEvent } from '../useEvents.js';
 import { useRolls } from '../useRolls.js';
 import { PublishSheet } from './PublishSheet.js';
+import { Photo } from '../../../ui/Photo.js';
 
 /**
  * Compte ce qui attend d'etre publie.
@@ -184,7 +185,7 @@ export function PhotosScreen() {
               className="animate-[rise_.3s_ease_backwards] motion-reduce:animate-none"
               style={{ animationDelay: `${Math.min(index, 12) * 22}ms` }}
             >
-              <img
+              <Photo
                 src={photo.url}
                 alt={`Photographie prise à ${new Date(photo.takenAt)
                   .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
