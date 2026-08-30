@@ -64,11 +64,20 @@ export function EventListScreen() {
                   className="w-full overflow-hidden rounded-3xl border border-white/10
                     bg-white/4 text-left transition active:bg-white/8"
                 >
-                  {/* Bande de couleur : la teinte choisie par l'hote sert de
-                      reperage entre plusieurs soirees. */}
-                  <div className="h-1.5" style={{ background: event.color }} />
                   <div className="px-4 py-3.5">
-                    <p className="text-[15px] font-extrabold tracking-tight">{event.name}</p>
+                    {/* La teinte choisie par l'hote sert de reperage entre
+                        plusieurs soirees. Elle etait posee en bande de six
+                        pixels en haut de la carte : une bande aussi fine ne
+                        peut pas epouser un rayon de vingt-quatre, et se
+                        detachait en pastille flottante au-dessus du cadre. */}
+                    <p className="flex items-center gap-2 text-[15px] font-extrabold tracking-tight">
+                      <span
+                        aria-hidden="true"
+                        className="size-2.5 shrink-0 rounded-full"
+                        style={{ background: event.color }}
+                      />
+                      {event.name}
+                    </p>
                     <p className="mt-1.5 flex items-center gap-2 text-xs text-white/45">
                       {dateFr(event.eventDate)}
                       <span className={`rounded-full px-2 py-0.5 font-bold ${badge.tone}`}>
@@ -77,7 +86,9 @@ export function EventListScreen() {
                     </p>
                     {event._count && (
                       <p className="mt-1 text-xs text-white/35">
-                        {event._count.rolls} invités · {event._count.photos} photos
+                        {event._count.rolls} invité{event._count.rolls > 1 ? 's' : ''}
+                        {' · '}
+                        {event._count.photos} photo{event._count.photos > 1 ? 's' : ''}
                       </p>
                     )}
                   </div>
