@@ -66,8 +66,11 @@ export function ViewfinderScreen({
     );
   }
 
+  // pleine-largeur : le viseur deborde des bandes de pellicule. Le cadrage
+  // prime ici sur la signature graphique — cinquante-deux pixels de moins,
+  // c'est un visage coupe au bord de l'image.
   return (
-    <div className="relative flex h-full flex-col bg-black">
+    <div className="pleine-largeur relative flex h-full flex-col bg-black">
       <video
         ref={videoRef}
         playsInline
