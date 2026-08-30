@@ -6,6 +6,7 @@
 // n'est pas transmis ici : il voyage dans le cookie de la poignee de main,
 // que le serveur lit lui-meme.
 
+import { Capacitor } from '@capacitor/core';
 import { io, type Socket } from 'socket.io-client';
 
 export interface MomentStarted {
@@ -27,7 +28,10 @@ let socket: Socket | null = null;
 
 /** Connexion unique, partagee par toute l'application. */
 export function connect(): Socket {
-  socket ??= io({
+  // Sans argument, socket.io vise l'origine de la page. En natif cette
+  // origine est capacitor://localhost : il faut donc lui donner celle du
+  // serveur, exactement comme au client d'API.
+  socket ??= io(Capacitor.isNativePlatform() ? import.meta.env.VITE_API_ORIGIN : undefined, {
     // withCredentials : sans lui le cookie d'appareil ne serait pas joint
     // a la poignee de main, et le serveur refuserait l'entree dans la salle.
     withCredentials: true,

@@ -7,6 +7,10 @@
 // cette chance : on verifie d'abord que l'envoi est possible, et on ne
 // declenche la demande native qu'apres un geste explicite de l'invite.
 
+import { Capacitor } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { apiUrl } from './api.js';
+
 export type PushState =
   | 'unsupported'   // le navigateur ne sait pas faire
   | 'needs-install' // iOS : rien n'arrive tant que l'application n'est pas installee
@@ -32,6 +36,10 @@ export function isInstalled(): boolean {
  * etat, c'est promettre quelque chose qui n'arrivera jamais.
  */
 export function pushState(): PushState {
+  // Dans l'application installee, le service worker ne recoit rien : c'est
+  // le systeme qui distribue, et la permission se demande autrement. Le
+  // cas « a installer » disparait donc — elle l'est deja.
+  if (Capacitor.isNativePlatform()) return 'askable';
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return 'unsupported';
   if (isIOS() && !isInstalled()) return 'needs-install';
   if (Notification.permission === 'denied') return 'blocked';
@@ -66,7 +74,41 @@ interface SubscribeResult {
  * Demande la permission puis enregistre l'abonnement.
  * A n'appeler que sur un geste de l'invite, jamais au chargement.
  */
+async function subscribeNative(): Promise<SubscribeResult> {
+  const permission = await PushNotifications.requestPermissions();
+  if (permission.receive !== 'granted') return { ok: false, reason: 'refused' };
+
+  // L'enregistrement est asynchrone et le jeton n'arrive que par evenement :
+  // register() ne le renvoie pas. On attend donc l'evenement, avec une borne
+  // de temps — sans reseau, il n'arriverait jamais et l'invite resterait
+  // devant un bouton qui tourne.
+  const deviceToken = await new Promise<string | null>((resolve) => {
+    const minuterie = setTimeout(() => resolve(null), 10_000);
+    void PushNotifications.addListener('registration', ({ value }) => {
+      clearTimeout(minuterie);
+      resolve(value);
+    });
+    void PushNotifications.addListener('registrationError', () => {
+      clearTimeout(minuterie);
+      resolve(null);
+    });
+    void PushNotifications.register();
+  });
+
+  if (!deviceToken) return { ok: false, reason: 'failed' };
+
+  const response = await fetch(apiUrl('/push/device'), {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deviceToken }),
+  });
+  return response.ok ? { ok: true } : { ok: false, reason: 'failed' };
+}
+
 export async function subscribeToPush(vapidKey: string): Promise<SubscribeResult> {
+  if (Capacitor.isNativePlatform()) return subscribeNative();
+
   const state = pushState();
   if (state !== 'askable' && state !== 'granted') return { ok: false, reason: state };
 
@@ -86,7 +128,7 @@ export async function subscribeToPush(vapidKey: string): Promise<SubscribeResult
       endpoint: string; keys: { p256dh: string; auth: string };
     };
 
-    const response = await fetch('/api/push/subscribe', {
+    const response = await fetch(apiUrl('/push/subscribe'), {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -102,7 +144,7 @@ export async function subscribeToPush(vapidKey: string): Promise<SubscribeResult
 /** La cle publique du serveur, ou rien si les notifications sont desactivees. */
 export async function fetchVapidKey(): Promise<string | null> {
   try {
-    const response = await fetch('/api/push/key', { credentials: 'include' });
+    const response = await fetch(apiUrl('/push/key'), { credentials: 'include' });
     if (!response.ok) return null;
     const { key } = (await response.json()) as { key: string | null };
     return key;

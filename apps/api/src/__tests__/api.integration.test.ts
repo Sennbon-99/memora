@@ -218,4 +218,15 @@ describe('en-tetes de securite', () => {
     // La version du serveur ne doit pas etre annoncee.
     expect(res.headers['x-powered-by']).toBeUndefined();
   });
+
+  it('fait confiance a un seul relais pour identifier le client', () => {
+    // En production, Traefik se trouve devant l'application et pose
+    // X-Forwarded-For. Sans confiance declaree, Express ignore l'en-tete :
+    // la limitation de debit voit alors toutes les requetes venir du relais
+    // et un seul visiteur epuise le quota de tout le monde.
+    //
+    // La valeur doit rester 1. Passer a true laisserait un client forger
+    // l'en-tete et se donner une adresse neuve a chaque requete.
+    expect(app.get('trust proxy')).toBe(1);
+  });
 });

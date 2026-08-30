@@ -21,6 +21,16 @@ import { stripeWebhookRouter } from './features/payments/payment.routes.js';
 export function createApp(): Express {
   const app = express();
 
+  // Un seul relais se trouve devant l'application : Traefik. Sans cette
+  // ligne, Express ignore X-Forwarded-For et la limitation de debit voit
+  // toutes les requetes venir de la meme adresse — celle du relais. Un seul
+  // visiteur pourrait alors epuiser le quota de tous les autres.
+  //
+  // La valeur est 1 et non true : faire confiance a toute la chaine
+  // laisserait un client forger l'en-tete et se donner une adresse neuve a
+  // chaque requete, ce qui reviendrait a supprimer la limitation.
+  app.set('trust proxy', 1);
+
   // Le webhook Stripe recoit le corps BRUT. Il est monte ici, avant
   // express.json(), qui transformerait le corps et rendrait la verification
   // de signature impossible. L ordre de ces deux lignes n est pas negociable.

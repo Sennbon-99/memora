@@ -5,12 +5,25 @@
 // pour valider. Appeler une route avec une charge utile invalide echoue donc
 // a la compilation, pas en production.
 
+import { Capacitor } from '@capacitor/core';
 import type {
   ConsentInput, CreateEventInput, CreateMomentInput, JoinEventInput, LoginInput,
   RecoveryCodeInput, RegisterInput, ReservePhotoInput,
 } from '@memora/types';
 
-const BASE = '/api';
+// Sur le web, le client et l'API partagent l'origine : nginx sert l'un et
+// relaie l'autre, et une adresse relative suffit. En natif il n'y a plus
+// d'origine commune — la page vient de capacitor://localhost — et une
+// adresse relative viserait un serveur inexistant. On donne alors l'origine
+// explicitement, sans quoi aucune requete n'aboutit.
+const NATIVE_ORIGIN = import.meta.env.VITE_API_ORIGIN as string | undefined;
+const BASE = Capacitor.isNativePlatform() ? `${NATIVE_ORIGIN ?? ''}/api` : '/api';
+
+if (Capacitor.isNativePlatform() && !NATIVE_ORIGIN) {
+  // Mieux vaut echouer au demarrage qu'a la premiere requete : l'erreur
+  // serait alors un « fetch failed » qui ne dit rien de sa cause.
+  throw new Error('VITE_API_ORIGIN est obligatoire pour la construction native');
+}
 
 /** Erreur renvoyee par l'API, avec son code metier et son identifiant de trace. */
 export class ApiError extends Error {
@@ -81,6 +94,17 @@ function renewAccess(): Promise<boolean> {
 // Omit et non intersection : RequestInit impose deja body: BodyInit, et une
 // intersection garderait cette contrainte. On veut un objet quelconque, que
 // call() serialise lui-meme.
+/**
+ * Adresse absolue d'une route de l'API.
+ *
+ * Exposee parce que tout le code ne passe pas par call() : l'abonnement aux
+ * notifications, par exemple, appelle fetch directement. Une adresse
+ * relative y fonctionnerait sur le web et echouerait en natif, sans bruit.
+ */
+export function apiUrl(path: string): string {
+  return `${BASE}${path}`;
+}
+
 type CallInit = Omit<RequestInit, 'body'> & { body?: unknown };
 
 async function call<T>(path: string, init: CallInit = {}, retried = false): Promise<T> {

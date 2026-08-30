@@ -31,6 +31,14 @@ const envSchema = z.object({
   VAPID_PRIVATE_KEY: z.string().optional(),
   VAPID_SUBJECT: z.string().default('contact@memora.app'),
 
+  // Notifications de l'application installee sur iPhone. Facultatives : sans
+  // elles l'API demarre et le canal Web Push fonctionne seul.
+  APNS_KEY_ID: z.string().optional(),
+  APNS_TEAM_ID: z.string().optional(),
+  APNS_PRIVATE_KEY: z.string().optional(),
+  APNS_TOPIC: z.string().optional(),
+  APNS_SANDBOX: z.string().optional(),
+
   STRIPE_SECRET_KEY: z.string().min(1),
   STRIPE_WEBHOOK_SECRET: z.string().min(1),
 });

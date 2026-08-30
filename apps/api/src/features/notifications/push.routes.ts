@@ -16,3 +16,6 @@ pushRouter.use(requireGuest);
 
 // POST /api/push/subscribe — s'abonner aux notifications de son evenement
 pushRouter.post('/subscribe', pushController.subscribe);
+
+// POST /api/push/device — enregistrer le jeton d'un appareil iOS
+pushRouter.post('/device', pushController.registerDevice);
