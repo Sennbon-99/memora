@@ -6,11 +6,15 @@
 // classique. Ici la soiree vient d'abord, parce que l'onglet lui appartient
 // comme les trois autres ; le compte est une courte section de pied de page,
 // la sortie.
+//
+// Chaque groupe est un intertitre en petites capitales et des rangees
+// separees par un filet. Le cadre plein qui les enfermait faisait trois
+// blocs gris de meme poids, ou l'on ne voyait plus la coupure entre la
+// soiree et le compte.
 
 import { useNavigate, useParams } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import { PREVIEW_MODES, type PreviewMode } from '@memora/types';
-import { eventApi } from '../../../lib/api.js';
+import type { PreviewMode } from '@memora/types';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { useSession, useLogout } from '../useAuth.js';
@@ -24,18 +28,23 @@ const PREVIEW_LABEL: Record<PreviewMode, string> = {
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="mt-7">
-      <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-white/40">{title}</h2>
-      <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-white/4">
-        {children}
-      </div>
+    <section className="mt-8">
+      <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">{title}</h2>
+      <div className="mt-1 flex flex-col">{children}</div>
     </section>
   );
 }
 
-function Line({ label, value, onClick, danger }: {
+/**
+ * Une rangee de reglage.
+ *
+ * La valeur passe en mono quand c'est un chiffre ou une heure : on la lit
+ * alors en colonne d'une rangee a l'autre, sans que les chasses dansent.
+ */
+function Line({ label, value, mono, onClick, danger }: {
   label: string;
   value?: string | undefined;
+  mono?: boolean | undefined;
   onClick?: (() => void) | undefined;
   danger?: boolean | undefined;
 }) {
@@ -43,13 +52,21 @@ function Line({ label, value, onClick, danger }: {
     <button
       onClick={onClick}
       disabled={!onClick}
-      className={`flex w-full items-center gap-3 border-b border-white/8 px-4 py-3.5 text-left
-        text-[13px] last:border-b-0 transition active:bg-white/6 disabled:active:bg-transparent
+      className={`flex w-full items-center gap-3 border-b border-gold/12 px-1 py-3.5 text-left
+        text-[13px] transition last:border-b-0 active:bg-paper/6 disabled:active:bg-transparent
         ${danger ? 'text-red-400' : ''}`}
     >
-      <span className="flex-1">{label}</span>
-      {value && <span className="shrink-0 text-[12px] text-white/45">{value}</span>}
-      {onClick && !danger && <span aria-hidden="true" className="text-white/30">›</span>}
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      {value && (
+        <span
+          className={`shrink-0 text-[12px] ${mono
+            ? 'font-mono tabular-nums text-gold/80'
+            : 'text-paper/45'}`}
+        >
+          {value}
+        </span>
+      )}
+      {onClick && !danger && <span aria-hidden="true" className="text-gold/50">›</span>}
     </button>
   );
 }
@@ -71,11 +88,20 @@ export function SettingsScreen() {
     .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <Screen title="Réglages" subtitle={event.name}>
+    <Screen
+      title="Réglages"
+      subtitle={event.name}
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${event.quotaShots} VUES`,
+        hautDroite: 'RÉGLAGES',
+        basDroite: event.useTableCodes ? 'AVEC TABLES' : 'SANS TABLES',
+      }}
+    >
       <Group title="La pellicule">
-        <Line label="Poses par invité" value={String(event.quotaShots)} onClick={() => edit('quota')} />
+        <Line label="Vues par invité" value={String(event.quotaShots)} mono onClick={() => edit('quota')} />
         <Line label="Aperçu après la photo" value={PREVIEW_LABEL[event.previewMode]} onClick={() => edit('preview')} />
-        <Line label="Fermeture" value={closes} onClick={() => edit('closes')} />
+        <Line label="Fermeture" value={closes} mono onClick={() => edit('closes')} />
         <Line
           label="Numéros de table"
           value={event.useTableCodes ? 'Demandés' : 'Non demandés'}
@@ -91,6 +117,7 @@ export function SettingsScreen() {
         <Line
           label="Demandes de retrait"
           value={pending > 0 ? String(pending) : undefined}
+          mono
           onClick={() => navigate(`/hote/${eventId}/retraits`)}
         />
         <Line label="Co-hôtes et photographe" onClick={() => navigate(`/hote/${eventId}/equipe`)} />
@@ -112,7 +139,7 @@ export function SettingsScreen() {
         />
       </Group>
 
-      <p className="mt-8 pb-4 text-center text-[11px] leading-relaxed text-white/25">
+      <p className="mt-8 pb-4 text-center text-[11px] leading-relaxed text-paper/25">
         Les photographies de cette soirée seront effacées automatiquement
         trente jours après sa fermeture.
       </p>

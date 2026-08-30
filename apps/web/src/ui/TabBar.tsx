@@ -57,7 +57,7 @@ export function TabBar({ eventId }: { eventId: string }) {
   return (
     <nav
       aria-label="Sections de la soirée"
-      className="sticky bottom-0 z-30 flex border-t border-white/10 bg-[#252119]/95
+      className="sticky bottom-0 z-40 flex border-t border-gold/20 bg-[#0E0A13]/95
         pt-2 backdrop-blur safe-bottom"
       // La hauteur est publiee sur l'element racine : le pied collant des
       // ecrans s'en sert pour se poser juste au-dessus, au lieu de glisser
@@ -96,7 +96,7 @@ export function TabBar({ eventId }: { eventId: string }) {
           end={tab.end}
           className={({ isActive }) =>
             `flex flex-1 flex-col items-center gap-1 pb-1 pt-1 text-[10px]
-             ${isActive ? 'text-[var(--accent)]' : 'text-white/45'}`
+             ${isActive ? 'text-[var(--accent)]' : 'text-paper/45'}`
           }
         >
           {({ isActive }) => (

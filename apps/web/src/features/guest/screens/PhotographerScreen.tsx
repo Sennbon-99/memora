@@ -2,7 +2,7 @@
 // Entree du photographe officiel.
 //
 // Il n'a pas de compte et ne passe pas par le QR code des invites : son
-// lien lui ouvre une pellicule marquee, sans limite de poses et avec le
+// lien lui ouvre une pellicule marquee, sans limite de vues et avec le
 // consentement deja acquis — c'est un professionnel engage par l'hote,
 // pas un convive.
 //
@@ -37,18 +37,61 @@ export function PhotographerScreen() {
     return () => { cancelled = true; };
   }, [token, navigate]);
 
-  if (!failure) return <Spinner label="Ouverture de votre pellicule" />;
+  // L'echange de jeton se fait dans l'enveloppe : sans elle, l'application
+  // apparaitrait sans ses bandes le temps de l'aller-retour.
+  if (!failure) {
+    return (
+      <Screen
+        title="Pellicule du photographe"
+        hideTitle
+        code={{ hautGauche: 'MEMORA 400', basGauche: 'PHOTOGRAPHE', hautDroite: 'SANS LIMITE' }}
+      >
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner label="Ouverture de votre pellicule" />
+        </div>
+      </Screen>
+    );
+  }
+
+  const closed = failure.code === 'EVENT_CLOSED';
 
   return (
     <Screen
-      title={failure.code === 'EVENT_CLOSED' ? 'Soirée terminée' : 'Lien invalide'}
+      title={closed ? 'Soirée terminée' : 'Lien invalide'}
       subtitle={
-        failure.code === 'EVENT_CLOSED'
-          ? 'La prise de vue est close. Vos photographies déjà déposées sont conservées.'
-          : 'Ce lien de photographe n’est plus valide. Demandez-en un nouveau à l’organisateur.'
+        closed
+          ? 'La prise de vue est close.'
+          : 'Ce lien de photographe n’est plus valide.'
       }
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: 'PHOTOGRAPHE',
+        hautDroite: closed ? 'SOIRÉE CLOSE' : 'LIEN INVALIDE',
+      }}
     >
-      <span />
+      {/* Trois temps plutot qu'un titre suivi de rien : la version precedente
+          laissait les deux tiers de l'ecran vides sous le sous-titre. */}
+      <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          Accès photographe
+        </p>
+
+        <div className="border-y border-gold/20 py-6">
+          <p className="max-w-[20ch] font-serif text-[26px] leading-[1.15] text-paper/80">
+            {closed
+              ? 'La pellicule est refermée.'
+              : 'Ce lien n’ouvre plus rien.'}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
+          <p className="text-[15px] leading-relaxed text-paper/60">
+            {closed
+              ? 'Vos photographies déjà déposées sont conservées trente jours. L’organisateur y a accès pour composer sa sélection.'
+              : 'Un lien de photographe est nominatif et révocable. Demandez-en un nouveau à l’organisateur : il le génère depuis son tableau de bord.'}
+          </p>
+        </div>
+      </div>
     </Screen>
   );
 }

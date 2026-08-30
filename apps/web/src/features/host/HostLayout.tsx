@@ -45,7 +45,7 @@ export function HostLayout() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-white/10
+      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-gold/18
         bg-film/95 px-4 pb-3 pt-3 backdrop-blur safe-top">
         <button
           onClick={() => navigate('/hote')}
@@ -59,30 +59,30 @@ export function HostLayout() {
             <button
               onClick={() => setOpen((was) => !was)}
               aria-expanded={open}
-              className="max-w-40 truncate rounded-full border border-white/10 px-3 py-1.5
-                text-xs text-white/60"
+              className="max-w-40 truncate rounded-full border border-gold/18 px-3 py-1.5
+                text-xs text-paper/60"
             >
               {current.event.name} ▾
             </button>
 
             {open && (
-              <ul className="absolute right-0 top-10 z-40 w-56 overflow-hidden rounded-2xl
-                border border-white/10 bg-[#252119] py-1 shadow-2xl">
+              <ul className="absolute right-0 top-10 z-40 w-56 overflow-hidden rounded-lg
+                border border-gold/18 bg-[#0E0A13] py-1 shadow-2xl">
                 {(list?.events ?? []).map((event) => (
                   <li key={event.id}>
                     <button
                       onClick={() => { setOpen(false); navigate(`/hote/${event.id}`); }}
                       className={`w-full truncate px-4 py-2.5 text-left text-[13px]
-                        ${event.id === eventId ? 'text-[var(--accent)] font-semibold' : 'text-white/70'}`}
+                        ${event.id === eventId ? 'text-[var(--accent)] font-semibold' : 'text-paper/70'}`}
                     >
                       {event.name}
                     </button>
                   </li>
                 ))}
-                <li className="mt-1 border-t border-white/10 pt-1">
+                <li className="mt-1 border-t border-gold/18 pt-1">
                   <button
                     onClick={() => { setOpen(false); navigate('/hote'); }}
-                    className="w-full px-4 py-2.5 text-left text-[13px] text-white/50"
+                    className="w-full px-4 py-2.5 text-left text-[13px] text-paper/50"
                   >
                     Toutes mes soirées
                   </button>

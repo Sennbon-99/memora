@@ -52,13 +52,13 @@ export function IdentityScreen({ slug, useTableCodes, tables, onDone }: Identity
     >
       <form className="mt-10 flex flex-col gap-5" onSubmit={submit}>
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-white/70">Prenom</span>
+          <span className="text-sm font-medium text-paper/70">Prénom</span>
           <input
             {...register('firstName')}
             autoComplete="given-name"
             placeholder="Camille"
-            className="h-12 rounded-2xl bg-white/8 px-4 text-base text-paper
-              placeholder:text-white/25 focus:outline-2 focus:outline-[var(--accent)]"
+            className="h-12 rounded-lg bg-paper/8 px-4 text-base text-paper
+              placeholder:text-paper/25 focus:outline-2 focus:outline-[var(--accent)]"
           />
           {formState.errors.firstName && (
             <span role="alert" className="text-xs text-red-300">
@@ -72,7 +72,7 @@ export function IdentityScreen({ slug, useTableCodes, tables, onDone }: Identity
             libre echouait a la validation a tous les coups. */}
         {useTableCodes && tables.length > 0 && (
           <fieldset className="flex flex-col gap-2">
-            <legend className="text-sm font-medium text-white/70">Votre table</legend>
+            <legend className="text-sm font-medium text-paper/70">Votre table</legend>
             <div className="mt-1 grid grid-cols-3 gap-1.5">
               {tables.map((table) => {
                 const chosen = table.id === selected;
@@ -86,7 +86,7 @@ export function IdentityScreen({ slug, useTableCodes, tables, onDone }: Identity
                     className={`h-11 rounded-xl border text-[13px] transition
                       ${chosen
                         ? 'border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-text)]'
-                        : 'border-white/10 text-white/55'}`}
+                        : 'border-gold/18 text-paper/55'}`}
                   >
                     {table.label}
                   </button>

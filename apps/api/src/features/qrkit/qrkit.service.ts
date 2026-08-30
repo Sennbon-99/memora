@@ -61,7 +61,7 @@ async function buildPdf(cards: Card[], eventName: string, color: string): Promis
     doc.fillColor('#131313').font('Helvetica-Bold').fontSize(12)
       .text('Scannez, photographiez', 0, height - 70, { align: 'center', width });
     doc.fillColor('#8A8A8A').font('Helvetica').fontSize(9)
-      .text('Aucune application a installer', 0, height - 52, { align: 'center', width });
+      .text('Aucune application à installer', 0, height - 52, { align: 'center', width });
     doc.fillColor('#B9B9B9').fontSize(7.5)
       .text(eventName, 0, height - 24, { align: 'center', width });
   }

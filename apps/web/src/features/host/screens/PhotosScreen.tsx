@@ -4,6 +4,9 @@
 // Le tri, lui, se fait pellicule par pellicule dans l'onglet Invites. Ici on
 // regarde le resultat : ce qui est garde, ce qui est masque, ce qui attend
 // encore d'etre trie.
+//
+// Le releve est une plaque de trois chiffres, en mono et en or. Les filtres
+// sont des pastilles : ils trient un regard, ils ne comptent rien.
 
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -42,6 +45,18 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: 'all', label: 'Toutes' },
 ];
 
+/** Un chiffre du releve : mono et or, libelle en petites capitales. */
+function Tally({ label, value, edge = '' }: { label: string; value: number; edge?: string }) {
+  return (
+    <div className={`px-3.5 py-2.5 ${edge}`}>
+      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/45">{label}</p>
+      <p className="mt-1 font-mono text-xl leading-none font-medium tabular-nums text-gold">
+        {value}
+      </p>
+    </div>
+  );
+}
+
 export function PhotosScreen() {
   const { eventId = '' } = useParams();
   const [filter, setFilter] = useState<Filter>('kept');
@@ -66,8 +81,10 @@ export function PhotosScreen() {
     },
   });
 
-  const photos = data?.photos ?? [];
+  const photos: AlbumPhoto[] = data?.photos ?? [];
   const ready = countReadyToPublish(photos, rollsData?.rolls ?? []);
+  const masked = photos.filter((photo) => photo.status === 'HIDDEN').length;
+  const kept = photos.length - masked;
   // La portee n'est demandee qu'a la premiere publication.
   const firstTime = eventData?.event.state !== 'PUBLISHED';
 
@@ -86,6 +103,7 @@ export function PhotosScreen() {
     return (
       <Screen
         title={closed ? 'Album pas encore disponible' : 'Chargement impossible'}
+        code={{ hautGauche: 'MEMORA 400', hautDroite: 'ALBUM', basGauche: 'EN ATTENTE' }}
         subtitle={
           closed
             ? 'Les photographies apparaîtront ici dès que vous aurez fermé la pellicule.'
@@ -101,6 +119,12 @@ export function PhotosScreen() {
     <Screen
       title="Photos"
       subtitle={`${photos.length} photographie${photos.length > 1 ? 's' : ''} déposée${photos.length > 1 ? 's' : ''}.`}
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${photos.length} VUES`,
+        hautDroite: 'ALBUM',
+        ...(ready > 0 ? { basDroite: `${ready} À PUBLIER` } : {}),
+      }}
       footer={
         ready > 0 ? (
           <div className="flex flex-col gap-2">
@@ -122,6 +146,15 @@ export function PhotosScreen() {
         ) : undefined
       }
     >
+      {photos.length > 0 && (
+        <div className="mt-6 grid grid-cols-3 overflow-hidden rounded-xl border border-gold/18
+          bg-paper/4">
+          <Tally label="Gardées" value={kept} edge="border-r border-gold/12" />
+          <Tally label="Masquées" value={masked} edge="border-r border-gold/12" />
+          <Tally label="À publier" value={ready} />
+        </div>
+      )}
+
       <div role="tablist" aria-label="Filtrer les photographies" className="mt-5 flex gap-1.5">
         {FILTERS.map((option) => (
           <button
@@ -131,8 +164,8 @@ export function PhotosScreen() {
             onClick={() => setFilter(option.value)}
             className={`rounded-full border px-3.5 py-1.5 text-xs transition
               ${filter === option.value
-                ? 'border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-text)]'
-                : 'border-white/12 text-white/50'}`}
+                ? 'border-gold/60 bg-gold/12 font-bold text-gold'
+                : 'border-gold/18 text-paper/50'}`}
           >
             {option.label}
           </button>
@@ -140,7 +173,7 @@ export function PhotosScreen() {
       </div>
 
       {shown.length === 0 ? (
-        <p className="mt-14 text-center text-sm text-white/45">
+        <p className="mt-14 text-center text-sm text-paper/45">
           {filter === 'hidden' ? 'Aucune photographie masquée.' : 'Rien à montrer ici.'}
         </p>
       ) : (

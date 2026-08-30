@@ -4,6 +4,10 @@
 // L'hote decide qui verra l'album, et ce choix vaut pour toutes les
 // publications suivantes. Le redemander a chaque lot ferait douze decisions
 // au lieu d'une, et un album dont les regles varient selon la photographie.
+//
+// La feuille est le seul endroit de l'espace hote ou l'on demande vraiment
+// de decider. Elle porte donc le titre en serif, comme un ecran, et non le
+// gras d'une boite de dialogue systeme.
 
 import { useState } from 'react';
 import { PUBLICATION_SCOPES, type PublicationScope } from '@memora/types';
@@ -48,11 +52,14 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
         className="absolute inset-0 bg-black/60 animate-[fade_.2s_ease] motion-reduce:animate-none"
       />
 
-      <div className="relative m-3 rounded-3xl border border-white/10 bg-[#252119] p-5
+      <div className="relative m-3 rounded-xl border border-gold/18 bg-[#0E0A13] p-5
         animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
-        <h2 className="text-lg font-extrabold tracking-tight">Qui pourra voir l’album ?</h2>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-white/50">
-          {count} photographie{count > 1 ? 's' : ''} prête{count > 1 ? 's' : ''} à être publiée
+        <h2 className="font-serif text-[26px] leading-tight tracking-tight">
+          Qui pourra voir l’album ?
+        </h2>
+        <p className="mt-2 text-[13px] leading-relaxed text-paper/50">
+          <span className="font-mono tabular-nums text-gold">{count}</span>{' '}
+          photographie{count > 1 ? 's' : ''} prête{count > 1 ? 's' : ''} à être publiée
           {count > 1 ? 's' : ''}. Ce choix vaut pour toute la soirée : les publications
           suivantes le suivront.
         </p>
@@ -66,18 +73,20 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
                 role="radio"
                 aria-checked={selected}
                 onClick={() => setScope(choice.value)}
-                className={`flex items-start gap-3 rounded-2xl border px-3.5 py-3 text-left
-                  ${selected ? 'border-[var(--accent)] bg-[var(--accent-soft)]' : 'border-white/10'}`}
+                className={`flex items-start gap-3 rounded-lg border px-3.5 py-3 text-left
+                  transition ${selected
+                    ? 'border-gold/60 bg-gold/8'
+                    : 'border-gold/18 active:bg-paper/5'}`}
               >
                 <span
-                  className={`mt-0.5 h-4 w-4 shrink-0 rounded-full border-2
-                    ${selected
-                      ? 'border-[var(--accent)] bg-[radial-gradient(circle,var(--accent)_0_42%,transparent_45%)]'
-                      : 'border-white/20'}`}
-                />
+                  className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full
+                    border ${selected ? 'border-gold' : 'border-paper/25'}`}
+                >
+                  {selected && <span className="h-2 w-2 rounded-full bg-gold" />}
+                </span>
                 <span>
                   <span className="block text-[13px] font-bold">{choice.label}</span>
-                  <span className="mt-0.5 block text-[11px] leading-relaxed text-white/45">
+                  <span className="mt-0.5 block text-[11px] leading-relaxed text-paper/45">
                     {choice.note}
                   </span>
                 </span>

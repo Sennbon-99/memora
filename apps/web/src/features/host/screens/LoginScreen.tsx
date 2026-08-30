@@ -47,6 +47,11 @@ export function LoginScreen() {
           ? 'Un compte suffit pour toutes vos soirées.'
           : 'Vos invités, eux, n’ont besoin de rien.'
       }
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: 'ESPACE HÔTE',
+        hautDroite: creating ? 'INSCRIPTION' : 'CONNEXION',
+      }}
       footer={
         <div className="flex flex-col gap-3">
           <Button full onClick={submit} disabled={busy}>

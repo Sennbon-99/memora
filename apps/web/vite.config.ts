@@ -19,12 +19,15 @@ export default defineConfig({
         description: 'Vos invites deviennent le photographe',
         start_url: '/',
         display: 'standalone',
-        background_color: '#131313',
-        theme_color: '#B0741C',
+        background_color: '#141019',
+        theme_color: '#141019',
+        // Ces trois adresses ne pointaient sur aucun fichier : le manifeste
+        // annoncait des icones qui n'ont jamais existe, et le systeme
+        // retombait sur une capture de la page a l'installation.
         icons: [
-          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/icone-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icone-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icone-512-masquable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
@@ -32,13 +35,10 @@ export default defineConfig({
         // volumineuses, servies par adresse signee expirante, et l'invite
         // n'est de toute facon pas cense les revoir.
         navigateFallbackDenylist: [/^\/api/],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
-            handler: 'CacheFirst',
-            options: { cacheName: 'polices', expiration: { maxAgeSeconds: 60 * 60 * 24 * 365 } },
-          },
-        ],
+        // Les polices sont servies par l'application elle-meme et deja
+        // precachees avec le reste des ressources : la regle qui mettait en
+        // cache fonts.googleapis.com ne s'appliquait a rien, l'application
+        // n'ayant jamais appele ce domaine.
       },
       devOptions: { enabled: false },
     }),

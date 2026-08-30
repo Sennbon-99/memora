@@ -44,10 +44,20 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
   const canAsk = vapid !== null && state === 'askable'
     && outcome !== 'done' && outcome !== 'refused';
 
+  // Le troisieme temps n'est pose que s'il porte quelque chose : un bloc vide
+  // rouvrirait le trou que cette composition est censee fermer.
+  const hasAside = canAsk || state === 'needs-install' || outcome === 'done'
+    || outcome === 'refused' || outcome === 'failed';
+
   return (
     <Screen
       title="Au développement"
       subtitle={`${hostLabel} trient les photographies de la soirée. Cela prend souvent un jour ou deux.`}
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: 'DÉVELOPPEMENT',
+        hautDroite: 'EN COURS',
+      }}
       footer={
         <div className="flex flex-col gap-3">
           <Button full disabled={!albumReady} onClick={onSeeAlbum}>
@@ -56,66 +66,84 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
         </div>
       }
     >
-      <div className="mt-9 flex flex-col items-center gap-7">
-        {/* Une bobine qui tourne : elle dit que quelque chose est en cours,
-            sans promettre une duree qu'on ne connait pas. */}
-        <span
-          aria-hidden="true"
-          className="relative h-24 w-24 rounded-full border-2 border-white/12
-            after:absolute after:-inset-0.5 after:rounded-full after:border-2
-            after:border-transparent after:border-t-[var(--accent)]
-            after:animate-[spin_2.4s_linear_infinite] motion-reduce:after:animate-none"
-        />
+      {/* La bobine tient le haut, l'etat de la pellicule le milieu, la
+          proposition le bas : la hauteur est occupee de bout en bout. */}
+      <div className="flex flex-1 flex-col justify-between gap-8 pb-6 pt-8">
+        <div className="flex flex-col items-center gap-4">
+          {/* Une bobine qui tourne : elle dit que quelque chose est en cours,
+              sans promettre une duree qu'on ne connait pas. */}
+          <span
+            aria-hidden="true"
+            className="relative h-24 w-24 rounded-full border-2 border-gold/18
+              after:absolute after:-inset-0.5 after:rounded-full after:border-2
+              after:border-transparent after:border-t-[var(--accent)]
+              after:animate-[spin_2.4s_linear_infinite] motion-reduce:after:animate-none"
+          />
+          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+            Bain de révélateur
+          </p>
+        </div>
 
-        <div className="w-full rounded-3xl bg-white/5 p-5">
-          <h2 className="text-base font-bold">
-            {queued > 0
-              ? `${queued} ${queued > 1 ? 'photos partent' : 'photo part'} dès le retour du réseau`
-              : 'Vos photographies sont déposées'}
+        <div className="rounded-xl border border-gold/18 bg-paper/5 p-5">
+          <h2 className="font-serif text-[24px] leading-tight">
+            {queued > 0 ? (
+              <>
+                <span className="font-mono tabular-nums text-gold">{queued}</span>
+                {' '}
+                {queued > 1 ? 'vues partent' : 'vue part'} dès le retour du réseau
+              </>
+            ) : (
+              'Vos photographies sont déposées'
+            )}
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-white/55">
+          <p className="mt-2.5 text-[14px] leading-relaxed text-paper/55">
             Rien ne se perd : elles sont conservées trente jours. Vous pouvez
             fermer cette page.
           </p>
         </div>
 
-        {/* La proposition n'apparait que quand elle a un sens. */}
-        {canAsk && (
-          <div className="w-full rounded-3xl border border-[var(--accent-border)]
-            bg-[var(--accent-soft)] p-5">
-            <h2 className="text-base font-bold">Être prévenu ?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-white/60">
-              Une seule notification, quand l’album sera en ligne. Rien d’autre.
-            </p>
-            <Button full className="mt-4" onClick={ask} disabled={outcome === 'busy'}>
-              {outcome === 'busy' ? 'Un instant…' : 'Me prévenir'}
-            </Button>
+        {hasAside && (
+          <div className="flex flex-col gap-4">
+            {/* La proposition n'apparait que quand elle a un sens. */}
+            {canAsk && (
+              <div className="rounded-xl border border-[var(--accent-border)]
+                bg-[var(--accent-soft)] p-5">
+                <h2 className="font-serif text-[24px] leading-tight">Être prévenu ?</h2>
+                <p className="mt-2.5 text-[14px] leading-relaxed text-paper/60">
+                  Une seule notification, quand l’album sera en ligne. Rien d’autre.
+                </p>
+                <Button full className="mt-4" onClick={ask} disabled={outcome === 'busy'}>
+                  {outcome === 'busy' ? 'Un instant…' : 'Me prévenir'}
+                </Button>
+              </div>
+            )}
+
+            {state === 'needs-install' && (
+              <p className="text-center text-xs leading-relaxed text-paper/45">
+                Pour être prévenu sur iPhone, ajoutez d’abord Memora à votre écran
+                d’accueil&nbsp;: touchez <span className="text-gold">Partager</span>,
+                puis «&nbsp;<span className="text-gold">Sur l’écran d’accueil</span>&nbsp;».
+                La proposition apparaîtra ensuite.
+              </p>
+            )}
+
+            {outcome === 'done' && (
+              <p role="status" className="text-center text-xs text-emerald-400">
+                C’est noté. Vous serez prévenu dès la publication.
+              </p>
+            )}
+            {outcome === 'refused' && (
+              <p role="status" className="text-center text-xs leading-relaxed text-paper/45">
+                Pas de notification. Revenez sur cette page dans un jour ou deux,
+                l’album y sera.
+              </p>
+            )}
+            {outcome === 'failed' && (
+              <p role="alert" className="text-center text-xs text-red-300">
+                L’abonnement n’a pas abouti. Revenez sur cette page plus tard.
+              </p>
+            )}
           </div>
-        )}
-
-        {state === 'needs-install' && (
-          <p className="text-center text-xs leading-relaxed text-white/40">
-            Pour être prévenu sur iPhone, ajoutez d’abord Memora à votre écran
-            d’accueil&nbsp;: touchez Partager, puis « Sur l’écran d’accueil ».
-            La proposition apparaîtra ensuite.
-          </p>
-        )}
-
-        {outcome === 'done' && (
-          <p role="status" className="text-center text-xs text-emerald-400">
-            C’est noté. Vous serez prévenu dès la publication.
-          </p>
-        )}
-        {outcome === 'refused' && (
-          <p role="status" className="text-center text-xs leading-relaxed text-white/40">
-            Pas de notification. Revenez sur cette page dans un jour ou deux,
-            l’album y sera.
-          </p>
-        )}
-        {outcome === 'failed' && (
-          <p role="alert" className="text-center text-xs text-red-300">
-            L’abonnement n’a pas abouti. Revenez sur cette page plus tard.
-          </p>
         )}
       </div>
     </Screen>

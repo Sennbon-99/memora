@@ -11,6 +11,9 @@
 // confirmation, parce qu'un retrait accepte par erreur est reparable —
 // alors qu'un refus laisse une image en ligne contre la volonte de
 // quelqu'un.
+//
+// Deux densites, donc : une demande en attente est un dossier a juger, avec
+// son image ; une demande traitee est une ligne d'archive.
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -62,26 +65,33 @@ export function RemovalsScreen() {
     <Screen
       title="Demandes de retrait"
       subtitle="Un invité peut demander qu’une photographie de lui soit effacée. C’est un droit, pas une faveur."
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${pending.length} EN ATTENTE`,
+        hautDroite: 'RETRAITS',
+        basDroite: `${handled.length} TRAITÉES`,
+      }}
     >
       {data.removals.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-white/45">
+        <p className="mt-14 text-center text-sm leading-relaxed text-paper/45">
           Aucune demande.<br />C’est plutôt bon signe.
         </p>
       ) : (
         <div className="mt-6 flex flex-col gap-6 pb-6">
           {pending.map((request) => (
-            <article key={request.id} className="overflow-hidden rounded-3xl border
-              border-[var(--accent-border)] bg-white/4">
+            <article key={request.id} className="overflow-hidden rounded-xl border
+              border-gold/35 bg-paper/4">
               <img
                 src={request.photo.url}
                 alt={`Photographie du ${dateFr(request.photo.takenAt)}`}
                 className="aspect-[4/3] w-full object-cover"
               />
               <div className="p-4">
-                <p className="text-[11px] text-white/45">
-                  {requesterLabel(request)} · demandé le {dateFr(request.createdAt)}
+                <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+                  Demandé le {dateFr(request.createdAt)}
                 </p>
-                <p className="mt-2 text-sm italic leading-relaxed text-white/75">
+                <p className="mt-1.5 text-[12px] text-paper/55">{requesterLabel(request)}</p>
+                <p className="mt-3 text-sm italic leading-relaxed text-paper/75">
                   « {request.reason} »
                 </p>
 
@@ -89,14 +99,15 @@ export function RemovalsScreen() {
                   <button
                     onClick={() => handle.mutate({ id: request.id, accept: false })}
                     disabled={handle.isPending}
-                    className="h-11 flex-1 rounded-xl bg-white/8 text-[13px] font-semibold"
+                    className="h-11 flex-1 rounded-lg border border-gold/18 bg-paper/6
+                      text-[13px] font-semibold transition active:bg-paper/10"
                   >
                     Conserver
                   </button>
                   <button
                     onClick={() => handle.mutate({ id: request.id, accept: true })}
                     disabled={handle.isPending}
-                    className="h-11 flex-[1.3] rounded-xl bg-[var(--accent)] text-[13px]
+                    className="h-11 flex-[1.3] rounded-lg bg-[var(--accent)] text-[13px]
                       font-bold text-[var(--accent-text)]"
                   >
                     {handle.isPending ? 'Un instant…' : 'Effacer la photo'}
@@ -108,13 +119,16 @@ export function RemovalsScreen() {
 
           {handled.length > 0 && (
             <section>
-              <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.13em] text-white/40">
+              <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
                 Déjà traitées
               </h2>
-              <ul className="mt-2 flex flex-col gap-2">
+              <ul className="mt-1 flex flex-col">
                 {handled.map((request) => (
-                  <li key={request.id} className="flex items-center gap-3 rounded-2xl
-                    border border-white/10 bg-white/3 px-3 py-2.5">
+                  <li
+                    key={request.id}
+                    className="flex items-center gap-3 border-b border-gold/12 px-1 py-2.5
+                      last:border-b-0"
+                  >
                     <img
                       src={request.photo.url}
                       alt=""
@@ -122,17 +136,17 @@ export function RemovalsScreen() {
                         ${request.state === 'ACCEPTED' ? 'opacity-30 grayscale' : ''}`}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[12px] text-white/60">
+                      <span className="block truncate text-[12px] text-paper/60">
                         {requesterLabel(request)}
                       </span>
-                      <span className="block text-[10px] text-white/35">
+                      <span className="block text-[10px] text-paper/35">
                         {request.handledAt ? dateFr(request.handledAt) : ''}
                       </span>
                     </span>
-                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold
+                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold
                       ${request.state === 'ACCEPTED'
-                        ? 'bg-white/8 text-white/50'
-                        : 'bg-emerald-500/15 text-emerald-400'}`}>
+                        ? 'bg-paper/8 text-paper/50'
+                        : 'bg-emerald-500/12 text-emerald-400'}`}>
                       {request.state === 'ACCEPTED' ? 'effacée' : 'conservée'}
                     </span>
                   </li>
@@ -145,7 +159,7 @@ export function RemovalsScreen() {
 
       <button
         onClick={() => navigate(`/hote/${eventId}/reglages`)}
-        className="mt-2 pb-4 text-center text-xs text-white/35"
+        className="mt-2 pb-4 text-center text-xs text-paper/35"
       >
         ‹ Retour aux réglages
       </button>

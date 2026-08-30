@@ -17,7 +17,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const TONES: Record<Tone, string> = {
   primary: 'bg-[var(--accent)] text-[var(--accent-text)] active:brightness-90',
-  ghost: 'bg-white/8 text-paper active:bg-white/14',
+  ghost: 'bg-surface text-paper border border-gold/20 active:bg-surface/70',
   danger: 'bg-transparent text-red-400 active:bg-red-400/10',
 };
 
@@ -25,7 +25,7 @@ export function Button({ tone = 'primary', full, className = '', ...props }: But
   return (
     <button
       // 48 pixels de haut : la cible tactile minimale recommandee par le RGAA.
-      className={`min-h-12 rounded-2xl px-6 text-base font-semibold transition
+      className={`min-h-12 rounded-xl px-6 text-base font-semibold transition
         disabled:opacity-40 disabled:pointer-events-none
         focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]
         ${TONES[tone]} ${full ? 'w-full' : ''} ${className}`}

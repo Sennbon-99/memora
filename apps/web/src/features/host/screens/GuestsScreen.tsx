@@ -5,6 +5,10 @@
 // pellicule fait au plus vingt-quatre photographies. La tache est bornee,
 // elle a une fin visible, et l'hote peut publier apres chacune. Une heure de
 // soiree, elle, peut en contenir trois cents.
+//
+// La liste est faite de rangees separees par un filet, non de cartes
+// empilees : vingt cartes identiques donnent vingt objets a examiner, vingt
+// rangees donnent une seule liste a parcourir.
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { Screen } from '../../../ui/Screen.js';
@@ -28,15 +32,22 @@ function subtitle(roll: RollSummary): string {
 
 function Badge({ roll }: { roll: RollSummary }) {
   if (roll.pendingRemoval) {
-    return <span className="rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-bold text-red-400">retrait</span>;
+    return (
+      <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-bold
+        text-red-400">retrait</span>
+    );
   }
   if (!roll.reviewed) {
-    return <span className="rounded-full bg-[var(--accent-soft)] px-2 py-1 text-[10px] font-bold text-[var(--accent)]">à trier</span>;
+    return (
+      <span className="shrink-0 rounded-full bg-gold/12 px-2 py-1 text-[10px] font-bold
+        text-gold">à trier</span>
+    );
   }
   const kept = roll.photos - roll.hidden;
   return (
-    <span className="rounded-full bg-emerald-500/15 px-2 py-1 text-[10px] font-bold text-emerald-400">
-      {kept} gardée{kept > 1 ? 's' : ''}
+    <span className="shrink-0 rounded-full bg-emerald-500/12 px-2 py-1 text-[10px] font-bold
+      text-emerald-400">
+      <span className="font-mono tabular-nums">{kept}</span> gardée{kept > 1 ? 's' : ''}
     </span>
   );
 }
@@ -50,7 +61,11 @@ export function GuestsScreen() {
 
   if (isError) {
     return (
-      <Screen title="Chargement impossible" subtitle="Vérifiez votre connexion et rechargez la page.">
+      <Screen
+        title="Chargement impossible"
+        subtitle="Vérifiez votre connexion et rechargez la page."
+        code={{ hautGauche: 'MEMORA 400', hautDroite: 'INVITÉS' }}
+      >
         <span />
       </Screen>
     );
@@ -60,48 +75,61 @@ export function GuestsScreen() {
   const progress = reviewProgress(rolls);
 
   return (
-    <Screen title="Pellicules" subtitle="Touchez une pellicule pour la trier.">
+    <Screen
+      title="Pellicules"
+      subtitle="Touchez une pellicule pour la trier."
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: `${rolls.length} PELLICULES`,
+        hautDroite: 'INVITÉS',
+        basDroite: `${progress.done}/${progress.total} TRIÉES`,
+      }}
+    >
       {rolls.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-white/45">
+        <p className="mt-14 text-center text-sm leading-relaxed text-paper/45">
           Aucun invité n’a encore scanné le QR code.
         </p>
       ) : (
         <>
-          <div className="mt-6 flex items-center gap-3 text-[11px] text-white/50">
-            <span className="whitespace-nowrap">
-              {progress.done} sur {progress.total} triée{progress.total > 1 ? 's' : ''}
+          {/* L'avancement du tri est un chiffre, pas une phrase : mono et or,
+              libelle en petites capitales. */}
+          <div className="mt-6 flex items-center gap-3">
+            <span className="whitespace-nowrap font-mono text-[11px] tabular-nums text-gold">
+              {progress.done}/{progress.total}
             </span>
-            <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
+            <span className="h-1 flex-1 overflow-hidden rounded-full bg-paper/10">
               <span
-                className="block h-full rounded-full bg-[var(--accent)] transition-[width]
+                className="block h-full rounded-full bg-gold transition-[width]
                   duration-500 ease-out motion-reduce:transition-none"
                 style={{ width: `${progress.percent}%` }}
               />
             </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+              Triées
+            </span>
           </div>
 
-          <ul className="mt-4 flex flex-col gap-2 pb-6">
+          <ul className="mt-4 flex flex-col pb-6">
             {rolls.map((roll, index) => (
               <li
                 key={roll.id}
                 // Entree en cascade : elle dit que la liste vient d'arriver,
                 // et guide le regard du haut vers le bas.
                 className="animate-[rise_.34s_cubic-bezier(.2,.8,.2,1)_backwards]
-                  motion-reduce:animate-none"
+                  border-b border-gold/12 last:border-b-0 motion-reduce:animate-none"
                 style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
               >
                 <button
                   onClick={() => navigate(`/hote/${eventId}/tri/${roll.id}`)}
                   disabled={roll.photos === 0}
-                  className="flex w-full items-center gap-3 rounded-2xl border border-white/10
-                    bg-white/4 px-3 py-2.5 text-left transition active:bg-white/9
-                    disabled:opacity-40"
+                  className="flex w-full items-center gap-3 px-1 py-3 text-left transition
+                    active:bg-paper/6 disabled:opacity-40"
                 >
                   <span
                     className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-extrabold
                       ${roll.firstName
-                        ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
-                        : 'bg-white/7 text-base font-normal text-white/45'}`}
+                        ? 'bg-gold/12 text-gold'
+                        : 'bg-paper/7 text-base font-normal text-paper/45'}`}
                   >
                     {initial(roll)}
                   </span>
@@ -110,7 +138,7 @@ export function GuestsScreen() {
                     <span className="block truncate text-[13px] font-bold">
                       {roll.firstName ?? 'Anonyme'}
                     </span>
-                    <span className="block truncate text-[11px] text-white/45">{subtitle(roll)}</span>
+                    <span className="block truncate text-[11px] text-paper/45">{subtitle(roll)}</span>
                   </span>
 
                   <Badge roll={roll} />

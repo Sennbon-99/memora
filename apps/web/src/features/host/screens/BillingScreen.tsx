@@ -44,6 +44,12 @@ export function BillingScreen() {
     <Screen
       title="Facturation"
       subtitle={event.name}
+      code={{
+        hautGauche: 'MEMORA 400',
+        basGauche: data?.paid ? 'RÉGLÉE' : 'À RÉGLER',
+        hautDroite: 'FACTURE',
+        basDroite: `${event.quotaShots} VUES`,
+      }}
       footer={
         data?.paid ? (
           <Button full tone="ghost" onClick={() => navigate(`/hote/${eventId}`)}>
@@ -64,39 +70,53 @@ export function BillingScreen() {
         )
       }
     >
-      <div className="mt-7 flex flex-col gap-4 pb-6">
+      <div className="pb-6">
         {data?.paid ? (
-          <div className="rounded-3xl border border-emerald-500/25 bg-emerald-500/10 p-5">
+          <div className="mt-7 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-5">
             <p className="text-base font-bold text-emerald-400">Soirée réglée</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-white/55">
+            <p className="mt-1.5 text-sm leading-relaxed text-paper/55">
               Vous pouvez ouvrir la pellicule quand vous le souhaitez.
             </p>
           </div>
         ) : (
-          <div className="rounded-3xl border border-white/10 bg-white/4 p-5">
+          <div className="mt-7 rounded-xl border border-gold/18 bg-paper/4 p-5">
             <p className="text-base font-bold">Cette soirée n’est pas encore réglée</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-white/55">
-              Votre première soirée est offerte, limitée à {FREE_TIER.shots} poses
-              par invité et {FREE_TIER.guests} participants. Au-delà, chaque
-              soirée se règle avant l’ouverture de la pellicule.
+            <p className="mt-1.5 text-sm leading-relaxed text-paper/55">
+              Votre première soirée est offerte, limitée à{' '}
+              <span className="font-mono tabular-nums text-gold">{FREE_TIER.shots}</span> vues
+              par invité et{' '}
+              <span className="font-mono tabular-nums text-gold">{FREE_TIER.guests}</span>{' '}
+              participants. Au-delà, chaque soirée se règle avant l’ouverture
+              de la pellicule.
             </p>
           </div>
         )}
 
-        <div className="rounded-2xl border border-white/10 bg-white/3 p-4">
-          <p className="font-mono text-[9px] uppercase tracking-[0.13em] text-white/40">
-            Ce que comprend une soirée
-          </p>
-          <ul className="mt-3 flex flex-col gap-2 text-[13px] text-white/65">
-            <li>Jusqu’à 200 invités, sans application à installer</li>
-            <li>{event.quotaShots} poses par invité, réglables avant l’ouverture</li>
-            <li>Kit de QR codes imprimable</li>
-            <li>Album partageable et archive téléchargeable</li>
-            <li>Conservation trente jours, puis effacement automatique</li>
-          </ul>
-        </div>
+        {/* Ce qui est compris n'est pas une carte de plus : c'est une liste,
+            et une liste se lit en rangees separees par un filet. */}
+        <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+          Ce que comprend une soirée
+        </h2>
+        <ul className="mt-1 flex flex-col text-[13px] text-paper/65">
+          <li className="border-b border-gold/12 px-1 py-3">
+            Jusqu’à <span className="font-mono tabular-nums">200</span> invités,
+            sans application à installer
+          </li>
+          <li className="border-b border-gold/12 px-1 py-3">
+            <span className="font-mono tabular-nums text-gold">{event.quotaShots}</span> vues
+            par invité, réglables avant l’ouverture
+          </li>
+          <li className="border-b border-gold/12 px-1 py-3">Kit de QR codes imprimable</li>
+          <li className="border-b border-gold/12 px-1 py-3">
+            Album partageable et archive téléchargeable
+          </li>
+          <li className="px-1 py-3">
+            Conservation <span className="font-mono tabular-nums">30</span> jours,
+            puis effacement automatique
+          </li>
+        </ul>
 
-        <p className="px-1 text-[11px] leading-relaxed text-white/35">
+        <p className="mt-6 px-1 text-[11px] leading-relaxed text-paper/35">
           Le paiement est traité par Stripe. Aucun numéro de carte ne passe
           par Memora, ni n’y est conservé.
         </p>
