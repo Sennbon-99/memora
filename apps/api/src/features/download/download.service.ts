@@ -51,7 +51,7 @@ export async function streamAlbumArchive(
 ): Promise<void> {
   const { event } = await assertCanManage(eventId, userId);
   if (event.state === 'DRAFT' || event.state === 'OPEN') {
-    throw new AppError('NOT_CLOSED', 409, "L'album n'est disponible qu'apres la fermeture");
+    throw new AppError('NOT_CLOSED', 409, "L'album n'est disponible qu'après la fermeture");
   }
 
   const rolls = await prisma.roll.findMany({

@@ -32,7 +32,7 @@ export function verifyAccessToken(token: string): AccessPayload {
     return jwt.verify(token, env.JWT_ACCESS_SECRET) as AccessPayload;
   } catch {
     // On ne remonte jamais la cause exacte : expire ou falsifie, meme reponse.
-    throw new UnauthorizedError('Jeton invalide ou expire');
+    throw new UnauthorizedError('Jeton invalide ou expiré');
   }
 }
 
@@ -40,7 +40,7 @@ export function verifyRefreshToken(token: string): { userId: string } {
   try {
     return jwt.verify(token, env.JWT_REFRESH_SECRET) as { userId: string };
   } catch {
-    throw new UnauthorizedError('Session expiree, reconnexion necessaire');
+    throw new UnauthorizedError('Session expirée, reconnexion nécessaire');
   }
 }
 

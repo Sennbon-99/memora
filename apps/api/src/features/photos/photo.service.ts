@@ -100,7 +100,7 @@ export async function reserveShot(
     if (existing.rollId !== roll.id) {
       // Une cle appartenant a une autre pellicule est une tentative de rejeu
       // croise : on refuse plutot que de laisser deviner qu'elle existe.
-      throw new AppError('IDEMPOTENCY_CONFLICT', 409, 'Cle deja utilisee');
+      throw new AppError('IDEMPOTENCY_CONFLICT', 409, 'Clé déjà utilisée');
     }
     return {
       photoId: existing.id,
@@ -117,7 +117,7 @@ export async function reserveShot(
     where: { id: roll.eventId },
     select: { id: true, state: true, closesAt: true },
   });
-  if (!event) throw new NotFoundError('Evenement');
+  if (!event) throw new NotFoundError('Événement');
   if (!acceptsPhotos(event, input.takenAt)) throw new EventClosedError();
 
   // 3. Decrement atomique. Les poses bonus sont consommees en premier.
@@ -199,12 +199,12 @@ export async function listOwnPhotos(roll: GuestRoll) {
     where: { id: roll.eventId },
     select: { state: true, scope: true },
   });
-  if (!event) throw new NotFoundError('Evenement');
+  if (!event) throw new NotFoundError('Événement');
   if (event.state !== 'PUBLISHED') {
-    throw new AppError('NOT_PUBLISHED', 409, "L'album n'a pas encore ete publie");
+    throw new AppError('NOT_PUBLISHED', 409, "L'album n'a pas encore été publié");
   }
   if (event.scope === 'NONE') {
-    throw new AppError('NOT_SHARED', 403, "L'hote n'a pas partage cet album");
+    throw new AppError('NOT_SHARED', 403, "L'hôte n'a pas partagé cet album");
   }
 
   const photos = await prisma.photo.findMany({

@@ -25,19 +25,19 @@ export class QuotaExhaustedError extends AppError {
 
 export class ConsentRequiredError extends AppError {
   constructor() {
-    super('CONSENT_REQUIRED', 403, "Le droit a l'image doit etre accepte avant toute prise de vue");
+    super('CONSENT_REQUIRED', 403, "Le droit à l'image doit être accepté avant toute prise de vue");
   }
 }
 
 export class EventClosedError extends AppError {
   constructor() {
-    super('EVENT_CLOSED', 409, "La prise de vue est terminee pour cet evenement");
+    super('EVENT_CLOSED', 409, "La prise de vue est terminée pour cet événement");
   }
 }
 
 export class EventFullError extends AppError {
   constructor() {
-    super('EVENT_FULL', 409, "Cet evenement a atteint son nombre maximal de participants");
+    super('EVENT_FULL', 409, "Cet événement a atteint son nombre maximal de participants");
   }
 }
 
@@ -48,7 +48,7 @@ export class UnauthorizedError extends AppError {
 }
 
 export class ForbiddenError extends AppError {
-  constructor(message = "Vous n'avez pas les droits necessaires") {
+  constructor(message = "Vous n'avez pas les droits nécessaires") {
     super('FORBIDDEN', 403, message);
   }
 }

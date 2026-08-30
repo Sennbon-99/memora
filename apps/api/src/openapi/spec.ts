@@ -143,7 +143,7 @@ export function buildOpenApiSpec(): Record<string, unknown> {
         '409': errorResponse,
         '422': {
           ...errorResponse,
-          description: 'Donnees invalides — le detail des champs est renvoye',
+          description: 'Données invalides — le detail des champs est renvoye',
         },
       },
     };

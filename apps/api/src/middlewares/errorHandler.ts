@@ -19,7 +19,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   if (err instanceof ZodError) {
     res.status(422).json({
       code: 'VALIDATION_ERROR',
-      message: 'Donnees invalides',
+      message: 'Données invalides',
       fields: err.flatten().fieldErrors,
       traceId,
     });

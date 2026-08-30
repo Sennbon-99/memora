@@ -40,7 +40,7 @@ export function EndOfRollScreen({
 
   return (
     <Screen
-      title="Pellicule terminee"
+      title="Pellicule terminée"
       subtitle={
         queued > 0
           ? `${queued} ${queued > 1 ? 'photos partent' : 'photo part'} des que le reseau revient.`
