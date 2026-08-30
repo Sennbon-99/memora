@@ -151,7 +151,14 @@ async function main() {
       headers: { 'Content-Type': 'image/jpeg' },
       body: new Uint8Array(image),
     });
-    if (!depot.ok) throw new Error(`Depot refuse : ${depot.status}`);
+    if (!depot.ok) {
+      // On expose l origine signee et la reponse du stockage : un 404 vient
+      // presque toujours d une adresse mal composee, pas du contenu envoye.
+      const detail = await depot.text().catch(() => '');
+      throw new Error(
+        `Depot refuse : ${depot.status} sur ${new URL(reservation.uploadUrl).origin}\n${detail.slice(0, 400)}`,
+      );
+    }
 
     await invite.client.call('/photos/confirm', { method: 'POST', body: { idempotencyKey: cle } });
     invite.prises += 1;
