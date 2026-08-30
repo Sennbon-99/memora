@@ -2,9 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Sans ce droit, le systeme refuse d'enregistrer l'appareil aupres du
-	     service de notification : la permission est accordee et aucun jeton
-	     n'arrive. La valeur passe a production au moment de la publication. -->
 	<key>aps-environment</key>
 	<string>development</string>
 </dict>

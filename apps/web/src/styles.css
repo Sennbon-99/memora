@@ -5,21 +5,44 @@
 
 @import 'tailwindcss';
 
+/* Les polices sont servies par l'application, jamais par un tiers. Un
+   chargement depuis un CDN casserait le fonctionnement hors connexion, qui
+   est une fonctionnalite du produit et non un agrement — et il ferait fuiter
+   l'adresse de chaque invite vers un serveur qui n'a rien a en connaitre.
+   Elles etaient declarees ici sans jamais etre chargees : l'application
+   tournait sur la police du systeme, en silence. */
+/* opsz et non l'entree par defaut : ce fichier porte l'axe de taille
+   optique, celui qui redessine les lettres selon le corps de rendu.
+   L'entree par defaut ne charge que l'axe de graisse, et l'atout de
+   cette police est justement celui que presque personne ne branche. */
+@import '@fontsource-variable/bricolage-grotesque/opsz.css';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource/instrument-serif';
+
 @theme {
-  --color-ink: #131313;
-  --color-paper: #f7f5f2;
-  --color-film: #1c1a18;
-  --color-muted: #8a8580;
-  --font-sans: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Nocturne : la chambre noire vire au prune profond. Contrastes verifies
+     au calcul WCAG sur le fond — texte 16,16:1, or 8,35:1, sourdine 5,06:1.
+     L'ambre precedent tombait a 4,43:1 et ne pouvait pas porter de texte. */
+  --color-ink: #141019;
+  --color-paper: #f1ecf6;
+  --color-film: #141019;
+  --color-surface: #1c1723;
+  --color-muted: #8a8196;
+  --color-gold: #c9a961;
+  --font-sans: 'Bricolage Grotesque Variable', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 
 :root {
-  /* Valeur de repli avant que l'evenement ne soit connu. */
-  --accent: #b0741c;
-  --accent-text: #ffffff;
-  --accent-soft: rgb(176 116 28 / 0.12);
-  --accent-border: rgb(176 116 28 / 0.35);
+  /* L'or est structurel : il porte les titres, les chiffres et les filets.
+     La couleur choisie par l'hote sert a identifier sa soiree — pastille,
+     onglet actif — et ne remplace jamais l'or, sans quoi un accent rose
+     detruirait la direction. */
+  --accent: #c9a961;
+  --accent-text: #141019;
+  --accent-soft: rgb(201 169 97 / 0.12);
+  --accent-border: rgb(201 169 97 / 0.35);
 }
 
 html, body, #root {
@@ -27,6 +50,9 @@ html, body, #root {
 }
 
 body {
+  /* La taille optique suit le corps de rendu, comme la police a ete dessinee
+     pour l'etre : texte compact et ouvert en petit, contraste marque en grand. */
+  font-optical-sizing: auto;
   background: var(--color-film);
   color: var(--color-paper);
   font-family: var(--font-sans);
@@ -68,3 +94,73 @@ input, textarea {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Halo : deux sources hors champ, une doree en haut, une violine en bas.
+   C'est ce qui remplace l'ombre portee — sur un fond sombre, l'ombre ne
+   se voit pas, seule la lumiere hierarchise. */
+.halo::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(56% 32% at 24% 4%, rgb(201 169 97 / 0.13) 0%, transparent 70%),
+    radial-gradient(64% 38% at 82% 98%, rgb(120 86 168 / 0.2) 0%, transparent 72%);
+}
+
+/* Bandes de pellicule sur les deux bords. Elles ne decorent pas : elles
+   portent le code de la pellicule, et ce sont elles qui disent ce qu'est
+   l'application avant qu'on ait lu un seul mot. */
+.bande {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 26px;
+  z-index: 30;
+  pointer-events: none;
+  background: #0e0a13;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 0;
+}
+
+.bande-gauche { left: 0; border-right: 1px solid rgb(201 169 97 / 0.28); }
+.bande-droite { right: 0; border-left: 1px solid rgb(201 169 97 / 0.28); }
+
+/* Les perforations sont un motif repete, pas des elements : une pellicule
+   n'a pas un nombre fini de trous a l'ecran, elle continue au-dela. */
+.bande::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 11px;
+  transform: translateX(-50%);
+  border-radius: 3px;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 9px,
+    rgb(201 169 97 / 0.42) 9px 20px,
+    transparent 20px 29px
+  );
+}
+
+.bande span {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  color: rgb(201 169 97 / 0.8);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+}
+
+.bande-gauche span { transform: rotate(180deg); }
+
+/* Le contenu se decale de la largeur des bandes. */
+.entre-bandes { padding-left: 26px; padding-right: 26px; }
