@@ -25,14 +25,14 @@ export const EVENT_PRICE_CENTS = 2900;
  */
 export async function createCheckoutSession(eventId: string, userId: string) {
   const { event, isOwner } = await assertCanManage(eventId, userId);
-  if (!isOwner) throw new ForbiddenError("Seul l'hote peut regler l'evenement");
+  if (!isOwner) throw new ForbiddenError("Seul l'hôte peut régler l'événement");
   if (event.state !== 'DRAFT') {
-    throw new AppError('ALREADY_OPEN', 409, 'Cet evenement est deja ouvert');
+    throw new AppError('ALREADY_OPEN', 409, 'Cet événement est déjà ouvert');
   }
 
   const existing = await prisma.payment.findUnique({ where: { eventId } });
   if (existing?.state === 'PAID') {
-    throw new AppError('ALREADY_PAID', 409, 'Cet evenement est deja regle');
+    throw new AppError('ALREADY_PAID', 409, 'Cet événement est déjà réglé');
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -90,7 +90,7 @@ export async function handleWebhook(rawBody: Buffer, signature: string) {
 
   const session = event.data.object as Stripe.Checkout.Session;
   const eventId = session.metadata?.eventId;
-  if (!eventId) throw new NotFoundError('Evenement');
+  if (!eventId) throw new NotFoundError('Événement');
 
   const payment = await prisma.payment.findUnique({ where: { eventId } });
   if (!payment) throw new NotFoundError('Paiement');

@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { ApiError } from '../../lib/api.js';
 import { Screen } from '../../ui/Screen.js';
 import { Spinner } from '../../ui/Spinner.js';
 import { useGuestSession } from './useGuestSession.js';
@@ -35,11 +36,12 @@ export function GuestJourney() {
   if (isPending) return <Spinner label="Ouverture de votre pellicule" />;
 
   if (isError) {
+    // Une soiree fermee ou complete n'est pas une soiree introuvable :
+    // annoncer « introuvable » puis expliquer en dessous que la prise de vue
+    // est terminee se contredit, et laisse l'invite croire a un mauvais lien.
+    const { title, subtitle } = accessRefusal(error);
     return (
-      <Screen
-        title="Evenement introuvable"
-        subtitle="Ce lien n'est plus valide, ou la soiree est terminee depuis plus de trente jours."
-      >
+      <Screen title={title} subtitle={subtitle}>
         <p className="mt-8 text-sm text-white/40">{error.message}</p>
       </Screen>
     );
@@ -108,4 +110,25 @@ export function GuestJourney() {
       onEmpty={() => void refreshQueued()}
     />
   );
+}
+
+/** Traduit le refus d'acces a une pellicule en un titre qui ne se contredit pas. */
+export function accessRefusal(error: Error): { title: string; subtitle: string } {
+  const code = error instanceof ApiError ? error.code : 'UNKNOWN';
+  if (code === 'EVENT_CLOSED') {
+    return {
+      title: 'Soirée terminée',
+      subtitle: "La prise de vue est close. L'album vous sera ouvert dès que l'hôte l'aura publié.",
+    };
+  }
+  if (code === 'EVENT_FULL') {
+    return {
+      title: 'Soirée complète',
+      subtitle: "Cette soirée a atteint son nombre maximal de participants. Demandez à l'hôte d'agrandir la liste.",
+    };
+  }
+  return {
+    title: 'Événement introuvable',
+    subtitle: "Ce lien n'est plus valide, ou la soirée est terminée depuis plus de trente jours.",
+  };
 }

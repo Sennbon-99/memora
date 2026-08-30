@@ -21,7 +21,7 @@ import { filterVisible, type Viewer } from './visibility.js';
 export async function getAlbumForHost(eventId: string, userId: string) {
   const { event } = await assertCanManage(eventId, userId);
   if (event.state === 'DRAFT' || event.state === 'OPEN') {
-    throw new AppError('NOT_CLOSED', 409, "L'album n'est disponible qu'apres la fermeture");
+    throw new AppError('NOT_CLOSED', 409, "L'album n'est disponible qu'après la fermeture");
   }
 
   const photos = await prisma.photo.findMany({
@@ -117,7 +117,7 @@ export async function getPublicAlbum(
   if (!event) throw new NotFoundError('Album');
 
   if (event.accessCodeHash) {
-    if (!accessCode) throw new AppError('ACCESS_CODE_REQUIRED', 401, "Cet album est protege par un code");
+    if (!accessCode) throw new AppError('ACCESS_CODE_REQUIRED', 401, "Cet album est protégé par un code");
     if (!(await verifyRecoveryCode(accessCode, event.accessCodeHash))) {
       throw new ForbiddenError('Code incorrect');
     }
@@ -201,7 +201,7 @@ export async function handleRemoval(
   await assertCanManage(request.photo.roll.eventId, userId);
 
   if (request.state !== 'PENDING') {
-    throw new AppError('ALREADY_HANDLED', 409, 'Cette demande a deja ete traitee');
+    throw new AppError('ALREADY_HANDLED', 409, 'Cette demande a déjà été traitée');
   }
 
   const [updated] = await prisma.$transaction([
@@ -243,7 +243,7 @@ export async function publishReviewed(eventId: string, userId: string, scope?: P
 
   const first = event.state !== 'PUBLISHED';
   if (first && !scope) {
-    throw new AppError('SCOPE_REQUIRED', 400, 'Choisissez qui pourra voir l album');
+    throw new AppError('SCOPE_REQUIRED', 400, "Choisissez qui pourra voir l'album");
   }
 
   const [published] = await prisma.$transaction([

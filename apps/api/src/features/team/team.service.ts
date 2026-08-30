@@ -23,7 +23,7 @@ const PHOTOGRAPHER_QUOTA = 2000;
  */
 export async function inviteCoHost(eventId: string, userId: string, email: string) {
   const { isOwner } = await assertCanManage(eventId, userId);
-  if (!isOwner) throw new ForbiddenError("Seul l'hote peut inviter un co-hote");
+  if (!isOwner) throw new ForbiddenError("Seul l'hôte peut inviter un co-hôte");
 
   const invited = await prisma.user.findUnique({
     where: { email },
@@ -33,13 +33,13 @@ export async function inviteCoHost(eventId: string, userId: string, email: strin
     throw new AppError('USER_NOT_FOUND', 404, "Cette personne n'a pas encore de compte Memora");
   }
   if (invited.id === userId) {
-    throw new AppError('ALREADY_OWNER', 409, 'Vous etes deja l hote de cet evenement');
+    throw new AppError('ALREADY_OWNER', 409, "Vous êtes déjà l'hôte de cet événement");
   }
 
   const existing = await prisma.coHost.findUnique({
     where: { userId_eventId: { userId: invited.id, eventId } },
   });
-  if (existing) throw new AppError('ALREADY_CO_HOST', 409, 'Cette personne est deja co-hote');
+  if (existing) throw new AppError('ALREADY_CO_HOST', 409, 'Cette personne est déjà co-hôte');
 
   await prisma.coHost.create({ data: { userId: invited.id, eventId } });
   return { user: invited };
@@ -48,12 +48,12 @@ export async function inviteCoHost(eventId: string, userId: string, email: strin
 /** Retire un co-hote. Ses actions passees restent, seul l'acces cesse. */
 export async function removeCoHost(eventId: string, userId: string, coHostId: string) {
   const { isOwner } = await assertCanManage(eventId, userId);
-  if (!isOwner) throw new ForbiddenError("Seul l'hote peut retirer un co-hote");
+  if (!isOwner) throw new ForbiddenError("Seul l'hôte peut retirer un co-hôte");
 
   const deleted = await prisma.coHost.deleteMany({
     where: { eventId, userId: coHostId },
   });
-  if (deleted.count === 0) throw new NotFoundError('Co-hote');
+  if (deleted.count === 0) throw new NotFoundError('Co-hôte');
 
   return { removed: true };
 }
@@ -80,7 +80,7 @@ export async function listCoHosts(eventId: string, userId: string) {
  */
 export async function createPhotographerLink(eventId: string, userId: string) {
   const { event, isOwner } = await assertCanManage(eventId, userId);
-  if (!isOwner) throw new ForbiddenError("Seul l'hote peut inviter un photographe");
+  if (!isOwner) throw new ForbiddenError("Seul l'hôte peut inviter un photographe");
 
   const token = event.photographerToken ?? buildToken(16);
   if (!event.photographerToken) {
@@ -105,9 +105,9 @@ export async function joinAsPhotographer(photographerToken: string, deviceToken?
     // vers quelle adresse aller apres avoir ouvert sa pellicule.
     select: { id: true, name: true, slug: true, state: true, color: true, closesAt: true },
   });
-  if (!event) throw new NotFoundError('Evenement');
+  if (!event) throw new NotFoundError('Événement');
   if (event.state !== 'OPEN') {
-    throw new AppError('EVENT_CLOSED', 409, "La prise de vue est terminee");
+    throw new AppError('EVENT_CLOSED', 409, "La prise de vue est terminée");
   }
 
   const existing = deviceToken

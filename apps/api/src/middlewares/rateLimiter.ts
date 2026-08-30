@@ -19,7 +19,7 @@ export const globalLimiter = rateLimit({
 export const authLimiter = rateLimit({
   windowMs: 15 * 60_000,
   limit: 10,
-  message: { code: 'TOO_MANY_ATTEMPTS', message: 'Trop de tentatives, reessayez plus tard' },
+  message: { code: 'TOO_MANY_ATTEMPTS', message: 'Trop de tentatives, réessayez plus tard' },
   standardHeaders: 'draft-7',
   legacyHeaders: false,
 });

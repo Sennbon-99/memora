@@ -27,15 +27,15 @@ export const cuidSchema = z.string().cuid();
 // --- Authentification de l'hote ----------------------------------------------
 
 export const registerSchema = z.object({
-  email: z.string().trim().toLowerCase().email('Adresse electronique invalide'),
+  email: z.string().trim().toLowerCase().email('Adresse électronique invalide'),
   // 12 caracteres minimum : la regle est ici, pas dans le formulaire.
-  password: z.string().min(12, 'Le mot de passe doit faire au moins 12 caracteres'),
-  name: z.string().trim().min(2, 'Deux caracteres au moins').max(60, 'Soixante caracteres au plus'),
+  password: z.string().min(12, 'Le mot de passe doit faire au moins 12 caractères'),
+  name: z.string().trim().min(2, 'Deux caractères au moins').max(60, 'Soixante caracteres au plus'),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email('Adresse electronique invalide'),
+  email: z.string().trim().toLowerCase().email('Adresse électronique invalide'),
   password: z.string().min(1, 'Mot de passe requis'),
 });
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -43,7 +43,7 @@ export type LoginInput = z.infer<typeof loginSchema>;
 // --- Evenement ---------------------------------------------------------------
 
 export const createEventSchema = z.object({
-  name: z.string().trim().min(3, 'Trois caracteres au moins').max(80, 'Quatre-vingts caracteres au plus'),
+  name: z.string().trim().min(3, 'Trois caractères au moins').max(80, 'Quatre-vingts caracteres au plus'),
   type: z.enum(EVENT_TYPES),
   eventDate: z.coerce.date(),
   quotaShots: z.number().int().min(QUOTA_MIN).max(QUOTA_MAX),
@@ -74,7 +74,7 @@ export type PublishEventInput = z.infer<typeof publishEventSchema>;
 
 export const joinEventSchema = z.object({
   // Le prenom est facultatif : l'invite peut rester anonyme.
-  firstName: z.string().trim().min(2, 'Deux caracteres au moins').max(30, 'Trente caracteres au plus').optional(),
+  firstName: z.string().trim().min(2, 'Deux caractères au moins').max(30, 'Trente caracteres au plus').optional(),
   tableId: cuidSchema.optional(),
 });
 export type JoinEventInput = z.infer<typeof joinEventSchema>;
@@ -86,7 +86,7 @@ export const consentSchema = z.object({
 export type ConsentInput = z.infer<typeof consentSchema>;
 
 export const recoveryCodeSchema = z.object({
-  firstName: z.string().trim().min(2, 'Deux caracteres au moins').max(30, 'Trente caracteres au plus'),
+  firstName: z.string().trim().min(2, 'Deux caractères au moins').max(30, 'Trente caracteres au plus'),
   code: z.string().regex(/^\d{4}$/, 'Le code comporte quatre chiffres'),
 });
 export type RecoveryCodeInput = z.infer<typeof recoveryCodeSchema>;

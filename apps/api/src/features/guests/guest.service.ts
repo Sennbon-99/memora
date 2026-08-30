@@ -73,10 +73,10 @@ export async function joinEvent(
       _count: { select: { rolls: true } },
     },
   });
-  if (!event) throw new NotFoundError('Evenement');
+  if (!event) throw new NotFoundError('Événement');
   // Un evenement en preparation est traite comme inexistant : on ne revele
   // pas qu'une soiree se prepare a quelqu'un qui a devine l'adresse.
-  if (event.state === 'DRAFT') throw new NotFoundError('Evenement');
+  if (event.state === 'DRAFT') throw new NotFoundError('Événement');
   // Une soiree purgee n'a plus rien a montrer : ses photographies sont
   // effacees, et son lien doit se comporter comme un lien mort.
   if (event.state === 'PURGED') throw new EventClosedError();
@@ -193,7 +193,7 @@ export async function saveRecoveryCode(rollId: string, code: string) {
  */
 export async function recoverRoll(slug: string, input: RecoveryCodeInput) {
   const event = await prisma.event.findUnique({ where: { slug }, select: { id: true } });
-  if (!event) throw new NotFoundError('Evenement');
+  if (!event) throw new NotFoundError('Événement');
 
   const candidates = await prisma.roll.findMany({
     where: { eventId: event.id, firstName: input.firstName, recoveryHash: { not: null } },
@@ -207,5 +207,5 @@ export async function recoverRoll(slug: string, input: RecoveryCodeInput) {
   }
 
   // Message unique : il ne dit pas si c'est le prenom ou le code qui est faux.
-  throw new AppError('RECOVERY_FAILED', 401, 'Prenom ou code incorrect');
+  throw new AppError('RECOVERY_FAILED', 401, 'Prénom ou code incorrect');
 }

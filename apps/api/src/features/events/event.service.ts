@@ -21,11 +21,11 @@ export async function assertCanManage(eventId: string, userId: string) {
     where: { id: eventId },
     include: { coHosts: { where: { userId }, select: { userId: true } } },
   });
-  if (!event) throw new NotFoundError('Evenement');
+  if (!event) throw new NotFoundError('Événement');
 
   const isOwner = event.ownerId === userId;
   const isCoHost = event.coHosts.length > 0;
-  if (!isOwner && !isCoHost) throw new ForbiddenError('Cet evenement ne vous appartient pas');
+  if (!isOwner && !isCoHost) throw new ForbiddenError('Cet événement ne vous appartient pas');
 
   return { event, isOwner };
 }
@@ -123,8 +123,8 @@ export async function updateEvent(eventId: string, userId: string, input: Update
  */
 export async function openEvent(eventId: string, userId: string) {
   const { event, isOwner } = await assertCanManage(eventId, userId);
-  if (!isOwner) throw new ForbiddenError("Seul l'hote peut ouvrir l'evenement");
-  if (event.state !== 'DRAFT') throw new AppError('ALREADY_OPEN', 409, 'Cet evenement est deja ouvert');
+  if (!isOwner) throw new ForbiddenError("Seul l'hôte peut ouvrir l'événement");
+  if (event.state !== 'DRAFT') throw new AppError('ALREADY_OPEN', 409, 'Cet événement est déjà ouvert');
 
   // L'offre gratuite couvre un seul evenement par compte : on compte ceux
   // qui ont deja quitte l'etat brouillon.
@@ -134,7 +134,7 @@ export async function openEvent(eventId: string, userId: string) {
   if (openedBefore >= FREE_TIER.events) {
     const payment = await prisma.payment.findUnique({ where: { eventId } });
     if (payment?.state !== 'PAID') {
-      throw new AppError('PAYMENT_REQUIRED', 402, 'Cet evenement doit etre regle avant son ouverture');
+      throw new AppError('PAYMENT_REQUIRED', 402, 'Cet événement doit être réglé avant son ouverture');
     }
   }
 
@@ -148,7 +148,7 @@ export async function openEvent(eventId: string, userId: string) {
  */
 export async function closeEvent(eventId: string, userId: string) {
   const { event } = await assertCanManage(eventId, userId);
-  if (event.state !== 'OPEN') throw new AppError('NOT_OPEN', 409, "Cet evenement n'est pas ouvert");
+  if (event.state !== 'OPEN') throw new AppError('NOT_OPEN', 409, "Cet événement n'est pas ouvert");
 
   return prisma.event.update({
     where: { id: eventId },
@@ -164,7 +164,7 @@ export async function closeEvent(eventId: string, userId: string) {
 export async function createTables(eventId: string, userId: string, labels: string[]) {
   await assertCanManage(eventId, userId);
   if (labels.length > MAX_GUESTS_PER_EVENT) {
-    throw new AppError('TOO_MANY_TABLES', 422, 'Nombre de tables trop eleve');
+    throw new AppError('TOO_MANY_TABLES', 422, 'Nombre de tables trop élevé');
   }
 
   await prisma.eventTable.createMany({

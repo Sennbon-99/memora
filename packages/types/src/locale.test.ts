@@ -6,7 +6,7 @@ describe('messages de validation', () => {
   it('rend une adresse invalide en francais', () => {
     const r = loginSchema.safeParse({ email: 'pas-une-adresse', password: 'x' });
     expect(r.success).toBe(false);
-    if (!r.success) expect(r.error.issues[0]!.message).toBe('Adresse electronique invalide');
+    if (!r.success) expect(r.error.issues[0]!.message).toBe('Adresse électronique invalide');
   });
 
   it('rend un champ manquant en francais', () => {
@@ -20,7 +20,7 @@ describe('messages de validation', () => {
     expect(r.success).toBe(false);
     if (!r.success) {
       const nom = r.error.issues.find((i) => i.path[0] === 'name');
-      expect(nom!.message).toBe('Trois caracteres au moins');
+      expect(nom!.message).toBe('Trois caractères au moins');
     }
   });
 

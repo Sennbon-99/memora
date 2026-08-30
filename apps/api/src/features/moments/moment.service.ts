@@ -76,10 +76,10 @@ export async function triggerMoment(momentId: string, userId: string) {
 
   const { event } = await assertCanManage(moment.eventId, userId);
   if (event.state !== 'OPEN') {
-    throw new AppError('EVENT_NOT_OPEN', 409, "L'evenement doit etre ouvert pour declencher un moment");
+    throw new AppError('EVENT_NOT_OPEN', 409, "L'événement doit être ouvert pour déclencher un moment");
   }
   if (moment.startedAt) {
-    throw new AppError('ALREADY_STARTED', 409, 'Ce moment a deja ete declenche');
+    throw new AppError('ALREADY_STARTED', 409, 'Ce moment a déjà été déclenché');
   }
 
   // Deux moments ne peuvent pas se chevaucher : les poses bonus etant
@@ -90,7 +90,7 @@ export async function triggerMoment(momentId: string, userId: string) {
     select: { startedAt: true, durationMinutes: true },
   });
   if (others.some(isActive)) {
-    throw new AppError('MOMENT_OVERLAP', 409, 'Un autre moment est deja en cours');
+    throw new AppError('MOMENT_OVERLAP', 409, 'Un autre moment est déjà en cours');
   }
 
   const startedAt = new Date();
