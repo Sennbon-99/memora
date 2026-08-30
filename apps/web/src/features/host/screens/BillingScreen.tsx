@@ -89,7 +89,7 @@ export function BillingScreen() {
           </p>
           <ul className="mt-3 flex flex-col gap-2 text-[13px] text-white/65">
             <li>Jusqu’à 200 invités, sans application à installer</li>
-            <li>{event.quotaShots} poses par invité, réglables avant l’ouverture</li>
+            <li>{event.quotaShots} vues par invité, réglables avant l’ouverture</li>
             <li>Kit de QR codes imprimable</li>
             <li>Album partageable et archive téléchargeable</li>
             <li>Conservation trente jours, puis effacement automatique</li>

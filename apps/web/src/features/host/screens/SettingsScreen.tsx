@@ -73,7 +73,7 @@ export function SettingsScreen() {
   return (
     <Screen title="Réglages" subtitle={event.name}>
       <Group title="La pellicule">
-        <Line label="Poses par invité" value={String(event.quotaShots)} onClick={() => edit('quota')} />
+        <Line label="Vues par invité" value={String(event.quotaShots)} onClick={() => edit('quota')} />
         <Line label="Aperçu après la photo" value={PREVIEW_LABEL[event.previewMode]} onClick={() => edit('preview')} />
         <Line label="Fermeture" value={closes} onClick={() => edit('closes')} />
         <Line

@@ -41,7 +41,7 @@ export function EventListScreen() {
   return (
     <Screen
       title="Vos soirées"
-      subtitle="Une soirée par événement. Chacune a son QR code et sa pellicule."
+      subtitle="Une pellicule par soirée. Chacune a son QR code et ses vues."
       footer={
         <Button full onClick={() => navigate('/hote/nouvelle')}>
           Créer une soirée

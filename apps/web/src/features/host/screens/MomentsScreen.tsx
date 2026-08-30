@@ -85,7 +85,7 @@ export function MomentsScreen() {
   return (
     <Screen
       title="Moments forts"
-      subtitle="Une fenêtre courte pendant laquelle chaque invité reçoit des poses en plus."
+      subtitle="Une fenêtre courte pendant laquelle chaque invité reçoit des vues en plus."
       footer={
         adding ? (
           <div className="flex gap-2">
@@ -171,7 +171,7 @@ export function MomentsScreen() {
           )}
 
           <Stepper
-            label="Poses offertes à chacun"
+            label="Vues offertes à chacun"
             value={bonusShots}
             min={0}
             max={10}

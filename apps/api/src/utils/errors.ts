@@ -19,7 +19,7 @@ export class AppError extends Error {
 
 export class QuotaExhaustedError extends AppError {
   constructor() {
-    super('QUOTA_EXHAUSTED', 409, 'Plus aucune pose disponible sur cette pellicule');
+    super('QUOTA_EXHAUSTED', 409, 'Plus aucune vue disponible sur cette pellicule');
   }
 }
 

@@ -40,7 +40,7 @@ const PREVIEW_HINT: Record<PreviewMode, string> = {
 const COLORS = ['#C97C1E', '#7B3FE4', '#1FA97A', '#E0533D', '#2F6BE0'];
 
 const TITLES: Record<Setting, string> = {
-  quota: 'Poses par invité',
+  quota: 'Vues par invité',
   preview: 'Aperçu après la photo',
   closes: 'Heure de fermeture',
   tables: 'Numéros de table',

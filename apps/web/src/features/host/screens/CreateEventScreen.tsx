@@ -178,18 +178,18 @@ export function CreateEventScreen() {
         {step === 2 && (
           <>
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-white/60">Poses par invité</span>
+              <span className="text-sm font-semibold text-white/60">Vues par invité</span>
               <div className="flex items-center gap-3.5">
                 <button
                   onClick={() => setQuotaShots((q) => Math.max(QUOTA_MIN, q - 1))}
-                  aria-label="Une pose de moins"
+                  aria-label="Une vue de moins"
                   className="h-11 w-11 rounded-xl bg-white/8 text-xl active:bg-white/14"
                 >−</button>
                 <b className="min-w-14 text-center font-mono text-3xl font-semibold
                   tabular-nums text-[var(--accent)]">{quotaShots}</b>
                 <button
                   onClick={() => setQuotaShots((q) => Math.min(QUOTA_MAX, q + 1))}
-                  aria-label="Une pose de plus"
+                  aria-label="Une vue de plus"
                   className="h-11 w-11 rounded-xl bg-white/8 text-xl active:bg-white/14"
                 >+</button>
                 <span className="text-xs leading-snug text-white/35">{quotaMeaning(quotaShots)}</span>

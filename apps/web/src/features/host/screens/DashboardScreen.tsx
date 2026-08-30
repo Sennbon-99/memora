@@ -137,9 +137,9 @@ export function DashboardScreen() {
         <Stat label="Invités" value={stats?.activeGuests ?? '—'} />
         <Stat label="Photos" value={stats?.totalPhotos ?? '—'} />
         <Stat
-          label="Quota utilisé"
+          label="Vues utilisées"
           value={stats ? `${stats.quotaUsedPercent} %` : '—'}
-          note={`${event.quotaShots} poses par invité`}
+          note={`${event.quotaShots} vues par invité`}
         />
         <Stat label="Tables" value={stats?.byTable.length ?? '—'} />
       </div>
