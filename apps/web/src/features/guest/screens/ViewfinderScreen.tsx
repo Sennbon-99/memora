@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '../../../ui/Button.js';
 import { ShotCounter } from '../../../ui/ShotCounter.js';
+import { QrCode } from '../../../ui/QrCode.js';
 import { useCamera } from '../useCamera.js';
 import { useShot } from '../useShot.js';
 import { CameraDeniedScreen } from './CameraDeniedScreen.js';
@@ -32,6 +33,9 @@ export function ViewfinderScreen({
   const { videoRef, state, start, capture } = useCamera();
   const shot = useShot(slug);
   const [flashing, setFlashing] = useState(false);
+  // « Le carton a disparu sous les verres » est le cas le plus frequent :
+  // un invite deja entre depanne son voisin en lui montrant son ecran.
+  const [partage, setPartage] = useState(false);
 
   useEffect(() => { void start(); }, [start]);
 
@@ -88,11 +92,59 @@ export function ViewfinderScreen({
         <div className="rounded-lg bg-black/50 px-4 py-2 backdrop-blur">
           <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
         </div>
-        <span className="mt-2 max-w-32 truncate rounded-full bg-black/50 px-3 py-1
-          text-xs text-paper/70 backdrop-blur">
-          {eventName}
-        </span>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="max-w-32 truncate rounded-full bg-black/50 px-3 py-1
+            text-xs text-paper/70 backdrop-blur">
+            {eventName}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPartage(true)}
+            aria-label="Montrer le code à quelqu’un"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-black/50
+              text-paper/80 backdrop-blur active:bg-black/70"
+          >
+            {/* Un carre de visee, pas un faux QR code : l'icone dit le geste
+                sans pretendre etre le code. Le vrai est derriere. */}
+            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none"
+              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4" />
+              <rect x="9.5" y="9.5" width="5" height="5" rx="0.5" />
+            </svg>
+          </button>
+        </div>
       </header>
+
+      {partage && (
+        <div
+          className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-6
+            bg-film/95 px-8 backdrop-blur"
+          style={{ animation: 'fade 180ms ease-out' }}
+        >
+          <p className="text-center text-[15px] leading-relaxed text-paper/70">
+            Faites scanner cet écran. Votre voisin rejoint la même soirée,
+            avec ses propres vingt-quatre poses.
+          </p>
+          {/* Le code est presente comme un tirage : bord blanc epais, comme
+              sur le carton imprime. Le cadre porte l'identite, jamais le
+              code. */}
+          <div className="bg-white p-3 shadow-2xl">
+            <QrCode
+              value={`${window.location.origin}/e/${slug}`}
+              size={216}
+              label={`Code de la soirée ${eventName}`}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setPartage(false)}
+            className="min-h-12 rounded-xl border border-gold/25 px-8 text-base font-semibold
+              text-paper active:bg-paper/8"
+          >
+            Fermer
+          </button>
+        </div>
+      )}
 
       {!online && (
         <p
