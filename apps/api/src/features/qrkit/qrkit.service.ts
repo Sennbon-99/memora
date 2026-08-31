@@ -93,11 +93,23 @@ function drawTirage(
   }
 }
 
-/** Une affiche : un titre, un code, une consigne. Rien d'autre. */
+/**
+ * Une affiche : un titre, un code, une consigne. Rien d'autre.
+ *
+ * Le corps du texte suit la taille du code — une affiche A2 se lit de plus
+ * loin qu'une A4 — et les ecarts doivent le suivre. Ils ne le faisaient pas :
+ * ecrits en millimetres fixes, ils tenaient sur l'A3 pour laquelle ils
+ * avaient ete regles, se serraient sur l'A4, et sur l'A2 les deux consignes
+ * finissaient exactement collees, les descendantes de « photographiez »
+ * tombant dans la ligne du dessous. Le defaut ne se voyait qu'au tirage, et
+ * seulement sur le plus grand format.
+ */
 function drawAffiche(doc: PDFKit.PDFDocument, card: Card, piece: Piece, qr: Buffer): void {
   const { width, height } = doc.page;
   const cote = mm(piece.qrMm);
   const echelle = cote / mm(120);
+  /** Un ecart qui change d'echelle avec le texte qu'il separe. */
+  const ecart = (valeurMm: number) => mm(valeurMm) * echelle;
 
   doc.fillColor(ACCENT).font('Helvetica-Bold').fontSize(11 * echelle)
     .text('MEMORA · 24 POSES · SANS COMPTE', 0, height * 0.1, {
@@ -109,14 +121,29 @@ function drawAffiche(doc: PDFKit.PDFDocument, card: Card, piece: Piece, qr: Buff
 
   drawTirage(doc, qr, (width - cote) / 2, height * 0.34, cote);
 
-  doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(19 * echelle)
-    .text('Scannez, photographiez', 0, height * 0.34 + cote + mm(18), { align: 'center', width });
+  const corpsConsigne = 19 * echelle;
+  doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(corpsConsigne)
+    .text('Scannez, photographiez', 0, height * 0.34 + cote + ecart(18), { align: 'center', width });
+
+  // Posee sous la consigne et non a un millimetrage compte depuis le code :
+  // c'est pdfkit qui sait ou la ligne precedente s'est arretee, y compris
+  // quand un nom de soiree l'a fait passer a la ligne.
+  //
+  // 0,57 cadratin n'est pas un chiffre choisi : c'est l'ecart que l'A3 avait
+  // deja, mesure puis dit en fraction du corps. L'A3 est le format de
+  // reference, celui qu'on a sous les yeux quand on regle l'affiche ; les
+  // deux autres heritent maintenant de son reglage au lieu d'en subir un
+  // millimetrage pense pour elle.
   doc.fillColor(ENCRE_2).font('Helvetica').fontSize(12 * echelle)
-    .text("Vingt-quatre poses chacun. Aucune application à installer.", mm(20), height * 0.34 + cote + mm(28), {
+    .text('Vingt-quatre poses chacun. Aucune application à installer.', mm(20), doc.y + corpsConsigne * 0.57, {
       align: 'center', width: width - mm(40),
     });
+
+  // La mention du bas garde une marge proportionnelle a la feuille. Vingt-deux
+  // millimetres fixes valaient 7 % de la hauteur d'une A4 et 4 % d'une A2 : le
+  // meme pied de page paraissait deux fois plus serre selon le format.
   doc.fillColor(ENCRE_3).font('Helvetica').fontSize(8 * echelle)
-    .text('Vos photos se révèlent demain matin, toutes en même temps.', mm(20), height - mm(22), {
+    .text('Vos photos se révèlent demain matin, toutes en même temps.', mm(20), height - ecart(22), {
       align: 'center', width: width - mm(40),
     });
 }
