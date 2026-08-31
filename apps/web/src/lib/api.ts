@@ -430,5 +430,7 @@ export const eventApi = {
   close: (id: string) => call<{ event: EventSummary }>(`/events/${id}/close`, { method: 'POST' }),
   stats: (id: string) => call<EventStats>(`/events/${id}/stats`),
   /** Adresse du kit QR. Ouverte dans un onglet, pas passee par call(). */
-  qrKitUrl: (id: string) => `${BASE}/events/${id}/qr-kit`,
+  // Une seule piece renvoie un PDF, plusieurs renvoient une archive.
+  qrKitUrl: (id: string, pieces: readonly string[]) =>
+    `${BASE}/events/${id}/qr-kit?pieces=${pieces.join(',')}`,
 };
