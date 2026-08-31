@@ -46,4 +46,9 @@
   --rule: rgb(31 63 168 / 0.15);
   --tape: rgb(196 213 240 / 0.62);
   --ombre-tirage: 0 10px 22px -12px rgb(16 26 46 / 0.5);
+
+  --font-display: 'DM Sans Variable', system-ui, sans-serif;
+  --font-hand: 'DM Sans Variable', system-ui, sans-serif;
+  --font-sans: 'DM Sans Variable', system-ui, sans-serif;
+  --tracking-display: -0.03em;
 }

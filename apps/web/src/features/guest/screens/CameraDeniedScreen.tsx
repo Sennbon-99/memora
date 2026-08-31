@@ -79,7 +79,7 @@ export function CameraDeniedScreen({
 
         <div className="flex flex-col gap-4">
           <div className="rounded-carte border border-edge bg-pap-2 p-5">
-            <h2 className="font-serif text-[24px] leading-tight">La pellicule continue</h2>
+            <h2 className="decoupe text-[24px] leading-tight">La pellicule continue</h2>
             <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
               Chaque vue prise par l’appareil photo de votre téléphone rejoint
               votre pellicule, et le compteur baisse d’autant. Vous ne perdez

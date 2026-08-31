@@ -77,7 +77,7 @@ export function PublicAlbumScreen() {
             </p>
 
             <div className="border-y border-edge py-6">
-              <p className="max-w-[22ch] font-serif text-[26px] leading-[1.15] text-ink-2">
+              <p className="max-w-[22ch] decoupe text-[26px] leading-[1.15] text-ink-2">
                 Six chiffres séparent cet album de vous.
               </p>
             </div>
@@ -142,7 +142,7 @@ export function PublicAlbumScreen() {
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche vide
             </p>
-            <h2 className="mt-3 font-serif text-[26px] leading-[1.15]">
+            <h2 className="mt-3 decoupe text-[26px] leading-[1.15]">
               L’album est vide pour le moment.
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-ink-2">

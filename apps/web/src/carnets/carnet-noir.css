@@ -46,4 +46,9 @@
   --rule: rgb(255 255 255 / 0.075);
   --tape: rgb(240 236 222 / 0.24);
   --ombre-tirage: 0 18px 36px -14px rgb(0 0 0 / 0.9);
+
+  --font-display: Anton, Impact, sans-serif;
+  --font-hand: 'Caveat Variable', cursive;
+  --font-sans: 'DM Sans Variable', system-ui, sans-serif;
+  --tracking-display: -0.01em;
 }

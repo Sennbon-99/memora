@@ -77,7 +77,7 @@ export function PhotographerScreen() {
         </p>
 
         <div className="border-y border-edge py-6">
-          <p className="max-w-[20ch] font-serif text-[26px] leading-[1.15] text-ink-2">
+          <p className="max-w-[20ch] decoupe text-[26px] leading-[1.15] text-ink-2">
             {closed
               ? 'La pellicule est refermée.'
               : 'Ce lien n’ouvre plus rien.'}

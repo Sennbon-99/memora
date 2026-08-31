@@ -54,7 +54,7 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
 
       <div className="relative m-3 rounded-carte border border-edge bg-well p-5
         animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
-        <h2 className="font-serif text-[26px] leading-tight tracking-tight">
+        <h2 className="decoupe text-[26px] leading-tight tracking-tight">
           Qui pourra voir l’album ?
         </h2>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-3">

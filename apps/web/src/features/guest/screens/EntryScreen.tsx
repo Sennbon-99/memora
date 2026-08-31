@@ -33,8 +33,8 @@ export function EntryScreen() {
         </p>
 
         <div>
-          <h2 className="font-serif text-[64px] leading-[0.88] tracking-tight">Memora</h2>
-          <p className="mt-6 max-w-[19ch] font-serif text-[26px] leading-[1.15] text-ink-2">
+          <h2 className="decoupe text-[64px] leading-[0.88] tracking-tight">Memora</h2>
+          <p className="mt-6 max-w-[19ch] decoupe text-[26px] leading-[1.15] text-ink-2">
             Votre soirée vue par tous ceux qui y étaient.
           </p>
         </div>

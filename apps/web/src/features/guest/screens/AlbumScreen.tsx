@@ -94,7 +94,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche vide
             </p>
-            <h2 className="mt-3 font-serif text-[26px] leading-[1.15]">
+            <h2 className="mt-3 decoupe text-[26px] leading-[1.15]">
               Rien à montrer pour l’instant.
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
@@ -166,7 +166,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Droit à l’image
             </p>
-            <h2 className="mt-2 font-serif text-[26px] leading-tight">Demander le retrait</h2>
+            <h2 className="mt-2 decoupe text-[26px] leading-tight">Demander le retrait</h2>
             <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
               Votre demande est transmise à l’organisateur, qui décide. Dites
               en quelques mots pourquoi.

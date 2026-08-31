@@ -113,7 +113,7 @@ export function ReviewScreen() {
       </header>
 
       <div className="mt-3 px-5">
-        <h1 className="font-serif text-[34px] leading-[0.95] tracking-tight">{who}</h1>
+        <h1 className="decoupe text-[34px] leading-[0.95] tracking-tight">{who}</h1>
         <p className="mt-1.5 text-xs text-ink-3">
           {data.roll.tableLabel ?? 'Sans table'} ·{' '}
           <span className="font-mono tabular-nums">{photos.length}</span> photographies ·

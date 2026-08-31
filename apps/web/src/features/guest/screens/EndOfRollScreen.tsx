@@ -79,7 +79,7 @@ export function EndOfRollScreen({
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
             Code de secours
           </p>
-          <h2 className="mt-2 font-serif text-[24px] leading-tight">
+          <h2 className="mt-2 decoupe text-[24px] leading-tight">
             Retrouver vos photos plus tard
           </h2>
           <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">

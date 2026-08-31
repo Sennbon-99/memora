@@ -15,9 +15,10 @@
    l'adresse de chaque invite vers un serveur qui n'a rien a en connaitre. */
 /* opsz et non l'entree par defaut : ce fichier porte l'axe de taille
    optique, celui qui redessine les lettres selon le corps de rendu. */
-@import '@fontsource-variable/bricolage-grotesque/opsz.css';
+@import '@fontsource/anton';
+@import '@fontsource-variable/caveat';
+@import '@fontsource-variable/dm-sans';
 @import '@fontsource-variable/jetbrains-mono';
-@import '@fontsource/instrument-serif';
 
 /* Les carnets. Trois fichiers de valeurs, embarques dans le bundle : deux
    kilo-octets chacun, et un invite hors reseau garde le sien. */
@@ -90,6 +91,10 @@
   --radius-champ: 2px;
   --radius-pilule: 999px;
 
+  /* L'approche du titre suit la police : Anton demande a etre resserre,
+     une grotesque non. */
+  --tracking-display: -0.01em;
+
   /* Le voile d'appui. Translucide, donc jamais porteur de texte : un
      modificateur d'opacite ici n'aurait servi qu'a figer sa valeur. */
   --color-appui: rgb(0 0 0 / 0.06);
@@ -100,8 +105,12 @@
   /* Le voile de confirmation : une soiree en cours, une photo publiee. */
   --color-ok-doux: rgb(34 107 76 / 0.12);
 
-  --font-sans: 'Bricolage Grotesque Variable', system-ui, -apple-system, sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, serif;
+  /* Trois roles, pas trois polices : un carnet peut poser la meme famille
+     sur les trois. C'est ce que fait Bleu de bureau, ou une ecriture
+     manuscrite dans une soiree d'entreprise n'aurait aucun sens. */
+  --font-display: Anton, Impact, 'Haettenschweiler', sans-serif;
+  --font-hand: 'Caveat Variable', 'Segoe Script', cursive;
+  --font-sans: 'DM Sans Variable', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 
@@ -187,41 +196,57 @@ input, textarea {
    carnet complet.
 ------------------------------------------------------------------ */
 
-/* Le quadrillage du carnet. Un carnet qui n'en veut pas met --rule a
-   transparent : la regle reste, elle ne dessine plus rien. */
-.quadrille {
-  background-image:
-    linear-gradient(var(--rule) 1px, transparent 1px),
-    linear-gradient(90deg, var(--rule) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
+@layer components {
+  /* Le titre en decoupe. La casse et l'approche viennent du carnet : une
+     grotesque en capitales serrees se lit, une manuscrite non. */
+  .decoupe {
+    font-family: var(--font-display);
+    letter-spacing: var(--tracking-display);
+    line-height: 0.92;
+  }
 
-/* Un tirage : bord blanc, ombre courte, legere rotation. La rotation est
-   posee par l'appelant via --pose-angle, pour qu'aucune image ne soit
-   exactement alignee sur la suivante. */
-.tirage {
-  background: var(--color-tirage);
-  padding: 8px;
-  box-shadow: var(--ombre-tirage);
-  transform: rotate(var(--pose-angle, 0deg));
-}
+  /* L'annotation manuscrite, celle qu'on ajoute dans la marge. */
+  .annotation {
+    font-family: var(--font-hand);
+    line-height: 1.2;
+  }
 
-/* Le ruban adhesif. Decoratif : il ne porte aucune information. */
-.ruban {
-  position: absolute;
-  width: 74px;
-  height: 21px;
-  background: var(--tape);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
-  border-left: 1px dashed rgb(0 0 0 / 0.1);
-  border-right: 1px dashed rgb(0 0 0 / 0.1);
-  pointer-events: none;
-}
+  /* Le quadrillage du carnet. Un carnet qui n'en veut pas met --rule a
+     transparent : la regle reste, elle ne dessine plus rien. */
+  .quadrille {
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
 
-/* L'etalonnage des photographies. C'est la variable qui travaille le plus :
-   la meme image n'a pas la meme temperature dans le Papier et dans le
-   Carnet noir. */
-.etalonnee { filter: var(--grade); }
+  /* Un tirage : bord blanc, ombre courte, legere rotation. La rotation est
+     posee par l'appelant via --pose-angle, pour qu'aucune image ne soit
+     exactement alignee sur la suivante. */
+  .tirage {
+    background: var(--color-tirage);
+    padding: 8px;
+    box-shadow: var(--ombre-tirage);
+    transform: rotate(var(--pose-angle, 0deg));
+  }
+
+  /* Le ruban adhesif. Decoratif : il ne porte aucune information. */
+  .ruban {
+    position: absolute;
+    width: 74px;
+    height: 21px;
+    background: var(--tape);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+    border-left: 1px dashed rgb(0 0 0 / 0.1);
+    border-right: 1px dashed rgb(0 0 0 / 0.1);
+    pointer-events: none;
+  }
+
+  /* L'etalonnage des photographies. C'est la variable qui travaille le plus :
+     la meme image n'a pas la meme temperature dans le Papier et dans le
+     Carnet noir. */
+  .etalonnee { filter: var(--grade); }
+}
 
 /* Bandes de pellicule, heritees de Nocturne. Eteintes par defaut. */
 .bande {

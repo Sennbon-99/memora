@@ -85,7 +85,7 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
         </div>
 
         <div className="rounded-carte border border-edge bg-pap-2 p-5">
-          <h2 className="font-serif text-[24px] leading-tight">
+          <h2 className="decoupe text-[24px] leading-tight">
             {queued > 0 ? (
               <>
                 <span className="font-mono tabular-nums text-a1">{queued}</span>
@@ -108,7 +108,7 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
             {canAsk && (
               <div className="rounded-carte border border-edge
                 bg-a-doux p-5">
-                <h2 className="font-serif text-[24px] leading-tight">Être prévenu ?</h2>
+                <h2 className="decoupe text-[24px] leading-tight">Être prévenu ?</h2>
                 <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
                   Une seule notification, quand l’album sera en ligne. Rien d’autre.
                 </p>

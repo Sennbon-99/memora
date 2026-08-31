@@ -75,7 +75,7 @@ export function Screen({
           className={
             hideTitle
               ? 'sr-only'
-              : 'font-serif text-[42px] leading-[0.95] tracking-tight text-balance'
+              : 'decoupe text-[42px] leading-[0.95] tracking-tight text-balance'
           }
         >
           {title}

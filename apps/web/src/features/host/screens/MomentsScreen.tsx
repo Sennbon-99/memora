@@ -134,7 +134,7 @@ export function MomentsScreen() {
           <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-a1">
             En cours
           </p>
-          <p className="mt-1.5 font-serif text-[28px] leading-none text-ink">{running.label}</p>
+          <p className="mt-1.5 decoupe text-[28px] leading-none text-ink">{running.label}</p>
           {/* Le decompte seul en gros chiffres : c'est ce qu'on vient lire.
               Le mot « Encore » en corps de titre le diluait. */}
           {(() => {
