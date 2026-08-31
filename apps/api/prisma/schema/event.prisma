@@ -12,7 +12,12 @@ model Event {
   /// Heure a laquelle la prise de vue s'arrete. Fait foi, fuseau compris.
   closesAt       DateTime    @db.Timestamptz
   previewMode    PreviewMode @default(NONE)
-  color          String      @db.Char(7)
+  /// Le carnet applique au parcours de l'invite : un jeu de valeurs, jamais
+  /// une structure. Voir apps/web/src/carnets.
+  carnet         String      @default("papier") @db.VarChar(32)
+  /// @deprecated remplace par carnet. Conserve le temps de la migration ;
+  /// plus aucun ecran ne le demande a l'hote.
+  color          String      @default("#c9a961") @db.Char(7)
   logoKey        String?
   welcomeMessage String?     @db.VarChar(280)
   useTableCodes  Boolean     @default(false)

@@ -19,6 +19,8 @@ import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { useSession, useLogout } from '../useAuth.js';
 import { useEvent } from '../useEvents.js';
+import { CARNET_LABEL } from '../../../carnets/labels.js';
+import type { Carnet } from '@memora/types';
 import { useRolls } from '../useRolls.js';
 
 const PREVIEW_LABEL: Record<PreviewMode, string> = {
@@ -29,7 +31,7 @@ const PREVIEW_LABEL: Record<PreviewMode, string> = {
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-8">
-      <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">{title}</h2>
+      <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">{title}</h2>
       <div className="mt-1 flex flex-col">{children}</div>
     </section>
   );
@@ -52,21 +54,21 @@ function Line({ label, value, mono, onClick, danger }: {
     <button
       onClick={onClick}
       disabled={!onClick}
-      className={`flex w-full items-center gap-3 border-b border-gold/12 px-1 py-3.5 text-left
-        text-[13px] transition last:border-b-0 active:bg-paper/6 disabled:active:bg-transparent
-        ${danger ? 'text-red-400' : ''}`}
+      className={`flex w-full items-center gap-3 border-b border-edge-2 px-1 py-3.5 text-left
+        text-[13px] transition last:border-b-0 active:bg-appui disabled:active:bg-transparent
+        ${danger ? 'text-danger' : ''}`}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {value && (
         <span
           className={`shrink-0 text-[12px] ${mono
-            ? 'font-mono tabular-nums text-gold/80'
-            : 'text-paper/45'}`}
+            ? 'font-mono tabular-nums text-a1'
+            : 'text-ink-3'}`}
         >
           {value}
         </span>
       )}
-      {onClick && !danger && <span aria-hidden="true" className="text-gold/50">›</span>}
+      {onClick && !danger && <span aria-hidden="true" className="text-a1">›</span>}
     </button>
   );
 }
@@ -108,7 +110,11 @@ export function SettingsScreen() {
           onClick={() => edit('tables')}
         />
         <Line label="Mot d’accueil" value={event.welcomeMessage ? 'Défini' : 'Aucun'} onClick={() => edit('welcome')} />
-        <Line label="Couleur" onClick={() => edit('color')} />
+        <Line
+          label="Le carnet"
+          value={CARNET_LABEL[(event.carnet ?? 'papier') as Carnet]}
+          onClick={() => edit('carnet')}
+        />
       </Group>
 
       <Group title="La soirée">
@@ -139,7 +145,7 @@ export function SettingsScreen() {
         />
       </Group>
 
-      <p className="mt-8 pb-4 text-center text-[11px] leading-relaxed text-paper/25">
+      <p className="mt-8 pb-4 text-center text-[11px] leading-relaxed text-ink-3">
         Les photographies de cette soirée seront effacées automatiquement
         trente jours après sa fermeture.
       </p>

@@ -78,8 +78,8 @@ export function LoginScreen() {
           <button
             type="button"
             onClick={() => navigate(presentationVue('invite') ? '/scan' : '/decouvrir')}
-            className="mx-auto py-1 text-sm text-paper/45 underline underline-offset-4
-              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            className="mx-auto py-1 text-sm text-ink-3 underline underline-offset-4
+              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-a1"
           >
             Je suis un invité
           </button>
@@ -115,7 +115,7 @@ export function LoginScreen() {
         />
 
         {failure && (
-          <p role="alert" className="rounded-xl bg-red-500/10 p-3.5 text-sm text-red-300">
+          <p role="alert" className="rounded-carte bg-danger-doux p-3.5 text-sm text-danger">
             {failure.message}
           </p>
         )}

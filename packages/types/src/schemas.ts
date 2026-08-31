@@ -12,6 +12,7 @@ import {
   PUBLICATION_SCOPES,
   QUOTA_MAX,
   QUOTA_MIN,
+  CARNETS,
 } from './enums.js';
 
 // --- Briques reutilisables ---------------------------------------------------
@@ -52,7 +53,10 @@ export const createEventSchema = z.object({
     message: "L'heure de fermeture doit etre posterieure a maintenant",
   }),
   previewMode: z.enum(PREVIEW_MODES),
-  color: hexColorSchema,
+  /** Le carnet. Absent, le serveur pose celui du type de soiree. */
+  carnet: z.enum(CARNETS).optional(),
+  /** @deprecated remplace par carnet ; plus aucun ecran ne le demande. */
+  color: hexColorSchema.optional(),
   welcomeMessage: z.string().trim().max(280).optional(),
   useTableCodes: z.boolean().default(false),
 });

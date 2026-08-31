@@ -50,8 +50,8 @@ const FILTERS: { value: Filter; label: string }[] = [
 function Tally({ label, value, edge = '' }: { label: string; value: number; edge?: string }) {
   return (
     <div className={`px-3.5 py-2.5 ${edge}`}>
-      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/45">{label}</p>
-      <p className="mt-1 font-mono text-xl leading-none font-medium tabular-nums text-gold">
+      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">{label}</p>
+      <p className="mt-1 font-mono text-xl leading-none font-medium tabular-nums text-a1">
         {value}
       </p>
     </div>
@@ -139,7 +139,7 @@ export function PhotosScreen() {
                 : `Publier ${ready} photographie${ready > 1 ? 's' : ''}`}
             </Button>
             {publish.error && (
-              <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-300">
+              <p role="alert" className="rounded-carte bg-danger-doux p-3 text-sm text-danger">
                 {(publish.error as ApiError).message}
               </p>
             )}
@@ -148,10 +148,10 @@ export function PhotosScreen() {
       }
     >
       {photos.length > 0 && (
-        <div className="mt-6 grid grid-cols-3 overflow-hidden rounded-xl border border-gold/18
-          bg-paper/4">
-          <Tally label="Gardées" value={kept} edge="border-r border-gold/12" />
-          <Tally label="Masquées" value={masked} edge="border-r border-gold/12" />
+        <div className="mt-6 grid grid-cols-3 overflow-hidden rounded-carte border border-edge
+          bg-pap-2">
+          <Tally label="Gardées" value={kept} edge="border-r border-edge-2" />
+          <Tally label="Masquées" value={masked} edge="border-r border-edge-2" />
           <Tally label="À publier" value={ready} />
         </div>
       )}
@@ -165,8 +165,8 @@ export function PhotosScreen() {
             onClick={() => setFilter(option.value)}
             className={`rounded-full border px-3.5 py-1.5 text-xs transition
               ${filter === option.value
-                ? 'border-gold/60 bg-gold/12 font-bold text-gold'
-                : 'border-gold/18 text-paper/50'}`}
+                ? 'border-a1 bg-a-doux font-bold text-a1'
+                : 'border-edge text-ink-3'}`}
           >
             {option.label}
           </button>
@@ -174,7 +174,7 @@ export function PhotosScreen() {
       </div>
 
       {shown.length === 0 ? (
-        <p className="mt-14 text-center text-sm text-paper/45">
+        <p className="mt-14 text-center text-sm text-ink-3">
           {filter === 'hidden' ? 'Aucune photographie masquée.' : 'Rien à montrer ici.'}
         </p>
       ) : (
@@ -190,7 +190,7 @@ export function PhotosScreen() {
                 alt={`Photographie prise à ${new Date(photo.takenAt)
                   .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
                 loading="lazy"
-                className={`aspect-square w-full rounded-lg object-cover
+                className={`aspect-square w-full rounded-champ object-cover
                   ${photo.status === 'HIDDEN' ? 'opacity-35 grayscale' : ''}`}
               />
             </li>

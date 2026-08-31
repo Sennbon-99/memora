@@ -5,6 +5,9 @@
 // si l'hote n'imprime pas ce kit, aucun invite ne peut entrer.
 
 import { useState } from 'react';
+import {
+  KIT_PIECES, KIT_PIECES_PAR_DEFAUT, KIT_PIECE_INFO, type KitPiece,
+} from '@memora/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { eventApi, tableApi, type ApiError } from '../../../lib/api.js';
@@ -20,6 +23,14 @@ export function QrKitScreen() {
   const { open } = useEventState(eventId);
   const client = useQueryClient();
   const [count, setCount] = useState(8);
+  // Les trois pieces essentielles sont cochees d'avance : un hote presse
+  // appuie une fois et a tout ce qu'il lui faut. Les autres sont visibles et
+  // non cochees — elles se decouvrent au lieu de se chercher dans un menu.
+  const [choisies, setChoisies] = useState<KitPiece[]>(KIT_PIECES_PAR_DEFAUT);
+  const basculer = (piece: KitPiece) =>
+    setChoisies((actuelles) => actuelles.includes(piece)
+      ? actuelles.filter((p) => p !== piece)
+      : KIT_PIECES.filter((p) => p === piece || actuelles.includes(p)));
 
   // Les tables ne sont pas decoratives : le champ que l'invite remplit
   // attend l'identifiant d'une table existante. Sans elles, la question
@@ -48,8 +59,16 @@ export function QrKitScreen() {
       footer={
         <div className="flex flex-col gap-3">
           {/* Telechargement direct : le PDF est genere par l'API, pas ici. */}
-          <Button full onClick={() => window.open(eventApi.qrKitUrl(eventId), '_blank')}>
-            Télécharger le kit à imprimer
+          {/* Le bouton compte : « Télécharger 3 fichiers » confirme la
+              sélection au lieu de la faire oublier. */}
+          <Button
+            full
+            disabled={choisies.length === 0}
+            onClick={() => window.open(eventApi.qrKitUrl(eventId, choisies), '_blank')}
+          >
+            {choisies.length === 1
+              ? 'Télécharger 1 fichier'
+              : `Télécharger ${choisies.length} fichiers`}
           </Button>
 
           {event.state === 'DRAFT' ? (
@@ -73,8 +92,8 @@ export function QrKitScreen() {
               paraissait simplement ne rien faire — c'est le cas d'une soiree
               au-dela du palier gratuit, refusee avec un 402. */}
           {open.error && (
-            <div role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm leading-relaxed
-              text-red-300">
+            <div role="alert" className="rounded-carte bg-danger-doux p-3 text-sm leading-relaxed
+              text-danger">
               {(open.error as ApiError).code === 'PAYMENT_REQUIRED' ? (
                 <>
                   Votre première soirée est offerte. Celle-ci doit être réglée
@@ -92,39 +111,78 @@ export function QrKitScreen() {
         </div>
       }
     >
-      <div className="mt-10 flex flex-col items-center gap-6">
-        {/* Apercu decoratif : le vrai QR code est dans le PDF, genere par le
-            serveur avec le bon niveau de correction d'erreur. */}
-        <div className="grid h-44 w-44 place-items-center rounded-xl bg-paper" aria-hidden="true">
-          <div
-            className="h-32 w-32"
-            style={{
-              background:
-                'conic-gradient(#17110A 0 25%, transparent 0 50%, #17110A 0 75%, transparent 0),' +
-                'conic-gradient(#17110A 0 25%, transparent 0 50%, #17110A 0 75%, transparent 0) 8px 8px',
-              backgroundSize: '20px 20px, 12px 12px',
-            }}
-          />
-        </div>
+      <div className="mt-2">
 
-        <p className="max-w-xs text-center text-sm leading-relaxed text-paper/50">
-          Imprimez, posez sur les tables. Aucun invité n’aura à télécharger
-          quoi que ce soit : le QR code ouvre directement sa pellicule.
+      <section className="mt-6 w-full">
+        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+          Ce que vous imprimez
+        </h2>
+        <p className="mt-2 px-1 text-[13px] leading-relaxed text-ink-2">
+          L’affiche se pose à l’entrée, les cartes sur les tables. Chaque pièce
+          est un fichier : cochez celles dont vous avez besoin.
         </p>
+
+        <ul className="mt-4 flex flex-col gap-2">
+          {KIT_PIECES.map((piece) => {
+            const info = KIT_PIECE_INFO[piece];
+            const cochee = choisies.includes(piece);
+            const pages = piece === 'cartes' && event.useTableCodes
+              ? `${tables.data?.tables.length ?? count} pages`
+              : '1 page';
+            return (
+              <li key={piece}>
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={cochee}
+                  onClick={() => basculer(piece)}
+                  className={`flex w-full items-start gap-3 rounded-carte border px-3.5 py-3
+                    text-left transition active:bg-appui
+                    ${cochee ? 'border-a1' : 'border-edge-2'}`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-[4px]
+                      border text-[11px] font-bold
+                      ${cochee
+                        ? 'border-a1 bg-a1 text-on-a1'
+                        : 'border-edge'}`}
+                  >
+                    {cochee ? '✓' : ''}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[14px] font-semibold">{info.label}</span>
+                    {/* Le format et le nombre de pages sont annonces avant le
+                        telechargement : sans eux, l'hote decouvre huit cartes
+                        A5 quand il attendait une affiche. */}
+                    <span className="mt-0.5 block font-mono text-[9.5px] uppercase
+                      tracking-[0.1em] text-ink-3">
+                      {info.format} · QR {info.qrMm} mm · {pages}
+                    </span>
+                    <span className="mt-1 block text-[12px] leading-snug text-ink-3">
+                      {info.note}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
         {event.useTableCodes && (
           <section className="w-full">
-            <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+            <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
               Vos tables
             </h2>
-            <p className="mt-2 px-1 text-[13px] leading-relaxed text-paper/55">
+            <p className="mt-2 px-1 text-[13px] leading-relaxed text-ink-2">
               Vous demandez le numéro de table à vos invités. Créez-les ici :
               chacune reçoit son propre QR code dans le kit.
             </p>
 
             {tables.isSuccess ? (
-              <p role="status" className="mt-4 rounded-lg border border-emerald-500/25
-                bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+              <p role="status" className="mt-4 rounded-champ border border-ok
+                bg-ok-doux px-4 py-3 text-sm text-ok">
                 <span className="font-mono tabular-nums">{tables.data.tables.length}</span> tables
                 {' '}créées.
               </p>
@@ -132,22 +190,22 @@ export function QrKitScreen() {
               <>
                 {/* Le nombre est un chiffre : mono, en or, entre ses deux
                     boutons. Le libelle passe en petites capitales. */}
-                <div className="mt-4 flex items-center gap-3.5 rounded-xl border border-gold/18
-                  bg-paper/4 px-3.5 py-3">
+                <div className="mt-4 flex items-center gap-3.5 rounded-carte border border-edge
+                  bg-pap-2 px-3.5 py-3">
                   <button
                     onClick={() => setCount((value) => Math.max(1, value - 1))}
                     aria-label="Une table de moins"
-                    className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
+                    className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
                   >−</button>
                   <b className="min-w-12 text-center font-mono text-2xl font-medium
-                    tabular-nums text-gold">{count}</b>
+                    tabular-nums text-a1">{count}</b>
                   <button
                     onClick={() => setCount((value) => Math.min(40, value + 1))}
                     aria-label="Une table de plus"
-                    className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
+                    className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
                   >+</button>
                   <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em]
-                    text-paper/40">Tables</span>
+                    text-ink-3">Tables</span>
                 </div>
                 <Button
                   tone="ghost"
@@ -159,7 +217,7 @@ export function QrKitScreen() {
                   {tables.isPending ? 'Création…' : 'Créer les tables'}
                 </Button>
                 {tables.error && (
-                  <p role="alert" className="mt-2 text-sm text-red-300">
+                  <p role="alert" className="mt-2 text-sm text-danger">
                     {(tables.error as ApiError).message}
                   </p>
                 )}
@@ -169,8 +227,8 @@ export function QrKitScreen() {
         )}
 
         {event.state === 'DRAFT' && (
-          <p className="rounded-lg border border-gold/25 bg-gold/8 px-4 py-3 text-xs
-            leading-relaxed text-gold">
+          <p className="rounded-champ border border-edge bg-a-doux px-4 py-3 text-xs
+            leading-relaxed text-a1">
             La pellicule est encore fermée. Ouvrez-la le jour J : avant, un
             invité qui scanne verra que la soirée n’a pas commencé.
           </p>

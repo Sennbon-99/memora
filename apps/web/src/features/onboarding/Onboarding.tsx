@@ -143,7 +143,7 @@ export function Onboarding({ role, onDone }: OnboardingProps) {
       }
     >
       <div className="flex flex-1 flex-col justify-center gap-10 pb-8">
-        <Icon nom={etape.icone} taille={92} className="mx-auto text-gold" />
+        <Icon nom={etape.icone} taille={92} className="mx-auto text-a1" />
 
         {/* Le compteur de position : des perforations, pas des pastilles.
             Le meme motif que les bandes laterales, a l'horizontale. */}
@@ -152,7 +152,7 @@ export function Onboarding({ role, onDone }: OnboardingProps) {
             <span
               key={rang}
               className={`h-1.5 rounded-sm transition-all duration-300 motion-reduce:transition-none
-                ${rang === index ? 'w-8 bg-gold' : 'w-4 bg-gold/25'}`}
+                ${rang === index ? 'w-8 bg-a1' : 'w-4 bg-edge'}`}
             />
           ))}
         </div>

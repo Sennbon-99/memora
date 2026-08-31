@@ -1,32 +1,36 @@
 // apps/web/src/lib/theme.ts
-// Application de la couleur choisie par l'hote.
+// Application du carnet choisi par l'hote.
 //
-// C'est le principe cameleon du dossier, rendu litteral : la marque est
-// neutre, la couleur appartient a l'evenement. Un seul point d'injection,
-// et toute l'interface suit.
+// Un seul point d'injection, comme avant : on pose un attribut sur l'element
+// racine, et la feuille de style fait le reste. La difference avec la version
+// precedente est ce qui voyage — non plus une couleur d'accent, mais le nom
+// d'un carnet, qui porte a lui seul les surfaces, les encres, les filets, les
+// formes et l'etalonnage des photographies.
 
-/** Convertit #RRGGBB en composantes, pour deriver les variantes. */
-function parseHex(hex: string): [number, number, number] {
-  return [
-    parseInt(hex.slice(1, 3), 16),
-    parseInt(hex.slice(3, 5), 16),
-    parseInt(hex.slice(5, 7), 16),
-  ];
-}
+import { CARNETS, CARNET_MARQUE, type Carnet } from '@memora/types';
 
-/**
- * Luminance relative, selon la formule des criteres d'accessibilite WCAG.
- * Elle sert a decider si le texte pose sur cette couleur doit etre clair
- * ou sombre : une couleur d'evenement jaune vif et une couleur bleu nuit
- * n'appellent pas le meme contraste.
- */
+/** Luminance relative, selon la formule des criteres d'accessibilite WCAG. */
 export function relativeLuminance(hex: string): number {
-  const channels = parseHex(hex).map((value) => {
-    const c = value / 255;
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  const channels = [1, 3, 5].map((index) => {
+    const value = Number.parseInt(hex.slice(index, index + 2), 16) / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
   }) as [number, number, number];
 
   return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+/**
+ * Rapport de contraste entre deux couleurs opaques.
+ *
+ * Il ne sert plus a l'execution — les carnets portent leur propre couleur de
+ * texte, ecrite et non devinee — mais il est ce qui verifie chaque carnet au
+ * moment des tests. Une valeur mal choisie ne se voit pas a l'oeil : les
+ * trois premieres corrigees etaient entre 4,05 et 4,47 pour un seuil a 4,5.
+ */
+export function contrastRatio(avant: string, arriere: string): number {
+  const a = relativeLuminance(avant);
+  const b = relativeLuminance(arriere);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
 /** Couleur de texte lisible sur un fond donne. */
@@ -34,24 +38,30 @@ export function readableTextOn(hex: string): '#FFFFFF' | '#131313' {
   return relativeLuminance(hex) > 0.45 ? '#131313' : '#FFFFFF';
 }
 
-/** Variante translucide, pour les fonds discrets. */
-function withAlpha(hex: string, alpha: number): string {
-  const [r, g, b] = parseHex(hex);
-  return `rgb(${r} ${g} ${b} / ${alpha})`;
+/** Vrai si la chaine designe un carnet que l'application sait habiller. */
+export function estUnCarnet(valeur: string | null | undefined): valeur is Carnet {
+  return typeof valeur === 'string' && (CARNETS as readonly string[]).includes(valeur);
 }
 
 /**
- * Pose la couleur de l'evenement sur l'element racine.
- * Tailwind consomme ensuite ces variables comme n'importe quel jeton.
+ * Pose le carnet sur l'element racine.
+ *
+ * Un nom inconnu retombe sur le carnet de la marque plutot que de laisser la
+ * page sans habillage : une soiree creee par une version plus recente du
+ * serveur doit rester lisible sur un telephone qui n'a pas encore recharge.
  */
-export function applyEventTheme(color: string): void {
+export function applyCarnet(carnet: string | null | undefined): Carnet {
+  const choisi = estUnCarnet(carnet) ? carnet : CARNET_MARQUE;
   const root = document.documentElement;
-  root.style.setProperty('--accent', color);
-  root.style.setProperty('--accent-text', readableTextOn(color));
-  root.style.setProperty('--accent-soft', withAlpha(color, 0.12));
-  root.style.setProperty('--accent-border', withAlpha(color, 0.35));
+  root.dataset.carnet = choisi;
 
-  // La barre du navigateur suit aussi : sur telephone, elle occupe une bande
-  // visible en haut de l'ecran.
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
+  // La barre du navigateur suit : sur telephone, elle occupe une bande
+  // visible en haut de l'ecran, et une barre claire au-dessus d'une page
+  // noire se voit immediatement.
+  const fond = getComputedStyle(root).getPropertyValue('--color-pap').trim();
+  if (fond) {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', fond);
+  }
+
+  return choisi;
 }

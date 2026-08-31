@@ -12,7 +12,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { teamApi, ApiError } from '../../../lib/api.js';
-import { applyEventTheme } from '../../../lib/theme.js';
+import { applyCarnet } from '../../../lib/theme.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 
@@ -27,7 +27,7 @@ export function PhotographerScreen() {
     void teamApi.joinAsPhotographer(token)
       .then(({ event }) => {
         if (cancelled) return;
-        applyEventTheme(event.color);
+        applyCarnet(event.carnet);
         // replace et non push : revenir en arriere ne doit pas rejouer
         // l'echange de jeton.
         navigate(`/e/${event.slug}`, { replace: true });
@@ -72,20 +72,20 @@ export function PhotographerScreen() {
       {/* Trois temps plutot qu'un titre suivi de rien : la version precedente
           laissait les deux tiers de l'ecran vides sous le sous-titre. */}
       <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
           Accès photographe
         </p>
 
-        <div className="border-y border-gold/20 py-6">
-          <p className="max-w-[20ch] font-serif text-[26px] leading-[1.15] text-paper/80">
+        <div className="border-y border-edge py-6">
+          <p className="max-w-[20ch] decoupe text-[26px] leading-[1.15] text-ink-2">
             {closed
               ? 'La pellicule est refermée.'
               : 'Ce lien n’ouvre plus rien.'}
           </p>
         </div>
 
-        <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
-          <p className="text-[15px] leading-relaxed text-paper/60">
+        <div className="rounded-carte border border-edge bg-pap-2 p-6">
+          <p className="text-[15px] leading-relaxed text-ink-2">
             {closed
               ? 'Vos photographies déjà déposées sont conservées trente jours. L’organisateur y a accès pour composer sa sélection.'
               : 'Un lien de photographe est nominatif et révocable. Demandez-en un nouveau à l’organisateur : il le génère depuis son tableau de bord.'}

@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../ui/Button.js';
 import { ShotCounter } from '../../../ui/ShotCounter.js';
+import { QrCode } from '../../../ui/QrCode.js';
 import { useCamera } from '../useCamera.js';
 import { useShot } from '../useShot.js';
 import { CameraDeniedScreen } from './CameraDeniedScreen.js';
@@ -34,6 +35,10 @@ export function ViewfinderScreen({
   // Zero : obturateur au repos. Sinon, le numero du declenchement en cours.
   const [flashing, setFlashing] = useState(0);
   const minuteur = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // « Le carton a disparu sous les verres » est le cas le plus frequent :
+  // un invite deja entre depanne son voisin en lui montrant son ecran.
+  const [partage, setPartage] = useState(false);
 
   // La camera est liberee au demontage par useCamera ; le minuteur, lui,
   // survivrait et appellerait setFlashing sur un composant demonte.
@@ -101,20 +106,68 @@ export function ViewfinderScreen({
       )}
 
       <header className="relative z-20 flex items-start justify-between gap-4 px-5 pt-4 safe-top">
-        <div className="rounded-lg bg-black/50 px-4 py-2 backdrop-blur">
+        <div className="rounded-champ bg-black/50 px-4 py-2 backdrop-blur">
           <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
         </div>
-        <span className="mt-2 max-w-32 truncate rounded-full bg-black/50 px-3 py-1
-          text-xs text-paper/70 backdrop-blur">
-          {eventName}
-        </span>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="max-w-32 truncate rounded-full bg-black/50 px-3 py-1
+            text-xs text-ink-2 backdrop-blur">
+            {eventName}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPartage(true)}
+            aria-label="Montrer le code à quelqu’un"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-black/50
+              text-ink backdrop-blur active:bg-black/70"
+          >
+            {/* Un carre de visee, pas un faux QR code : l'icone dit le geste
+                sans pretendre etre le code. Le vrai est derriere. */}
+            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none"
+              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4" />
+              <rect x="9.5" y="9.5" width="5" height="5" rx="0.5" />
+            </svg>
+          </button>
+        </div>
       </header>
+
+      {partage && (
+        <div
+          className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-6
+            bg-pap px-8 backdrop-blur"
+          style={{ animation: 'fade 180ms ease-out' }}
+        >
+          <p className="text-center text-[15px] leading-relaxed text-ink-2">
+            Faites scanner cet écran. Votre voisin rejoint la même soirée,
+            avec ses propres vingt-quatre poses.
+          </p>
+          {/* Le code est presente comme un tirage : bord blanc epais, comme
+              sur le carton imprime. Le cadre porte l'identite, jamais le
+              code. */}
+          <div className="bg-white p-3 shadow-2xl">
+            <QrCode
+              value={`${window.location.origin}/e/${slug}`}
+              size={216}
+              label={`Code de la soirée ${eventName}`}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setPartage(false)}
+            className="min-h-12 rounded-champ border border-edge px-8 text-base font-semibold
+              text-ink active:bg-appui"
+          >
+            Fermer
+          </button>
+        </div>
+      )}
 
       {!online && (
         <p
           role="status"
-          className="relative z-20 mx-5 mt-3 rounded-xl bg-gold/18 ring-1 ring-gold/35 px-4 py-2.5
-            text-center text-sm text-gold backdrop-blur"
+          className="relative z-20 mx-5 mt-3 rounded-carte bg-a-doux ring-1 ring-edge px-4 py-2.5
+            text-center text-sm text-a1 backdrop-blur"
         >
           Hors ligne. Continuez, vos vues partiront au retour du réseau.
         </p>
@@ -123,8 +176,8 @@ export function ViewfinderScreen({
       {moment && (
         <p
           role="status"
-          className="relative z-20 mx-5 mt-3 rounded-xl bg-[var(--accent)] px-4 py-2.5
-            text-center text-sm font-semibold text-[var(--accent-text)]"
+          className="relative z-20 mx-5 mt-3 rounded-carte bg-a1 px-4 py-2.5
+            text-center text-sm font-semibold text-on-a1"
         >
           {moment.label} — c'est maintenant
         </p>
@@ -134,7 +187,7 @@ export function ViewfinderScreen({
 
       <footer className="relative z-20 flex flex-col items-center gap-4 pb-10 safe-bottom">
         {shot.isError && (
-          <p role="alert" className="mx-6 rounded-xl bg-red-500/20 px-4 py-2 text-sm text-red-100">
+          <p role="alert" className="mx-6 rounded-carte bg-danger-doux px-4 py-2 text-sm text-danger">
             {shot.error.message}
           </p>
         )}
@@ -143,7 +196,7 @@ export function ViewfinderScreen({
           onClick={takeShot}
           disabled={shot.isPending || total === 0}
           aria-label={`Prendre une photo, ${total} restantes`}
-          className="h-20 w-20 rounded-full bg-white ring-4 ring-paper/30
+          className="h-20 w-20 rounded-full bg-white ring-4 ring-edge
             transition active:scale-95 disabled:opacity-40
             focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-white"
         >

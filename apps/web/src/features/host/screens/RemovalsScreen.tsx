@@ -74,25 +74,25 @@ export function RemovalsScreen() {
       }}
     >
       {data.removals.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-paper/45">
+        <p className="mt-14 text-center text-sm leading-relaxed text-ink-3">
           Aucune demande.<br />C’est plutôt bon signe.
         </p>
       ) : (
         <div className="mt-6 flex flex-col gap-6 pb-6">
           {pending.map((request) => (
-            <article key={request.id} className="overflow-hidden rounded-xl border
-              border-gold/35 bg-paper/4">
+            <article key={request.id} className="overflow-hidden rounded-carte border
+              border-a1 bg-pap-2">
               <Photo
                 src={request.photo.url}
                 alt={`Photographie du ${dateFr(request.photo.takenAt)}`}
                 className="aspect-[4/3] w-full object-cover"
               />
               <div className="p-4">
-                <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+                <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
                   Demandé le {dateFr(request.createdAt)}
                 </p>
-                <p className="mt-1.5 text-[12px] text-paper/55">{requesterLabel(request)}</p>
-                <p className="mt-3 text-sm italic leading-relaxed text-paper/75">
+                <p className="mt-1.5 text-[12px] text-ink-2">{requesterLabel(request)}</p>
+                <p className="mt-3 text-sm italic leading-relaxed text-ink-2">
                   « {request.reason} »
                 </p>
 
@@ -100,16 +100,16 @@ export function RemovalsScreen() {
                   <button
                     onClick={() => handle.mutate({ id: request.id, accept: false })}
                     disabled={handle.isPending}
-                    className="h-11 flex-1 rounded-lg border border-gold/18 bg-paper/6
-                      text-[13px] font-semibold transition active:bg-paper/10"
+                    className="h-11 flex-1 rounded-champ border border-edge bg-pap-2
+                      text-[13px] font-semibold transition active:bg-appui"
                   >
                     Conserver
                   </button>
                   <button
                     onClick={() => handle.mutate({ id: request.id, accept: true })}
                     disabled={handle.isPending}
-                    className="h-11 flex-[1.3] rounded-lg bg-[var(--accent)] text-[13px]
-                      font-bold text-[var(--accent-text)]"
+                    className="h-11 flex-[1.3] rounded-champ bg-a1 text-[13px]
+                      font-bold text-on-a1"
                   >
                     {handle.isPending ? 'Un instant…' : 'Effacer la photo'}
                   </button>
@@ -120,34 +120,34 @@ export function RemovalsScreen() {
 
           {handled.length > 0 && (
             <section>
-              <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+              <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
                 Déjà traitées
               </h2>
               <ul className="mt-1 flex flex-col">
                 {handled.map((request) => (
                   <li
                     key={request.id}
-                    className="flex items-center gap-3 border-b border-gold/12 px-1 py-2.5
+                    className="flex items-center gap-3 border-b border-edge-2 px-1 py-2.5
                       last:border-b-0"
                   >
                     <Photo
                       src={request.photo.url}
                       alt=""
-                      className={`h-10 w-10 shrink-0 rounded-lg object-cover
+                      className={`h-10 w-10 shrink-0 rounded-champ object-cover
                         ${request.state === 'ACCEPTED' ? 'opacity-30 grayscale' : ''}`}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[12px] text-paper/60">
+                      <span className="block truncate text-[12px] text-ink-2">
                         {requesterLabel(request)}
                       </span>
-                      <span className="block text-[10px] text-paper/35">
+                      <span className="block text-[10px] text-ink-3">
                         {request.handledAt ? dateFr(request.handledAt) : ''}
                       </span>
                     </span>
                     <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold
                       ${request.state === 'ACCEPTED'
-                        ? 'bg-paper/8 text-paper/50'
-                        : 'bg-emerald-500/12 text-emerald-400'}`}>
+                        ? 'bg-pap-2 text-ink-3'
+                        : 'bg-ok-doux text-ok'}`}>
                       {request.state === 'ACCEPTED' ? 'effacée' : 'conservée'}
                     </span>
                   </li>
@@ -160,7 +160,7 @@ export function RemovalsScreen() {
 
       <button
         onClick={() => navigate(`/hote/${eventId}/reglages`)}
-        className="mt-2 pb-4 text-center text-xs text-paper/35"
+        className="mt-2 pb-4 text-center text-xs text-ink-3"
       >
         ‹ Retour aux réglages
       </button>

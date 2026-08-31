@@ -35,6 +35,7 @@ export interface GuestSession {
     quotaShots: number;
     previewMode: string;
     color: string;
+    carnet: string;
     welcomeMessage: string | null;
     closesAt: Date;
     useTableCodes: boolean;
@@ -68,7 +69,7 @@ export async function joinEvent(
     where: { slug },
     select: {
       id: true, name: true, state: true, quotaShots: true, previewMode: true,
-      color: true, welcomeMessage: true, closesAt: true, useTableCodes: true,
+      color: true, carnet: true, welcomeMessage: true, closesAt: true, useTableCodes: true,
       tables: { select: { id: true, label: true }, orderBy: { label: 'asc' } },
       _count: { select: { rolls: true } },
     },
@@ -136,7 +137,7 @@ function buildSession(
     },
     event: {
       name: event.name, quotaShots: event.quotaShots, previewMode: event.previewMode,
-      color: event.color, welcomeMessage: event.welcomeMessage,
+      color: event.color, carnet: event.carnet, welcomeMessage: event.welcomeMessage,
       closesAt: event.closesAt, useTableCodes: event.useTableCodes,
       tables: event.tables,
       state: event.state,

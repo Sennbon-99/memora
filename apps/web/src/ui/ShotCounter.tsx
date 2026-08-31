@@ -73,10 +73,9 @@ export function ShotCounter({ shotsLeft, bonusShots, queued = 0 }: ShotCounterPr
   return (
     <div className="flex items-center gap-3">
       <div
-        className="flex items-center justify-center rounded-md bg-[#0E0A13]
-          px-3 font-mono text-2xl font-bold tabular-nums text-gold
-          ring-1 ring-gold/30"
-        style={{ height: 44 }}
+        className="flex h-11 min-w-14 items-center justify-center rounded-champ bg-well
+          px-3 font-mono text-2xl font-bold tabular-nums text-a-well
+          ring-1 ring-edge"
       >
         {rangs.map((chiffre, rang) => (
           // Les dizaines demarrent avant les unites : rang 0 est le rang des
@@ -92,13 +91,15 @@ export function ShotCounter({ shotsLeft, bonusShots, queued = 0 }: ShotCounterPr
         {total} {total > 1 ? 'vues restantes' : 'vue restante'}
       </p>
 
-      <div className="text-xs leading-tight text-paper/50">
-        <div>{total > 1 ? 'vues restantes' : 'vue restante'}</div>
+      <div className="text-xs leading-tight text-ink-2">
+        {/* Deja lu par le doublon ci-dessus, avec le nombre. Sans ce retrait,
+            un lecteur d'ecran annonce « 24 vues restantes, vues restantes ». */}
+        <div aria-hidden="true">{total > 1 ? 'vues restantes' : 'vue restante'}</div>
         {bonusShots > 0 && (
-          <div className="text-gold">dont {bonusShots} offertes</div>
+          <div className="text-a1">dont {bonusShots} offertes</div>
         )}
         {queued > 0 && (
-          <div className="text-gold">{queued} en attente d'envoi</div>
+          <div className="text-a1">{queued} en attente d'envoi</div>
         )}
       </div>
     </div>

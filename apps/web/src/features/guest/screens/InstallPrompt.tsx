@@ -55,10 +55,10 @@ export function InstallPrompt() {
     // gestuelle, pas une phrase — l'oeil doit trouver les deux reperes sans
     // relire la ligne entiere.
     return (
-      <p className="text-center text-xs leading-relaxed text-paper/45">
+      <p className="text-center text-xs leading-relaxed text-ink-3">
         Pour être prévenu de la publication&nbsp;: touchez{' '}
-        <span className="text-gold">Partager</span>, puis
-        «&nbsp;<span className="text-gold">Sur l’écran d’accueil</span>&nbsp;».
+        <span className="text-a1">Partager</span>, puis
+        «&nbsp;<span className="text-a1">Sur l’écran d’accueil</span>&nbsp;».
       </p>
     );
   }

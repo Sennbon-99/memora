@@ -180,7 +180,7 @@ export function ScanScreen() {
             onChange={(event) => setCode(event.target.value)}
           />
         ) : (
-          <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-2xl bg-surface">
+          <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-carte bg-well">
             <video
               ref={videoRef}
               playsInline
@@ -195,11 +195,11 @@ export function ScanScreen() {
                  'right-0 top-0 border-r-2 border-t-2 rounded-tr-lg',
                  'left-0 bottom-0 border-b-2 border-l-2 rounded-bl-lg',
                  'right-0 bottom-0 border-b-2 border-r-2 rounded-br-lg'] as const).map((coin) => (
-                <span key={coin} className={`absolute size-9 border-gold ${coin}`} />
+                <span key={coin} className={`absolute size-9 border-a1 ${coin}`} />
               ))}
             </div>
             {state === 'starting' && (
-              <p className="absolute inset-0 grid place-items-center text-sm text-paper/60">
+              <p className="absolute inset-0 grid place-items-center text-sm text-ink-well-2">
                 Ouverture de la caméra…
               </p>
             )}
@@ -209,8 +209,8 @@ export function ScanScreen() {
         <canvas ref={canvasRef} className="hidden" />
 
         {refuse && (
-          <p className="mt-6 flex items-start gap-2 text-[13px] leading-relaxed text-paper/55">
-            <Icon nom="alerte" taille={16} className="mt-0.5 text-gold" />
+          <p className="mt-6 flex items-start gap-2 text-[13px] leading-relaxed text-warn">
+            <Icon nom="alerte" taille={16} className="mt-0.5" />
             Ce QR code ne mène pas à une soirée Memora.
           </p>
         )}

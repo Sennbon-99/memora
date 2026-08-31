@@ -52,13 +52,13 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
         className="absolute inset-0 bg-black/60 animate-[fade_.2s_ease] motion-reduce:animate-none"
       />
 
-      <div className="relative m-3 rounded-xl border border-gold/18 bg-[#0E0A13] p-5
+      <div className="relative m-3 rounded-carte border border-edge bg-well p-5
         animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
-        <h2 className="font-serif text-[26px] leading-tight tracking-tight">
+        <h2 className="decoupe text-[26px] leading-tight tracking-tight">
           Qui pourra voir l’album ?
         </h2>
-        <p className="mt-2 text-[13px] leading-relaxed text-paper/50">
-          <span className="font-mono tabular-nums text-gold">{count}</span>{' '}
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-3">
+          <span className="font-mono tabular-nums text-a1">{count}</span>{' '}
           photographie{count > 1 ? 's' : ''} prête{count > 1 ? 's' : ''} à être publiée
           {count > 1 ? 's' : ''}. Ce choix vaut pour toute la soirée : les publications
           suivantes le suivront.
@@ -73,20 +73,20 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
                 role="radio"
                 aria-checked={selected}
                 onClick={() => setScope(choice.value)}
-                className={`flex items-start gap-3 rounded-lg border px-3.5 py-3 text-left
+                className={`flex items-start gap-3 rounded-champ border px-3.5 py-3 text-left
                   transition ${selected
-                    ? 'border-gold/60 bg-gold/8'
-                    : 'border-gold/18 active:bg-paper/5'}`}
+                    ? 'border-a1 bg-a-doux'
+                    : 'border-edge active:bg-appui'}`}
               >
                 <span
                   className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full
-                    border ${selected ? 'border-gold' : 'border-paper/25'}`}
+                    border ${selected ? 'border-a1' : 'border-edge'}`}
                 >
-                  {selected && <span className="h-2 w-2 rounded-full bg-gold" />}
+                  {selected && <span className="h-2 w-2 rounded-full bg-a1" />}
                 </span>
                 <span>
                   <span className="block text-[13px] font-bold">{choice.label}</span>
-                  <span className="mt-0.5 block text-[11px] leading-relaxed text-paper/45">
+                  <span className="mt-0.5 block text-[11px] leading-relaxed text-ink-3">
                     {choice.note}
                   </span>
                 </span>

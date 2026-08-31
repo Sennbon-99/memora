@@ -113,7 +113,7 @@ export function Screen({
   }
 
   return (
-    <div className="halo flex min-h-full flex-col safe-top safe-bottom">
+    <div className="quadrille flex min-h-full flex-col safe-top safe-bottom">
       <Bande cote="gauche" haut={code?.hautGauche ?? 'MEMORA 400'} bas={code?.basGauche} />
       <Bande cote="droite" haut={code?.hautDroite} bas={code?.basDroite} />
 
@@ -123,11 +123,11 @@ export function Screen({
         <div
           aria-hidden="true"
           className={`pointer-events-none fixed inset-x-0 top-0 z-30 border-b
-            border-gold/20 bg-film/92 px-5 py-3 backdrop-blur
+            border-edge bg-pap/92 px-5 py-3 backdrop-blur
             transition-opacity duration-200 motion-reduce:transition-none
             ${replie.replie ? 'opacity-100' : 'opacity-0'}`}
         >
-          <p className="mx-auto max-w-md truncate font-serif text-[19px] leading-none safe-top">
+          <p className="decoupe mx-auto max-w-md truncate text-[19px] leading-none safe-top">
             {title}
           </p>
         </div>
@@ -138,13 +138,13 @@ export function Screen({
           className={
             hideTitle
               ? 'sr-only'
-              : 'font-serif text-[42px] leading-[0.95] tracking-tight text-balance'
+              : 'decoupe text-[42px] leading-[0.95] tracking-tight text-balance'
           }
         >
           {title}
         </h1>
         {subtitle && !hideTitle && (
-          <p className="mt-3 text-[15px] leading-relaxed text-paper/55">{subtitle}</p>
+          <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{subtitle}</p>
         )}
         {/* Sentinelle : sa sortie de l'ecran declenche le repli. Un ecouteur
             de defilement ferait le meme travail, mais a chaque image et sur
@@ -159,8 +159,8 @@ export function Screen({
           la verrait. */}
       {footer && (
         <div
-          className="sticky z-20 border-t border-gold/20 bg-film/95
-            px-5 pb-6 pt-3 backdrop-blur"
+          className="sticky z-20 border-t border-edge bg-pap
+            px-5 pb-6 pt-3"
           style={{ bottom: 'var(--tabbar, 0px)' }}
         >
           <div className="mx-auto w-full max-w-md">{footer}</div>
