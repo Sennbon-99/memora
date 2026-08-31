@@ -20,6 +20,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { removalApi, type RemovalRequest } from '../../../lib/api.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { Photo } from '../../../ui/Photo.js';
 
 export const removalsKey = (eventId: string) => ['host', 'removals', eventId] as const;
 
@@ -81,7 +82,7 @@ export function RemovalsScreen() {
           {pending.map((request) => (
             <article key={request.id} className="overflow-hidden rounded-carte border
               border-a1 bg-pap-2">
-              <img
+              <Photo
                 src={request.photo.url}
                 alt={`Photographie du ${dateFr(request.photo.takenAt)}`}
                 className="aspect-[4/3] w-full object-cover"
@@ -129,7 +130,7 @@ export function RemovalsScreen() {
                     className="flex items-center gap-3 border-b border-edge-2 px-1 py-2.5
                       last:border-b-0"
                   >
-                    <img
+                    <Photo
                       src={request.photo.url}
                       alt=""
                       className={`h-10 w-10 shrink-0 rounded-champ object-cover

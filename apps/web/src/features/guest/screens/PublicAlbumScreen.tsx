@@ -18,6 +18,7 @@ import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { Photo } from '../../../ui/Photo.js';
 
 export function PublicAlbumScreen() {
   const { token = '' } = useParams();
@@ -129,6 +130,7 @@ export function PublicAlbumScreen() {
   return (
     <Screen
       title={data.event.name}
+      titreRepliable
       subtitle="Les photographies publiées par l’organisateur."
       code={{
         hautGauche: 'MEMORA 400',
@@ -170,7 +172,7 @@ export function PublicAlbumScreen() {
                 className="animate-[rise_.3s_ease_backwards] motion-reduce:animate-none"
                 style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
               >
-                <img
+                <Photo
                   src={photo.url}
                   alt={`Photographie prise à ${new Date(photo.takenAt)
                     .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}

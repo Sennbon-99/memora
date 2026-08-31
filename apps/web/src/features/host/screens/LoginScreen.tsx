@@ -14,6 +14,7 @@ import { ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
+import { presentationVue } from '../../onboarding/Onboarding.js';
 import { useLogin, useRegister } from '../useAuth.js';
 
 export function LoginScreen() {
@@ -32,7 +33,13 @@ export function LoginScreen() {
   const submit = form.handleSubmit(async (values) => {
     const action = creating ? register : login;
     await action.mutateAsync(values);
-    navigate(location.state?.from ?? '/hote', { replace: true });
+    // Un compte tout juste cree n'a rien a retrouver : c'est le seul moment
+    // ou la presentation tombe juste. Une connexion, elle, ramene l'hote la
+    // ou il allait.
+    const suite = creating && !presentationVue('hote')
+      ? '/hote/decouvrir'
+      : location.state?.from ?? '/hote';
+    navigate(suite, { replace: true });
   });
 
   // Le serveur renvoie le meme message que le compte existe ou non : on
@@ -64,6 +71,18 @@ export function LoginScreen() {
           >
             {creating ? "J'ai déjà un compte" : 'Créer un compte'}
           </Button>
+          {/* Beaucoup d'invites arrivent ici par le lien d'une application
+              installee ou par une adresse tapee de travers, et se voient
+              reclamer un compte que le produit leur promet de ne jamais
+              demander. Cette sortie les remet sur leur pellicule. */}
+          <button
+            type="button"
+            onClick={() => navigate(presentationVue('invite') ? '/scan' : '/decouvrir')}
+            className="mx-auto py-1 text-sm text-ink-3 underline underline-offset-4
+              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-a1"
+          >
+            Je suis un invité
+          </button>
         </div>
       }
     >

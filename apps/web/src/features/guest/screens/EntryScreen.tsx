@@ -8,10 +8,17 @@
 
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../ui/Button.js';
+import { Icon } from '../../../ui/Icon.js';
 import { Screen } from '../../../ui/Screen.js';
+import { presentationVue } from '../../onboarding/Onboarding.js';
 
 export function EntryScreen() {
   const navigate = useNavigate();
+
+  // La presentation ne s'impose qu'une fois. Ensuite l'invite va droit au
+  // scan : a la deuxieme soiree, il sait deja ce qu'est une pellicule.
+  const rejoindre = () =>
+    navigate(presentationVue('invite') ? '/scan' : '/decouvrir');
 
   return (
     <Screen
@@ -19,9 +26,14 @@ export function EntryScreen() {
       hideTitle
       code={{ hautGauche: 'MEMORA 400', basGauche: '24 VUES', hautDroite: 'SANS COMPTE' }}
       footer={
-        <Button tone="ghost" full onClick={() => navigate('/hote')}>
-          Je suis l’organisateur
-        </Button>
+        <div className="flex flex-col gap-3">
+          <Button full onClick={rejoindre}>
+            Je suis un invité
+          </Button>
+          <Button tone="ghost" full onClick={() => navigate('/hote')}>
+            Je suis l’organisateur
+          </Button>
+        </div>
       }
     >
       {/* La page se compose en trois temps qui occupent toute la hauteur : la
@@ -40,19 +52,13 @@ export function EntryScreen() {
         </div>
 
         <div className="flex items-center gap-4 border-t border-edge pt-6">
-          {/* Un carre de visee, et non un faux code.
-              Ici, aucune soiree n'est connue : il n'y a rien a encoder. Le
-              damier qui occupait cette place ressemblait a un QR code sans en
-              etre un, juste a cote d'une phrase qui dit « scannez » — et des
-              gens ont essaye de le scanner. Une icone ne ment pas. */}
-          <div aria-hidden="true" className="grid size-16 shrink-0 place-items-center rounded-champ
-            bg-pap-2 text-a1">
-            <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor"
-              strokeWidth="1.6" strokeLinecap="round">
-              <path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4" />
-              <rect x="9.5" y="9.5" width="5" height="5" rx="0.5" />
-            </svg>
-          </div>
+          {/* Une icone, et non un faux code. Ici aucune soiree n'est connue :
+              il n'y a rien a encoder. Le damier qui occupait cette place
+              ressemblait a un vrai code sans en etre un, juste a cote d'une
+              phrase qui dit « scannez » — et des gens ont essaye de le
+              scanner. Un pictogramme de vingt-quatre unites de cote ne ment
+              pas ; un damier de donnees, si. */}
+          <Icon nom="qr" taille={44} className="text-a1" />
           <p className="text-[14px] leading-relaxed text-ink-2">
             Scannez le QR code posé sur votre table. Il charge votre pellicule,
             sans compte ni inscription.

@@ -11,6 +11,7 @@ import { photoApi, ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { Photo } from '../../../ui/Photo.js';
 
 export function AlbumScreen({ firstName }: { firstName: string | null }) {
   const [asking, setAsking] = useState<string | null>(null);
@@ -79,6 +80,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
   return (
     <Screen
       title={firstName ? `Vos photos, ${firstName}` : 'Vos photos'}
+      titreRepliable
       subtitle="Ce que l’organisateur a publié de la soirée."
       code={{
         hautGauche: 'MEMORA 400',
@@ -122,7 +124,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                 className="relative animate-[rise_.3s_ease_backwards] motion-reduce:animate-none"
                 style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
               >
-                <img
+                <Photo
                   src={photo.url}
                   alt={`Photographie prise le ${new Date(photo.takenAt).toLocaleString('fr-FR')}`}
                   loading="lazy"
