@@ -28,21 +28,21 @@ export function EntryScreen() {
           marque, la promesse, le geste attendu. La version precedente laissait
           un tiers de l'ecran vide au milieu, faute de rythme. */}
       <div className="flex flex-1 flex-col justify-between pb-6 pt-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
           Appareil photo jetable · soirées
         </p>
 
         <div>
           <h2 className="font-serif text-[64px] leading-[0.88] tracking-tight">Memora</h2>
-          <p className="mt-6 max-w-[19ch] font-serif text-[26px] leading-[1.15] text-paper/75">
+          <p className="mt-6 max-w-[19ch] font-serif text-[26px] leading-[1.15] text-ink-2">
             Votre soirée vue par tous ceux qui y étaient.
           </p>
         </div>
 
-        <div className="flex items-center gap-4 border-t border-gold/20 pt-6">
+        <div className="flex items-center gap-4 border-t border-edge pt-6">
           {/* Un carre de QR code stylise : il dit ce qu'on attend de l'invite
               sans une ligne de texte de plus. */}
-          <div aria-hidden="true" className="size-16 shrink-0 rounded-md bg-surface p-3">
+          <div aria-hidden="true" className="size-16 shrink-0 rounded-champ bg-pap-2 p-3">
             <div
               className="h-full w-full opacity-70"
               style={{
@@ -53,7 +53,7 @@ export function EntryScreen() {
               }}
             />
           </div>
-          <p className="text-[14px] leading-relaxed text-paper/55">
+          <p className="text-[14px] leading-relaxed text-ink-2">
             Scannez le QR code posé sur votre table. Il charge votre pellicule,
             sans compte ni inscription.
           </p>

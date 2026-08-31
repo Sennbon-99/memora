@@ -42,7 +42,7 @@ export function GuestJourney() {
     const { title, subtitle } = accessRefusal(error);
     return (
       <Screen title={title} subtitle={subtitle}>
-        <p className="mt-8 text-sm text-paper/40">{error.message}</p>
+        <p className="mt-8 text-sm text-ink-3">{error.message}</p>
       </Screen>
     );
   }

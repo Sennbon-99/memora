@@ -65,9 +65,10 @@
   --color-a3: #f5c518;
   --color-on-a3: #1a1a18;
 
-  /* Signaux. Ils ne sont redefinis par AUCUN carnet : « retirer cette
-     photo » doit etre rouge dans les trois, sinon on a fabrique une
-     interface ou l'irreversible change de couleur selon le gout de l'hote. */
+  /* Signaux. Un carnet peut choisir SA nuance de rouge — un rouge brique
+     sur un fond presque noir ne donne que 3,9:1 — mais il ne peut pas
+     changer ce que la couleur veut dire. Le test verifie les deux : que la
+     teinte reste rouge, et qu'elle tient le contraste sur la page. */
   --color-ok: #2e6b4f;
   --color-warn: #b06b0f;
   --color-danger: #c4362b;
@@ -92,6 +93,12 @@
   /* Le voile d'appui. Translucide, donc jamais porteur de texte : un
      modificateur d'opacite ici n'aurait servi qu'a figer sa valeur. */
   --color-appui: rgb(0 0 0 / 0.06);
+  /* Le voile d'accent : un bandeau, une pastille, une ligne mise en avant. */
+  --color-a-doux: rgb(217 47 82 / 0.1);
+  /* Le voile d'alerte, derriere un message d'erreur. */
+  --color-danger-doux: rgb(196 54 43 / 0.12);
+  /* Le voile de confirmation : une soiree en cours, une photo publiee. */
+  --color-ok-doux: rgb(34 107 76 / 0.12);
 
   --font-sans: 'Bricolage Grotesque Variable', system-ui, -apple-system, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, serif;

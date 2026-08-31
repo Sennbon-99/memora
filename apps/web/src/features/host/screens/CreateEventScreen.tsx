@@ -132,7 +132,7 @@ export function CreateEventScreen() {
             </Button>
           </div>
           {failure && (
-            <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-300">
+            <p role="alert" className="rounded-carte bg-danger-doux p-3 text-sm text-danger">
               {failure.message}
             </p>
           )}
@@ -145,7 +145,7 @@ export function CreateEventScreen() {
         {[1, 2, 3].map((n) => (
           <span
             key={n}
-            className={`h-1 flex-1 rounded-full ${n <= step ? 'bg-gold' : 'bg-paper/12'}`}
+            className={`h-1 flex-1 rounded-full ${n <= step ? 'bg-a1' : 'bg-pap-2'}`}
           />
         ))}
       </div>
@@ -187,22 +187,22 @@ export function CreateEventScreen() {
         {step === 2 && (
           <>
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-paper/60">Vues par invité</span>
-              <div className="flex items-center gap-3.5 rounded-xl border border-gold/18
-                bg-paper/4 px-3.5 py-3">
+              <span className="text-sm font-semibold text-ink-2">Vues par invité</span>
+              <div className="flex items-center gap-3.5 rounded-carte border border-edge
+                bg-pap-2 px-3.5 py-3">
                 <button
                   onClick={() => setQuotaShots((q) => Math.max(QUOTA_MIN, q - 1))}
                   aria-label="Une vue de moins"
-                  className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
+                  className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
                 >−</button>
                 <b className="min-w-14 text-center font-mono text-3xl font-medium
-                  tabular-nums text-gold">{quotaShots}</b>
+                  tabular-nums text-a1">{quotaShots}</b>
                 <button
                   onClick={() => setQuotaShots((q) => Math.min(QUOTA_MAX, q + 1))}
                   aria-label="Une vue de plus"
-                  className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
+                  className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
                 >+</button>
-                <span className="ml-auto text-right text-[11px] leading-tight text-paper/40">
+                <span className="ml-auto text-right text-[11px] leading-tight text-ink-3">
                   {quotaMeaning(quotaShots)}
                 </span>
               </div>
@@ -215,8 +215,8 @@ export function CreateEventScreen() {
               columns={2}
               options={PREVIEW_MODES.map((value) => ({ value, label: PREVIEW_LABEL[value] }))}
             />
-            <p className="rounded-lg border border-gold/25 bg-gold/8 px-3.5 py-3 text-xs
-              leading-relaxed text-gold">
+            <p className="rounded-champ border border-edge bg-a-doux px-3.5 py-3 text-xs
+              leading-relaxed text-a1">
               {PREVIEW_HINT[previewMode]}
             </p>
 
@@ -224,12 +224,12 @@ export function CreateEventScreen() {
                 evite qu'un hote choisisse 24 vues et en obtienne 10 sans
                 comprendre pourquoi. */}
             {isFirst && quotaShots > FREE_TIER.shots && (
-              <p className="rounded-lg border border-gold/18 bg-paper/5 px-3.5 py-3
-                text-xs leading-relaxed text-paper/55">
+              <p className="rounded-champ border border-edge bg-pap-2 px-3.5 py-3
+                text-xs leading-relaxed text-ink-2">
                 Votre première soirée est offerte, et limitée à{' '}
-                <span className="font-mono tabular-nums text-gold">{FREE_TIER.shots}</span> vues
+                <span className="font-mono tabular-nums text-a1">{FREE_TIER.shots}</span> vues
                 par invité. Vous en avez choisi{' '}
-                <span className="font-mono tabular-nums text-gold">{quotaShots}</span> : les
+                <span className="font-mono tabular-nums text-a1">{quotaShots}</span> : les
                 soirées suivantes les accepteront toutes.
               </p>
             )}
@@ -239,7 +239,7 @@ export function CreateEventScreen() {
         {step === 3 && (
           <>
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-paper/60">Couleur de la soirée</span>
+              <span className="text-sm font-semibold text-ink-2">Couleur de la soirée</span>
               <div className="flex gap-2.5">
                 {COLORS.map((value) => (
                   <button
@@ -249,7 +249,7 @@ export function CreateEventScreen() {
                     onClick={() => setColor(value)}
                     style={{ background: value }}
                     className={`h-9 w-9 rounded-full border-2 ${
-                      value === color ? 'border-paper' : 'border-paper/15'}`}
+                      value === color ? 'border-edge' : 'border-edge'}`}
                   />
                 ))}
               </div>

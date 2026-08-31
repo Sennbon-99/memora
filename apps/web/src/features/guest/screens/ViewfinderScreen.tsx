@@ -85,11 +85,11 @@ export function ViewfinderScreen({
       )}
 
       <header className="relative z-20 flex items-start justify-between gap-4 px-5 pt-4 safe-top">
-        <div className="rounded-lg bg-black/50 px-4 py-2 backdrop-blur">
+        <div className="rounded-champ bg-black/50 px-4 py-2 backdrop-blur">
           <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
         </div>
         <span className="mt-2 max-w-32 truncate rounded-full bg-black/50 px-3 py-1
-          text-xs text-paper/70 backdrop-blur">
+          text-xs text-ink-2 backdrop-blur">
           {eventName}
         </span>
       </header>
@@ -97,8 +97,8 @@ export function ViewfinderScreen({
       {!online && (
         <p
           role="status"
-          className="relative z-20 mx-5 mt-3 rounded-xl bg-gold/18 ring-1 ring-gold/35 px-4 py-2.5
-            text-center text-sm text-gold backdrop-blur"
+          className="relative z-20 mx-5 mt-3 rounded-carte bg-a-doux ring-1 ring-edge px-4 py-2.5
+            text-center text-sm text-a1 backdrop-blur"
         >
           Hors ligne. Continuez, vos vues partiront au retour du réseau.
         </p>
@@ -107,8 +107,8 @@ export function ViewfinderScreen({
       {moment && (
         <p
           role="status"
-          className="relative z-20 mx-5 mt-3 rounded-xl bg-[var(--accent)] px-4 py-2.5
-            text-center text-sm font-semibold text-[var(--accent-text)]"
+          className="relative z-20 mx-5 mt-3 rounded-carte bg-a1 px-4 py-2.5
+            text-center text-sm font-semibold text-on-a1"
         >
           {moment.label} — c'est maintenant
         </p>
@@ -118,7 +118,7 @@ export function ViewfinderScreen({
 
       <footer className="relative z-20 flex flex-col items-center gap-4 pb-10 safe-bottom">
         {shot.isError && (
-          <p role="alert" className="mx-6 rounded-xl bg-red-500/20 px-4 py-2 text-sm text-red-100">
+          <p role="alert" className="mx-6 rounded-carte bg-danger-doux px-4 py-2 text-sm text-danger">
             {shot.error.message}
           </p>
         )}
@@ -127,7 +127,7 @@ export function ViewfinderScreen({
           onClick={takeShot}
           disabled={shot.isPending || total === 0}
           aria-label={`Prendre une photo, ${total} restantes`}
-          className="h-20 w-20 rounded-full bg-white ring-4 ring-paper/30
+          className="h-20 w-20 rounded-full bg-white ring-4 ring-edge
             transition active:scale-95 disabled:opacity-40
             focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-white"
         >

@@ -16,6 +16,17 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { contrastRatio } from '../lib/theme.js';
 
+/** Teinte en degres, pour verifier qu'un signal reste ce qu'il annonce. */
+function hue(hex: string): number {
+  const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number];
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  if (max === min) return 0;
+  const d = max - min;
+  const t = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return (t * 60 + 360) % 360;
+}
+
 const ICI = dirname(fileURLToPath(import.meta.url));
 
 /**
@@ -50,6 +61,10 @@ const PAIRES: [avant: string, arriere: string, quoi: string, seuil: number][] = 
   // Le compteur de poses est l'element le plus regarde de l'application, et
   // il vit dans le puits : son chiffre doit y tenir le contraste.
   ['a-well', 'well', 'le compteur dans le puits', 4.5],
+  ['danger', 'pap', "l'alerte sur la page", 4.5],
+  ['ok', 'pap', 'la confirmation sur la page', 4.5],
+  ['warn', 'pap', "l'avertissement sur la page", 4.5],
+  ['on-danger', 'danger', "texte sur l'alerte pleine", 4.5],
   // Un accent ne porte jamais de texte courant : il porte des chiffres, des
   // filets et des titres. Le seuil des grands caracteres suffit.
   ['a1', 'pap', 'accent sur la page', 3],
@@ -73,13 +88,16 @@ describe('les carnets', () => {
       expect(contrastRatio(a as string, b as string)).toBeGreaterThanOrEqual(seuil);
     });
 
-    // Un carnet qui redefinirait un signal donnerait une interface ou
-    // l'irreversible change de couleur selon le gout de l'hote.
-    it.each(['ok', 'warn', 'danger', 'on-danger'])(
-      'ne redefinit pas le signal %s',
-      (signal) => {
-        expect(trouve[signal]).toBeUndefined();
-      },
-    );
+    // Un carnet choisit sa nuance de rouge, jamais autre chose que du rouge :
+    // sans cette borne, un carnet pourrait faire d'un retrait de photo un
+    // bouton vert, et l'irreversible changerait de sens selon le gout de
+    // l'hote. La teinte est bornee autour du rouge, aux deux extremites du
+    // cercle chromatique.
+    it("garde une alerte rouge", () => {
+      const danger = trouve['danger'];
+      expect(danger, 'le jeton --color-danger manque').toBeDefined();
+      const teinte = hue(danger as string);
+      expect(teinte >= 340 || teinte <= 25, `teinte ${teinte.toFixed(0)}deg`).toBe(true);
+    });
   });
 });

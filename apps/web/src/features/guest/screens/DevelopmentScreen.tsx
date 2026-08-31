@@ -74,21 +74,21 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
               sans promettre une duree qu'on ne connait pas. */}
           <span
             aria-hidden="true"
-            className="relative h-24 w-24 rounded-full border-2 border-gold/18
+            className="relative h-24 w-24 rounded-full border-2 border-edge
               after:absolute after:-inset-0.5 after:rounded-full after:border-2
-              after:border-transparent after:border-t-[var(--accent)]
+              after:border-transparent after:border-t-a1
               after:animate-[spin_2.4s_linear_infinite] motion-reduce:after:animate-none"
           />
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
             Bain de révélateur
           </p>
         </div>
 
-        <div className="rounded-xl border border-gold/18 bg-paper/5 p-5">
+        <div className="rounded-carte border border-edge bg-pap-2 p-5">
           <h2 className="font-serif text-[24px] leading-tight">
             {queued > 0 ? (
               <>
-                <span className="font-mono tabular-nums text-gold">{queued}</span>
+                <span className="font-mono tabular-nums text-a1">{queued}</span>
                 {' '}
                 {queued > 1 ? 'vues partent' : 'vue part'} dès le retour du réseau
               </>
@@ -96,7 +96,7 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
               'Vos photographies sont déposées'
             )}
           </h2>
-          <p className="mt-2.5 text-[14px] leading-relaxed text-paper/55">
+          <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
             Rien ne se perd : elles sont conservées trente jours. Vous pouvez
             fermer cette page.
           </p>
@@ -106,10 +106,10 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
           <div className="flex flex-col gap-4">
             {/* La proposition n'apparait que quand elle a un sens. */}
             {canAsk && (
-              <div className="rounded-xl border border-[var(--accent-border)]
-                bg-[var(--accent-soft)] p-5">
+              <div className="rounded-carte border border-edge
+                bg-a-doux p-5">
                 <h2 className="font-serif text-[24px] leading-tight">Être prévenu ?</h2>
-                <p className="mt-2.5 text-[14px] leading-relaxed text-paper/60">
+                <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
                   Une seule notification, quand l’album sera en ligne. Rien d’autre.
                 </p>
                 <Button full className="mt-4" onClick={ask} disabled={outcome === 'busy'}>
@@ -119,27 +119,27 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
             )}
 
             {state === 'needs-install' && (
-              <p className="text-center text-xs leading-relaxed text-paper/45">
+              <p className="text-center text-xs leading-relaxed text-ink-3">
                 Pour être prévenu sur iPhone, ajoutez d’abord Memora à votre écran
-                d’accueil&nbsp;: touchez <span className="text-gold">Partager</span>,
-                puis «&nbsp;<span className="text-gold">Sur l’écran d’accueil</span>&nbsp;».
+                d’accueil&nbsp;: touchez <span className="text-a1">Partager</span>,
+                puis «&nbsp;<span className="text-a1">Sur l’écran d’accueil</span>&nbsp;».
                 La proposition apparaîtra ensuite.
               </p>
             )}
 
             {outcome === 'done' && (
-              <p role="status" className="text-center text-xs text-emerald-400">
+              <p role="status" className="text-center text-xs text-ok">
                 C’est noté. Vous serez prévenu dès la publication.
               </p>
             )}
             {outcome === 'refused' && (
-              <p role="status" className="text-center text-xs leading-relaxed text-paper/45">
+              <p role="status" className="text-center text-xs leading-relaxed text-ink-3">
                 Pas de notification. Revenez sur cette page dans un jour ou deux,
                 l’album y sera.
               </p>
             )}
             {outcome === 'failed' && (
-              <p role="alert" className="text-center text-xs text-red-300">
+              <p role="alert" className="text-center text-xs text-danger">
                 L’abonnement n’a pas abouti. Revenez sur cette page plus tard.
               </p>
             )}

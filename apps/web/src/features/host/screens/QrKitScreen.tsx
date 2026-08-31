@@ -73,8 +73,8 @@ export function QrKitScreen() {
               paraissait simplement ne rien faire — c'est le cas d'une soiree
               au-dela du palier gratuit, refusee avec un 402. */}
           {open.error && (
-            <div role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm leading-relaxed
-              text-red-300">
+            <div role="alert" className="rounded-carte bg-danger-doux p-3 text-sm leading-relaxed
+              text-danger">
               {(open.error as ApiError).code === 'PAYMENT_REQUIRED' ? (
                 <>
                   Votre première soirée est offerte. Celle-ci doit être réglée
@@ -95,7 +95,7 @@ export function QrKitScreen() {
       <div className="mt-10 flex flex-col items-center gap-6">
         {/* Apercu decoratif : le vrai QR code est dans le PDF, genere par le
             serveur avec le bon niveau de correction d'erreur. */}
-        <div className="grid h-44 w-44 place-items-center rounded-xl bg-paper" aria-hidden="true">
+        <div className="grid h-44 w-44 place-items-center rounded-carte bg-pap-2" aria-hidden="true">
           <div
             className="h-32 w-32"
             style={{
@@ -107,24 +107,24 @@ export function QrKitScreen() {
           />
         </div>
 
-        <p className="max-w-xs text-center text-sm leading-relaxed text-paper/50">
+        <p className="max-w-xs text-center text-sm leading-relaxed text-ink-3">
           Imprimez, posez sur les tables. Aucun invité n’aura à télécharger
           quoi que ce soit : le QR code ouvre directement sa pellicule.
         </p>
 
         {event.useTableCodes && (
           <section className="w-full">
-            <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+            <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
               Vos tables
             </h2>
-            <p className="mt-2 px-1 text-[13px] leading-relaxed text-paper/55">
+            <p className="mt-2 px-1 text-[13px] leading-relaxed text-ink-2">
               Vous demandez le numéro de table à vos invités. Créez-les ici :
               chacune reçoit son propre QR code dans le kit.
             </p>
 
             {tables.isSuccess ? (
-              <p role="status" className="mt-4 rounded-lg border border-emerald-500/25
-                bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+              <p role="status" className="mt-4 rounded-champ border border-ok
+                bg-ok-doux px-4 py-3 text-sm text-ok">
                 <span className="font-mono tabular-nums">{tables.data.tables.length}</span> tables
                 {' '}créées.
               </p>
@@ -132,22 +132,22 @@ export function QrKitScreen() {
               <>
                 {/* Le nombre est un chiffre : mono, en or, entre ses deux
                     boutons. Le libelle passe en petites capitales. */}
-                <div className="mt-4 flex items-center gap-3.5 rounded-xl border border-gold/18
-                  bg-paper/4 px-3.5 py-3">
+                <div className="mt-4 flex items-center gap-3.5 rounded-carte border border-edge
+                  bg-pap-2 px-3.5 py-3">
                   <button
                     onClick={() => setCount((value) => Math.max(1, value - 1))}
                     aria-label="Une table de moins"
-                    className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
+                    className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
                   >−</button>
                   <b className="min-w-12 text-center font-mono text-2xl font-medium
-                    tabular-nums text-gold">{count}</b>
+                    tabular-nums text-a1">{count}</b>
                   <button
                     onClick={() => setCount((value) => Math.min(40, value + 1))}
                     aria-label="Une table de plus"
-                    className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
+                    className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
                   >+</button>
                   <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em]
-                    text-paper/40">Tables</span>
+                    text-ink-3">Tables</span>
                 </div>
                 <Button
                   tone="ghost"
@@ -159,7 +159,7 @@ export function QrKitScreen() {
                   {tables.isPending ? 'Création…' : 'Créer les tables'}
                 </Button>
                 {tables.error && (
-                  <p role="alert" className="mt-2 text-sm text-red-300">
+                  <p role="alert" className="mt-2 text-sm text-danger">
                     {(tables.error as ApiError).message}
                   </p>
                 )}
@@ -169,8 +169,8 @@ export function QrKitScreen() {
         )}
 
         {event.state === 'DRAFT' && (
-          <p className="rounded-lg border border-gold/25 bg-gold/8 px-4 py-3 text-xs
-            leading-relaxed text-gold">
+          <p className="rounded-champ border border-edge bg-a-doux px-4 py-3 text-xs
+            leading-relaxed text-a1">
             La pellicule est encore fermée. Ouvrez-la le jour J : avant, un
             invité qui scanne verra que la soirée n’a pas commencé.
           </p>

@@ -60,11 +60,11 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
         code={{ hautGauche: 'MEMORA 400', basGauche: 'ALBUM', hautDroite: 'HORS LIGNE' }}
       >
         <div className="flex flex-1 flex-col justify-center pb-16">
-          <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          <div className="rounded-carte border border-edge bg-pap-2 p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche indisponible
             </p>
-            <p className="mt-3 text-[15px] leading-relaxed text-paper/60">
+            <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
               Vos photographies sont conservées trente jours : rien n’est perdu,
               l’album se rouvrira au retour du réseau.
             </p>
@@ -90,14 +90,14 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
         // La planche vide occupe la hauteur au lieu d'y flotter : une ligne
         // centree perdue au milieu de l'ecran ressemble a une panne.
         <div className="flex flex-1 flex-col justify-center pb-16">
-          <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          <div className="rounded-carte border border-edge bg-pap-2 p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche vide
             </p>
             <h2 className="mt-3 font-serif text-[26px] leading-[1.15]">
               Rien à montrer pour l’instant.
             </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-paper/55">
+            <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
               L’organisateur n’a pas encore publié sa sélection de la soirée.
               Revenez dans un jour ou deux.
             </p>
@@ -105,12 +105,12 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
         </div>
       ) : (
         <>
-          <div className="mt-8 flex items-baseline justify-between border-b border-gold/20 pb-3">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          <div className="mt-8 flex items-baseline justify-between border-b border-edge pb-3">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche contact
             </p>
-            <p className="font-mono text-[12px] tabular-nums text-paper/50">
-              <span className="text-gold">{photos.length}</span>{' '}
+            <p className="font-mono text-[12px] tabular-nums text-ink-3">
+              <span className="text-a1">{photos.length}</span>{' '}
               {photos.length > 1 ? 'photographies' : 'photographie'}
             </p>
           </div>
@@ -126,12 +126,12 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                   src={photo.url}
                   alt={`Photographie prise le ${new Date(photo.takenAt).toLocaleString('fr-FR')}`}
                   loading="lazy"
-                  className="aspect-square w-full rounded-lg bg-paper/5 object-cover"
+                  className="aspect-square w-full rounded-champ bg-pap-2 object-cover"
                 />
                 {done.includes(photo.id) ? (
-                  <span className="absolute inset-x-1.5 bottom-1.5 rounded-lg bg-film/80 px-2
+                  <span className="absolute inset-x-1.5 bottom-1.5 rounded-champ bg-pap px-2
                     py-1 text-center font-mono text-[9px] uppercase tracking-[0.16em]
-                    text-gold backdrop-blur">
+                    text-a1 backdrop-blur">
                     Retrait demandé
                   </span>
                 ) : (
@@ -139,7 +139,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                     onClick={() => setAsking(photo.id)}
                     aria-label="Demander le retrait de cette photographie"
                     className="absolute right-1.5 top-1.5 grid h-8 w-8 place-items-center
-                      rounded-full bg-film/70 text-sm text-paper backdrop-blur"
+                      rounded-full bg-pap text-sm text-ink backdrop-blur"
                   >
                     ⋯
                   </button>
@@ -159,15 +159,15 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
           <button
             aria-label="Annuler"
             onClick={() => setAsking(null)}
-            className="absolute inset-0 bg-film/75 animate-[fade_.2s_ease] motion-reduce:animate-none"
+            className="absolute inset-0 bg-pap animate-[fade_.2s_ease] motion-reduce:animate-none"
           />
-          <div className="relative m-3 rounded-xl border border-gold/18 bg-[#0E0A13] p-5
+          <div className="relative m-3 rounded-carte border border-edge bg-well p-5
             animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Droit à l’image
             </p>
             <h2 className="mt-2 font-serif text-[26px] leading-tight">Demander le retrait</h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-paper/55">
+            <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
               Votre demande est transmise à l’organisateur, qui décide. Dites
               en quelques mots pourquoi.
             </p>
@@ -180,13 +180,13 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                 rows={3}
                 maxLength={280}
                 placeholder="Je préfère ne pas apparaître sur cette photographie."
-                className="w-full rounded-lg bg-paper/8 p-3.5 text-sm text-paper
-                  placeholder:text-paper/25 focus:outline-2 focus:outline-[var(--accent)]"
+                className="w-full rounded-champ bg-pap-2 p-3.5 text-sm text-ink
+                  placeholder:text-ink-3 focus:outline-2 focus:outline-a1"
               />
             </label>
 
             {request.error && (
-              <p role="alert" className="mt-2 text-xs text-red-300">
+              <p role="alert" className="mt-2 text-xs text-danger">
                 {(request.error as ApiError).message}
               </p>
             )}

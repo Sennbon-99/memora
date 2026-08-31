@@ -61,8 +61,8 @@ export function BillingScreen() {
               {checkout.isPending ? 'Ouverture du paiement…' : 'Régler cette soirée'}
             </Button>
             {checkout.error && (
-              <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm leading-relaxed
-                text-red-300">
+              <p role="alert" className="rounded-carte bg-danger-doux p-3 text-sm leading-relaxed
+                text-danger">
                 {(checkout.error as ApiError).message}
               </p>
             )}
@@ -72,20 +72,20 @@ export function BillingScreen() {
     >
       <div className="pb-6">
         {data?.paid ? (
-          <div className="mt-7 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-5">
-            <p className="text-base font-bold text-emerald-400">Soirée réglée</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-paper/55">
+          <div className="mt-7 rounded-carte border border-ok bg-ok-doux p-5">
+            <p className="text-base font-bold text-ok">Soirée réglée</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-ink-2">
               Vous pouvez ouvrir la pellicule quand vous le souhaitez.
             </p>
           </div>
         ) : (
-          <div className="mt-7 rounded-xl border border-gold/18 bg-paper/4 p-5">
+          <div className="mt-7 rounded-carte border border-edge bg-pap-2 p-5">
             <p className="text-base font-bold">Cette soirée n’est pas encore réglée</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-paper/55">
+            <p className="mt-1.5 text-sm leading-relaxed text-ink-2">
               Votre première soirée est offerte, limitée à{' '}
-              <span className="font-mono tabular-nums text-gold">{FREE_TIER.shots}</span> vues
+              <span className="font-mono tabular-nums text-a1">{FREE_TIER.shots}</span> vues
               par invité et{' '}
-              <span className="font-mono tabular-nums text-gold">{FREE_TIER.guests}</span>{' '}
+              <span className="font-mono tabular-nums text-a1">{FREE_TIER.guests}</span>{' '}
               participants. Au-delà, chaque soirée se règle avant l’ouverture
               de la pellicule.
             </p>
@@ -94,20 +94,20 @@ export function BillingScreen() {
 
         {/* Ce qui est compris n'est pas une carte de plus : c'est une liste,
             et une liste se lit en rangees separees par un filet. */}
-        <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+        <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
           Ce que comprend une soirée
         </h2>
-        <ul className="mt-1 flex flex-col text-[13px] text-paper/65">
-          <li className="border-b border-gold/12 px-1 py-3">
+        <ul className="mt-1 flex flex-col text-[13px] text-ink-2">
+          <li className="border-b border-edge-2 px-1 py-3">
             Jusqu’à <span className="font-mono tabular-nums">200</span> invités,
             sans application à installer
           </li>
-          <li className="border-b border-gold/12 px-1 py-3">
-            <span className="font-mono tabular-nums text-gold">{event.quotaShots}</span> vues
+          <li className="border-b border-edge-2 px-1 py-3">
+            <span className="font-mono tabular-nums text-a1">{event.quotaShots}</span> vues
             par invité, réglables avant l’ouverture
           </li>
-          <li className="border-b border-gold/12 px-1 py-3">Kit de QR codes imprimable</li>
-          <li className="border-b border-gold/12 px-1 py-3">
+          <li className="border-b border-edge-2 px-1 py-3">Kit de QR codes imprimable</li>
+          <li className="border-b border-edge-2 px-1 py-3">
             Album partageable et archive téléchargeable
           </li>
           <li className="px-1 py-3">
@@ -116,7 +116,7 @@ export function BillingScreen() {
           </li>
         </ul>
 
-        <p className="mt-6 px-1 text-[11px] leading-relaxed text-paper/35">
+        <p className="mt-6 px-1 text-[11px] leading-relaxed text-ink-3">
           Le paiement est traité par Stripe. Aucun numéro de carte ne passe
           par Memora, ni n’y est conservé.
         </p>

@@ -55,7 +55,7 @@ export function CameraDeniedScreen({
             {shot.isPending ? 'Envoi…' : 'Prendre une photo'}
           </Button>
           {denied && (
-            <p className="text-center text-xs leading-relaxed text-paper/45">
+            <p className="text-center text-xs leading-relaxed text-ink-3">
               Pour revenir au viseur, autorisez la caméra dans les réglages de
               votre navigateur, puis rechargez la page.
             </p>
@@ -66,21 +66,21 @@ export function CameraDeniedScreen({
       {/* Trois temps plutot qu'un compteur seul sous le titre : l'etat de la
           pellicule, le decompte, ce que fait le declencheur. */}
       <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
           Repli sans viseur
         </p>
 
         {/* Le compteur suit l'invite jusque sur ce repli : sans lui il ne
             saurait plus combien de vues il lui reste, et c'est la seule
             information qui compte pendant la soiree. */}
-        <div className="border-y border-gold/20 py-5">
+        <div className="border-y border-edge py-5">
           <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-xl border border-gold/18 bg-paper/5 p-5">
+          <div className="rounded-carte border border-edge bg-pap-2 p-5">
             <h2 className="font-serif text-[24px] leading-tight">La pellicule continue</h2>
-            <p className="mt-2.5 text-[14px] leading-relaxed text-paper/55">
+            <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
               Chaque vue prise par l’appareil photo de votre téléphone rejoint
               votre pellicule, et le compteur baisse d’autant. Vous ne perdez
               rien à passer par ce chemin.
@@ -88,8 +88,8 @@ export function CameraDeniedScreen({
           </div>
 
           {shot.isError && (
-            <p role="alert" className="rounded-lg border border-red-400/25 bg-red-500/10
-              p-4 text-sm leading-relaxed text-red-300">
+            <p role="alert" className="rounded-champ border border-danger bg-danger-doux
+              p-4 text-sm leading-relaxed text-danger">
               {shot.error.message}
             </p>
           )}

@@ -29,6 +29,14 @@
   --color-ink-well: #f2efe6;
   --color-ink-well-2: #8e8a82;
   --color-a-well: #e0b84c;
+  --color-a-doux: rgb(224 184 76 / 0.14);
+
+  --color-ok: #7ecfa4;
+  --color-warn: #e8bd6b;
+  --color-danger: #ff8577;
+  --color-on-danger: #16151a;
+  --color-danger-doux: rgb(255 133 119 / 0.14);
+  --color-ok-doux: rgb(126 207 164 / 0.14);
   --color-appui: rgb(255 255 255 / 0.09);
 
   --radius-carte: 2px;

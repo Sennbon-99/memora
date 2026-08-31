@@ -111,8 +111,8 @@ export function MomentsScreen() {
       }
     >
       {!live && !adding && (
-        <p className="mt-6 rounded-lg border border-gold/18 bg-paper/5 px-4 py-3.5 text-xs
-          leading-relaxed text-paper/50">
+        <p className="mt-6 rounded-champ border border-edge bg-pap-2 px-4 py-3.5 text-xs
+          leading-relaxed text-ink-3">
           {eventData?.event.state === 'DRAFT'
             ? 'Préparez vos moments dès maintenant : vous pourrez les déclencher une fois la pellicule ouverte.'
             : 'La soirée est terminée. Les moments forts ne se déclenchent que pendant la prise de vue.'}
@@ -120,8 +120,8 @@ export function MomentsScreen() {
       )}
 
       {failure && (
-        <p role="alert" className="mt-4 rounded-lg bg-red-500/10 p-3.5 text-sm leading-relaxed
-          text-red-300">
+        <p role="alert" className="mt-4 rounded-champ bg-danger-doux p-3.5 text-sm leading-relaxed
+          text-danger">
           {failure.message}
         </p>
       )}
@@ -130,33 +130,33 @@ export function MomentsScreen() {
           clarte hierarchise mieux qu'un aplat de couleur, qui noyait le
           decompte — la seule chose qu'on vient lire ici. */}
       {running && (
-        <div className="mt-6 rounded-xl border border-gold/40 bg-gold/10 p-5">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-gold/70">
+        <div className="mt-6 rounded-carte border border-a1 bg-a-doux p-5">
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-a1">
             En cours
           </p>
-          <p className="mt-1.5 font-serif text-[28px] leading-none text-paper">{running.label}</p>
+          <p className="mt-1.5 font-serif text-[28px] leading-none text-ink">{running.label}</p>
           {/* Le decompte seul en gros chiffres : c'est ce qu'on vient lire.
               Le mot « Encore » en corps de titre le diluait. */}
           {(() => {
             const left = secondsLeft(running);
             return left === null ? (
-              <p className="mt-3 text-base text-paper/55">Fenêtre terminée</p>
+              <p className="mt-3 text-base text-ink-2">Fenêtre terminée</p>
             ) : (
-              <p className="mt-3 font-mono text-2xl leading-none font-medium tabular-nums text-gold">
+              <p className="mt-3 font-mono text-2xl leading-none font-medium tabular-nums text-a1">
                 {formatCountdown(left)}
-                <span className="ml-2 font-sans text-[11px] font-normal text-paper/45">restant</span>
+                <span className="ml-2 font-sans text-[11px] font-normal text-ink-3">restant</span>
               </p>
             );
           })()}
-          <p className="mt-2.5 text-[11px] text-paper/50">
+          <p className="mt-2.5 text-[11px] text-ink-3">
             <span className="font-mono tabular-nums">{running.photoCount}</span> photo
             {running.photoCount > 1 ? 's' : ''} reçue{running.photoCount > 1 ? 's' : ''}
           </p>
           <button
             onClick={() => close.mutate(running.id)}
             disabled={close.isPending}
-            className="mt-4 h-10 w-full rounded-lg border border-gold/30 text-[13px]
-              font-bold text-gold transition active:bg-gold/10"
+            className="mt-4 h-10 w-full rounded-champ border border-a1 text-[13px]
+              font-bold text-a1 transition active:bg-appui"
           >
             {close.isPending ? 'Fermeture…' : 'Fermer maintenant'}
           </button>
@@ -179,8 +179,8 @@ export function MomentsScreen() {
                 <button
                   key={name}
                   onClick={() => setLabel(name)}
-                  className="rounded-full border border-gold/18 px-3 py-1.5 text-xs text-paper/55
-                    transition active:bg-paper/6"
+                  className="rounded-full border border-edge px-3 py-1.5 text-xs text-ink-2
+                    transition active:bg-appui"
                 >
                   {name}
                 </button>
@@ -205,8 +205,8 @@ export function MomentsScreen() {
             note={`${durationMinutes} minutes`}
           />
 
-          <p className="rounded-lg border border-gold/18 bg-paper/5 px-3.5 py-3 text-xs
-            leading-relaxed text-paper/50">
+          <p className="rounded-champ border border-edge bg-pap-2 px-3.5 py-3 text-xs
+            leading-relaxed text-ink-3">
             Les vues offertes expirent avec la fenêtre. Celles qui n’ont pas
             été utilisées ne sont pas reportées.
           </p>
@@ -214,14 +214,14 @@ export function MomentsScreen() {
       ) : (
         <div className="pb-6">
           {moments.length === 0 ? (
-            <p className="mt-10 text-center text-sm leading-relaxed text-paper/45">
+            <p className="mt-10 text-center text-sm leading-relaxed text-ink-3">
               Aucun moment préparé.<br />
               Préparez-les avant la soirée : le jour J, une touche suffira.
             </p>
           ) : waiting.length > 0 ? (
             <>
               <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em]
-                text-paper/40">
+                text-ink-3">
                 Préparés
               </h2>
               {/* Des rangees separees par un filet : une carte par moment
@@ -233,14 +233,14 @@ export function MomentsScreen() {
                   return (
                     <li
                       key={moment.id}
-                      className="flex items-center gap-3 border-b border-gold/12 px-1 py-3
+                      className="flex items-center gap-3 border-b border-edge-2 px-1 py-3
                         last:border-b-0 animate-[rise_.3s_ease_backwards]
                         motion-reduce:animate-none"
                       style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
                     >
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-[13px] font-bold">{moment.label}</span>
-                        <span className="block text-[11px] text-paper/45">
+                        <span className="block text-[11px] text-ink-3">
                           <span className="font-mono tabular-nums">{moment.bonusShots}</span> vue
                           {moment.bonusShots > 1 ? 's' : ''} offerte
                           {moment.bonusShots > 1 ? 's' : ''} ·{' '}
@@ -255,8 +255,8 @@ export function MomentsScreen() {
                       </span>
 
                       {done ? (
-                        <span className="shrink-0 rounded-full bg-paper/8 px-2.5 py-1 text-[10px]
-                          font-bold text-paper/45">terminé</span>
+                        <span className="shrink-0 rounded-full bg-pap-2 px-2.5 py-1 text-[10px]
+                          font-bold text-ink-3">terminé</span>
                       ) : (
                         // Une touche, sans confirmation : on ne vise pas deux
                         // fois de suite en dansant. Le retour en arriere est la
@@ -264,8 +264,8 @@ export function MomentsScreen() {
                         <button
                           onClick={() => trigger.mutate(moment.id)}
                           disabled={trigger.isPending || running !== null || !live}
-                          className="h-10 shrink-0 rounded-lg bg-[var(--accent)] px-4 text-[12px]
-                            font-bold text-[var(--accent-text)] disabled:opacity-35"
+                          className="h-10 shrink-0 rounded-champ bg-a1 px-4 text-[12px]
+                            font-bold text-on-a1 disabled:opacity-35"
                         >
                           Déclencher
                         </button>
@@ -278,14 +278,14 @@ export function MomentsScreen() {
           ) : null}
 
           {running && (
-            <p className="mt-4 text-center text-[11px] text-paper/35">
+            <p className="mt-4 text-center text-[11px] text-ink-3">
               Un seul moment à la fois. Fermez celui en cours pour en lancer un autre.
             </p>
           )}
 
           <button
             onClick={() => navigate(`/hote/${eventId}/reglages`)}
-            className="mt-6 w-full text-center text-xs text-paper/35"
+            className="mt-6 w-full text-center text-xs text-ink-3"
           >
             ‹ Retour aux réglages
           </button>
@@ -302,22 +302,22 @@ function Stepper({ label, value, min, max, onChange, note }: {
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-semibold text-paper/60">{label}</span>
-      <div className="flex items-center gap-3.5 rounded-xl border border-gold/18 bg-paper/4
+      <span className="text-sm font-semibold text-ink-2">{label}</span>
+      <div className="flex items-center gap-3.5 rounded-carte border border-edge bg-pap-2
         px-3.5 py-3">
         <button
           onClick={() => onChange(Math.max(min, value - 1))}
           aria-label={`${label} : diminuer`}
-          className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
+          className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
         >−</button>
         <b className="min-w-12 text-center font-mono text-2xl font-medium tabular-nums
-          text-gold">{value}</b>
+          text-a1">{value}</b>
         <button
           onClick={() => onChange(Math.min(max, value + 1))}
           aria-label={`${label} : augmenter`}
-          className="h-11 w-11 rounded-lg bg-paper/8 text-xl active:bg-paper/14"
+          className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
         >+</button>
-        <span className="ml-auto text-right text-[11px] leading-tight text-paper/40">{note}</span>
+        <span className="ml-auto text-right text-[11px] leading-tight text-ink-3">{note}</span>
       </div>
     </div>
   );
