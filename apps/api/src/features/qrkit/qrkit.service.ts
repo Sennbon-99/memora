@@ -140,13 +140,34 @@ function drawCarte(doc: PDFKit.PDFDocument, card: Card, piece: Piece, qr: Buffer
     .text('Aucune application a installer', 0, height - mm(12), { align: 'center', width });
 }
 
+/**
+ * La geometrie de la planche d'autocollants.
+ *
+ * Exportee parce qu'elle se verifie : un code carre pose dans un cercle de
+ * decoupe ne tient que si sa diagonale reste sous le diametre — et il est
+ * decale vers le haut pour loger le mot sous lui, ce qui rapproche encore ses
+ * deux coins hauts du bord. La premiere version dessinait un code de 35 mm
+ * dans un cercle de 48 : les coins depassaient de 2,2 mm, et un autocollant
+ * decoupe aurait perdu ses reperes. Illisible, sur la piece qu'on colle aux
+ * toilettes et que personne ne reverifie.
+ */
+export const PLANCHE = {
+  colonnes: 4,
+  lignes: 5,
+  /** Pas de la grille. */
+  pasMm: 50,
+  /** Retrait du trait de decoupe par rapport au pas. */
+  margeMm: 1,
+  /** Decalage du code vers le haut, pour loger le mot sous lui. */
+  decalageMm: 2,
+} as const;
+
 /** Une planche d'autocollants ronds, a coller la ou l'on sort son telephone. */
 function drawPlanche(doc: PDFKit.PDFDocument, piece: Piece, qr: Buffer): void {
   const { width } = doc.page;
   const cote = mm(piece.qrMm);
-  const pas = mm(50);
-  const colonnes = 4;
-  const lignes = 5;
+  const pas = mm(PLANCHE.pasMm);
+  const { colonnes, lignes } = PLANCHE;
   const gaucheX = (width - colonnes * pas) / 2;
   const hautY = mm(24);
 
@@ -157,9 +178,9 @@ function drawPlanche(doc: PDFKit.PDFDocument, piece: Piece, qr: Buffer): void {
     for (let colonne = 0; colonne < colonnes; colonne += 1) {
       const cx = gaucheX + colonne * pas + pas / 2;
       const cy = hautY + ligne * pas + pas / 2;
-      doc.circle(cx, cy, pas / 2 - mm(1)).lineWidth(0.5).stroke(FILET);
-      doc.image(qr, cx - cote / 2, cy - cote / 2 - mm(2), { width: cote });
-      drawObturateur(doc, cx, cy - mm(2), cote);
+      doc.circle(cx, cy, pas / 2 - mm(PLANCHE.margeMm)).lineWidth(0.5).stroke(FILET);
+      doc.image(qr, cx - cote / 2, cy - cote / 2 - mm(PLANCHE.decalageMm), { width: cote });
+      drawObturateur(doc, cx, cy - mm(PLANCHE.decalageMm), cote);
       doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(5.5)
         .text('SCANNEZ', cx - pas / 2, cy + cote / 2 - mm(1), { align: 'center', width: pas });
     }

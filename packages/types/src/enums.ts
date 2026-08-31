@@ -87,7 +87,10 @@ export const KIT_PIECE_INFO: Record<KitPiece, {
   'affiche-a4': { label: 'Affiche de secours', format: 'A4', qrMm: 90, note: 'Imprimable chez vous' },
   cartes: { label: 'Cartes de table', format: 'A5 plié', qrMm: 50, note: 'Une par table' },
   chevalet: { label: 'Chevalet de bar', format: 'A5', qrMm: 70, note: 'Buffet, cocktail debout' },
-  autocollants: { label: 'Autocollants', format: 'Planche de 20', qrMm: 35, note: 'Toilettes, bar, photobooth' },
+  // 30 mm et non 35 : au-dela, les coins du code sortent du cercle de
+  // decoupe, et un autocollant decoupe perd ses reperes. Voir la geometrie
+  // de la planche et le test qui la surveille, dans qrkit.
+  autocollants: { label: 'Autocollants', format: 'Planche de 20', qrMm: 30, note: 'Toilettes, bar, photobooth' },
   carton: { label: 'Carton pour le faire-part', format: 'A6', qrMm: 40, note: 'Glissé dans l’invitation' },
 };
 
