@@ -112,11 +112,11 @@ function drawAffiche(doc: PDFKit.PDFDocument, card: Card, piece: Piece, qr: Buff
   doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(19 * echelle)
     .text('Scannez, photographiez', 0, height * 0.34 + cote + mm(18), { align: 'center', width });
   doc.fillColor(ENCRE_2).font('Helvetica').fontSize(12 * echelle)
-    .text("Vingt-quatre poses chacun. Aucune application a installer.", mm(20), height * 0.34 + cote + mm(28), {
+    .text("Vingt-quatre poses chacun. Aucune application à installer.", mm(20), height * 0.34 + cote + mm(28), {
       align: 'center', width: width - mm(40),
     });
   doc.fillColor(ENCRE_3).font('Helvetica').fontSize(8 * echelle)
-    .text('Vos photos se revelent demain matin, toutes en meme temps.', mm(20), height - mm(22), {
+    .text('Vos photos se révèlent demain matin, toutes en même temps.', mm(20), height - mm(22), {
       align: 'center', width: width - mm(40),
     });
 }
@@ -137,7 +137,7 @@ function drawCarte(doc: PDFKit.PDFDocument, card: Card, piece: Piece, qr: Buffer
   doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(11)
     .text('Scannez, photographiez', 0, height - mm(18), { align: 'center', width });
   doc.fillColor(ENCRE_3).font('Helvetica').fontSize(7.5)
-    .text('Aucune application a installer', 0, height - mm(12), { align: 'center', width });
+    .text('Aucune application à installer', 0, height - mm(12), { align: 'center', width });
 }
 
 /**
@@ -172,7 +172,7 @@ function drawPlanche(doc: PDFKit.PDFDocument, piece: Piece, qr: Buffer): void {
   const hautY = mm(24);
 
   doc.fillColor(ENCRE_3).font('Helvetica').fontSize(8)
-    .text('Decoupez et collez : toilettes, bar, photobooth.', 0, mm(14), { align: 'center', width });
+    .text('Découpez et collez : toilettes, bar, photobooth.', 0, mm(14), { align: 'center', width });
 
   for (let ligne = 0; ligne < lignes; ligne += 1) {
     for (let colonne = 0; colonne < colonnes; colonne += 1) {
