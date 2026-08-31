@@ -5,8 +5,8 @@ export function Spinner({ label = 'Chargement' }: { label?: string }) {
   return (
     <div role="status" className="flex items-center justify-center gap-3 py-8">
       <span
-        className="h-5 w-5 animate-spin rounded-full border-2 border-paper/20
-          border-t-[var(--accent)]"
+        className="h-5 w-5 animate-spin rounded-full border-2 border-edge
+          border-t-a1"
         aria-hidden="true"
       />
       <span className="sr-only">{label}</span>

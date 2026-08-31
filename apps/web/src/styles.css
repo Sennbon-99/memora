@@ -1,48 +1,133 @@
 /* apps/web/src/styles.css
    Jetons de style et reglages propres au telephone.
-   La couleur --accent est vide ici : elle est posee au chargement par
-   applyEventTheme(), avec la couleur choisie par l'hote. */
+
+   Ce fichier ne contient que des valeurs par defaut et des mecanismes. La
+   couleur, elle, appartient au carnet : chaque soiree en choisit un, et
+   toute l'interface suit sans qu'une seule regle de mise en page bouge.
+   Le carnet par defaut est celui de la marque — Papier — pose ici meme,
+   pour qu'une page rendue sans carnet soit deja juste. */
 
 @import 'tailwindcss';
 
 /* Les polices sont servies par l'application, jamais par un tiers. Un
    chargement depuis un CDN casserait le fonctionnement hors connexion, qui
    est une fonctionnalite du produit et non un agrement — et il ferait fuiter
-   l'adresse de chaque invite vers un serveur qui n'a rien a en connaitre.
-   Elles etaient declarees ici sans jamais etre chargees : l'application
-   tournait sur la police du systeme, en silence. */
+   l'adresse de chaque invite vers un serveur qui n'a rien a en connaitre. */
 /* opsz et non l'entree par defaut : ce fichier porte l'axe de taille
-   optique, celui qui redessine les lettres selon le corps de rendu.
-   L'entree par defaut ne charge que l'axe de graisse, et l'atout de
-   cette police est justement celui que presque personne ne branche. */
-@import '@fontsource-variable/bricolage-grotesque/opsz.css';
+   optique, celui qui redessine les lettres selon le corps de rendu. */
+@import '@fontsource/anton';
+@import '@fontsource-variable/caveat';
+@import '@fontsource-variable/dm-sans';
 @import '@fontsource-variable/jetbrains-mono';
-@import '@fontsource/instrument-serif';
+
+/* Les carnets. Trois fichiers de valeurs, embarques dans le bundle : deux
+   kilo-octets chacun, et un invite hors reseau garde le sien. */
+@import './carnets/papier.css';
+@import './carnets/carnet-noir.css';
+@import './carnets/bleu.css';
 
 @theme {
-  /* Nocturne : la chambre noire vire au prune profond. Contrastes verifies
-     au calcul WCAG sur le fond — texte 16,16:1, or 8,35:1, sourdine 5,06:1.
-     L'ambre precedent tombait a 4,43:1 et ne pouvait pas porter de texte. */
-  --color-ink: #141019;
-  --color-paper: #f1ecf6;
-  --color-film: #141019;
-  --color-surface: #1c1723;
-  --color-muted: #8a8196;
-  --color-gold: #c9a961;
-  --font-sans: 'Bricolage Grotesque Variable', system-ui, -apple-system, sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, serif;
+  /* ------------------------------------------------------------------
+     LE CONTRAT
+
+     Sept jetons neutres portent toute l'interface. Ils remplacent les
+     quatorze opacites qui s'etaient accumulees sur la meme couleur : elles
+     n'etaient pas une intention, elles etaient une derive, et surtout un
+     modificateur d'opacite Tailwind fige sa valeur de repli au moment de la
+     compilation. Un carnet redefini a l'execution ne l'aurait jamais atteint
+     sur un navigateur d'avant 2023.
+  ------------------------------------------------------------------ */
+
+  /* Surfaces : la page, et ce qui se pose dessus. */
+  --color-pap: #f5f2ea;
+  --color-pap-2: #ffffff;
+  /* Le bord d'un tirage. Blanc dans les trois carnets : une photographie
+     tiree sur papier ne devient pas grise parce que la page est sombre. */
+  --color-tirage: #ffffff;
+  /* La legende ecrite sur un tirage. Le bord etant clair dans les trois
+     carnets, son encre reste sombre meme quand celle de la page est creme. */
+  --color-ink-tirage: #3a3a34;
+
+  /* Encres : trois niveaux, pas un de plus. Chacun se verifie au contraste. */
+  --color-ink: #1a1a18;
+  --color-ink-2: #4a4a42;
+  --color-ink-3: #69675e;
+
+  /* Filets : celui qui se voit, celui qui se devine. */
+  --color-edge: #c9c5b6;
+  --color-edge-2: #e2dfd4;
+
+  /* Accents. Trois au maximum, chacun avec la couleur de texte qui se pose
+     dessus — calculee une fois ici plutot que devinee a chaque usage. */
+  --color-a1: #ff5c7a;
+  --color-on-a1: #ffffff;
+  --color-a2: #2fa89c;
+  --color-on-a2: #ffffff;
+  --color-a3: #f5c518;
+  --color-on-a3: #1a1a18;
+
+  /* Signaux. Un carnet peut choisir SA nuance de rouge — un rouge brique
+     sur un fond presque noir ne donne que 3,9:1 — mais il ne peut pas
+     changer ce que la couleur veut dire. Le test verifie les deux : que la
+     teinte reste rouge, et qu'elle tient le contraste sur la page. */
+  --color-ok: #2e6b4f;
+  --color-warn: #b06b0f;
+  --color-danger: #c4362b;
+  --color-on-danger: #ffffff;
+
+  /* Le puits : ce qui est creuse dans la page plutot que pose dessus — la
+     fenetre du compteur de poses, la barre d'onglets. */
+  --color-well: #22221f;
+  --color-ink-well: #f5f2ea;
+  /* L'encre en retrait dans le puits : un onglet qu'on n'a pas choisi. */
+  --color-ink-well-2: #9a988f;
+  /* L'accent du puits. Distinct de --color-a1 : l'accent qui porte une page
+     claire ne porte pas forcement un fond presque noir. */
+  --color-a-well: #f5c518;
+
+  /* Formes. Un carnet peut rendre l'interface anguleuse ou ronde sans
+     qu'une seule classe change. */
+  --radius-carte: 2px;
+  --radius-champ: 2px;
+  --radius-pilule: 999px;
+
+  /* L'approche du titre suit la police : Anton demande a etre resserre,
+     une grotesque non. */
+  --tracking-display: -0.01em;
+
+  /* Le voile d'appui. Translucide, donc jamais porteur de texte : un
+     modificateur d'opacite ici n'aurait servi qu'a figer sa valeur. */
+  --color-appui: rgb(0 0 0 / 0.06);
+  /* Le voile d'accent : un bandeau, une pastille, une ligne mise en avant. */
+  --color-a-doux: rgb(217 47 82 / 0.1);
+  /* Le voile d'alerte, derriere un message d'erreur. */
+  --color-danger-doux: rgb(196 54 43 / 0.12);
+  /* Le voile de confirmation : une soiree en cours, une photo publiee. */
+  --color-ok-doux: rgb(34 107 76 / 0.12);
+
+  /* Trois roles, pas trois polices : un carnet peut poser la meme famille
+     sur les trois. C'est ce que fait Bleu de bureau, ou une ecriture
+     manuscrite dans une soiree d'entreprise n'aurait aucun sens. */
+  --font-display: Anton, Impact, 'Haettenschweiler', sans-serif;
+  --font-hand: 'Caveat Variable', 'Segoe Script', cursive;
+  --font-sans: 'DM Sans Variable', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 
 :root {
-  /* L'or est structurel : il porte les titres, les chiffres et les filets.
-     La couleur choisie par l'hote sert a identifier sa soiree — pastille,
-     onglet actif — et ne remplace jamais l'or, sans quoi un accent rose
-     detruirait la direction. */
-  --accent: #c9a961;
-  --accent-text: #141019;
-  --accent-soft: rgb(201 169 97 / 0.12);
-  --accent-border: rgb(201 169 97 / 0.35);
+  /* Matiere. Ces variables ne passent pas par @theme : elles ne servent
+     jamais d'utilitaire Tailwind, seulement de valeur dans les regles
+     ci-dessous. Un carnet les redefinit comme les autres. */
+  --grade: contrast(1.06) saturate(1.1) brightness(1.04);
+  --rule: rgb(90 120 190 / 0.16);
+  --tape: rgb(255 247 214 / 0.68);
+  --ombre-tirage: 0 12px 26px -12px rgb(0 0 0 / 0.5), 0 1px 0 rgb(0 0 0 / 0.1);
+
+  /* Les bandes perforees de la charte Nocturne. Elles ne sont pas
+     supprimees : elles sont devenues un trait, que seul un carnet qui les
+     veut rallume. Aucun des trois carnets actuels ne le fait. */
+  --bande-affichage: none;
+  --bande-marge: 0px;
 }
 
 html, body, #root {
@@ -53,8 +138,8 @@ body {
   /* La taille optique suit le corps de rendu, comme la police a ete dessinee
      pour l'etre : texte compact et ouvert en petit, contraste marque en grand. */
   font-optical-sizing: auto;
-  background: var(--color-film);
-  color: var(--color-paper);
+  background: var(--color-pap);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   /* Sur telephone, un appui long selectionne du texte par accident dans
      un viseur. On le desactive, sauf la ou l'on saisit vraiment du texte. */
@@ -95,40 +180,92 @@ input, textarea {
   to { opacity: 1; }
 }
 
-/* Halo : deux sources hors champ, une doree en haut, une violine en bas.
-   C'est ce qui remplace l'ombre portee — sur un fond sombre, l'ombre ne
-   se voit pas, seule la lumiere hierarchise. */
-.halo::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(56% 32% at 24% 4%, rgb(201 169 97 / 0.13) 0%, transparent 70%),
-    radial-gradient(64% 38% at 82% 98%, rgb(120 86 168 / 0.2) 0%, transparent 72%);
+/* Pose : un tirage qu'on lache sur la page rebondit une fois. C'est le
+   mouvement propre au carnet, la ou Nocturne avait le developpement. */
+@keyframes pose {
+  from { opacity: 0; transform: translateY(-8px) rotate(var(--pose-angle, 0deg)) scale(1.02); }
+  to { opacity: 1; transform: translateY(0) rotate(var(--pose-angle, 0deg)) scale(1); }
 }
 
-/* Bandes de pellicule sur les deux bords. Elles ne decorent pas : elles
-   portent le code de la pellicule, et ce sont elles qui disent ce qu'est
-   l'application avant qu'on ait lu un seul mot. */
+/* ------------------------------------------------------------------
+   LES TRAITS
+
+   Ils sont toujours presents dans la feuille de style ; c'est le carnet qui
+   les eteint en neutralisant leur variable. Aucune condition en JavaScript,
+   aucun fichier charge a la demande : un invite hors reseau garde son
+   carnet complet.
+------------------------------------------------------------------ */
+
+@layer components {
+  /* Le titre en decoupe. La casse et l'approche viennent du carnet : une
+     grotesque en capitales serrees se lit, une manuscrite non. */
+  .decoupe {
+    font-family: var(--font-display);
+    letter-spacing: var(--tracking-display);
+    line-height: 0.92;
+  }
+
+  /* L'annotation manuscrite, celle qu'on ajoute dans la marge. */
+  .annotation {
+    font-family: var(--font-hand);
+    line-height: 1.2;
+  }
+
+  /* Le quadrillage du carnet. Un carnet qui n'en veut pas met --rule a
+     transparent : la regle reste, elle ne dessine plus rien. */
+  .quadrille {
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* Un tirage : bord blanc, ombre courte, legere rotation. La rotation est
+     posee par l'appelant via --pose-angle, pour qu'aucune image ne soit
+     exactement alignee sur la suivante. */
+  .tirage {
+    background: var(--color-tirage);
+    padding: 8px;
+    box-shadow: var(--ombre-tirage);
+    transform: rotate(var(--pose-angle, 0deg));
+  }
+
+  /* Le ruban adhesif. Decoratif : il ne porte aucune information. */
+  .ruban {
+    position: absolute;
+    width: 74px;
+    height: 21px;
+    background: var(--tape);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+    border-left: 1px dashed rgb(0 0 0 / 0.1);
+    border-right: 1px dashed rgb(0 0 0 / 0.1);
+    pointer-events: none;
+  }
+
+  /* L'etalonnage des photographies. C'est la variable qui travaille le plus :
+     la meme image n'a pas la meme temperature dans le Papier et dans le
+     Carnet noir. */
+  .etalonnee { filter: var(--grade); }
+}
+
+/* Bandes de pellicule, heritees de Nocturne. Eteintes par defaut. */
 .bande {
+  display: var(--bande-affichage);
   position: fixed;
   top: 0;
   bottom: 0;
   width: 26px;
   z-index: 30;
   pointer-events: none;
-  background: #0e0a13;
-  display: flex;
+  background: var(--color-well);
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 22px 0;
 }
 
-.bande-gauche { left: 0; border-right: 1px solid rgb(201 169 97 / 0.28); }
-.bande-droite { right: 0; border-left: 1px solid rgb(201 169 97 / 0.28); }
+.bande-gauche { left: 0; border-right: 1px solid var(--color-edge); }
+.bande-droite { right: 0; border-left: 1px solid var(--color-edge); }
 
 /* Les perforations sont un motif repete, pas des elements : une pellicule
    n'a pas un nombre fini de trous a l'ecran, elle continue au-dela. */
@@ -144,7 +281,7 @@ input, textarea {
   background: repeating-linear-gradient(
     to bottom,
     transparent 0 9px,
-    rgb(201 169 97 / 0.42) 9px 20px,
+    var(--color-a3) 9px 20px,
     transparent 20px 29px
   );
 }
@@ -154,7 +291,7 @@ input, textarea {
   font-family: var(--font-mono);
   font-size: 7.5px;
   letter-spacing: 0.2em;
-  color: rgb(201 169 97 / 0.8);
+  color: var(--color-a3);
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: nowrap;
@@ -162,11 +299,15 @@ input, textarea {
 
 .bande-gauche span { transform: rotate(180deg); }
 
-/* Le contenu se decale de la largeur des bandes. Le decalage est pose sur
-   la racine et non sur chaque ecran : applique plus bas, il entrait en
-   concurrence avec le padding interne au lieu de s'y ajouter, et le texte
-   venait toucher les perforations. */
-#root { padding-left: 26px; padding-right: 26px; }
+/* Le decalage du contenu suit les bandes. A zero quand elles sont eteintes,
+   il n'y a donc rien a retirer ecran par ecran. */
+#root {
+  padding-left: var(--bande-marge);
+  padding-right: var(--bande-marge);
+}
 
 /* Le viseur doit deborder : il occupe la surface entiere, bandes comprises. */
-.pleine-largeur { margin-left: -26px; margin-right: -26px; }
+.pleine-largeur {
+  margin-left: calc(-1 * var(--bande-marge));
+  margin-right: calc(-1 * var(--bande-marge));
+}

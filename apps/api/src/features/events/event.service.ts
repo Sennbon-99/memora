@@ -2,7 +2,7 @@
 // Regles metier de l'evenement : creation, configuration, ouverture, fermeture.
 
 import type { CreateEventInput, UpdateEventInput } from '@memora/types';
-import { MAX_GUESTS_PER_EVENT, FREE_TIER } from '@memora/types';
+import { MAX_GUESTS_PER_EVENT, FREE_TIER, CARNET_PAR_TYPE } from '@memora/types';
 import { prisma } from '../../config/prisma.js';
 import { buildEventSlug, buildToken } from '../../utils/slug.js';
 import { compact } from '../../utils/object.js';
@@ -42,6 +42,10 @@ export async function createEvent(userId: string, input: CreateEventInput) {
       ...compact(input),
       slug: buildEventSlug(input.name),
       ownerId: userId,
+      // Le carnet du type de soiree, sauf si l'hote en a deja choisi un.
+      // L'ecran de choix confirme un defaut, il ne le reclame jamais : une
+      // soiree est habillee des sa creation.
+      carnet: input.carnet ?? CARNET_PAR_TYPE[input.type],
       quotaShots: isFirstEvent ? Math.min(input.quotaShots, FREE_TIER.shots) : input.quotaShots,
     },
   });
@@ -63,7 +67,7 @@ export async function listEvents(userId: string) {
     orderBy: { eventDate: 'desc' },
     select: {
       id: true, name: true, slug: true, type: true, eventDate: true,
-      state: true, quotaShots: true, closesAt: true, color: true,
+      state: true, quotaShots: true, closesAt: true, color: true, carnet: true,
       previewMode: true, welcomeMessage: true, useTableCodes: true,
       _count: { select: { rolls: true } },
     },

@@ -77,37 +77,37 @@ export function TeamScreen() {
       }}
     >
       <section className="mt-8">
-        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
           Co-hôtes
         </h2>
 
         {/* Deux ou trois personnes : une liste de rangees, pas une pile de
             cartes qui donnerait a chacune le poids d'un ecran. */}
         <ul className="mt-1 flex flex-col">
-          <li className="flex items-center gap-3 border-b border-gold/12 px-1 py-3
+          <li className="flex items-center gap-3 border-b border-edge-2 px-1 py-3
             last:border-b-0">
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[13px] font-bold">{session?.name}</span>
-              <span className="block truncate text-[11px] text-paper/45">{session?.email}</span>
+              <span className="block truncate text-[11px] text-ink-3">{session?.email}</span>
             </span>
-            <span className="shrink-0 rounded-full bg-gold/12 px-2.5 py-1 text-[10px]
-              font-bold text-gold">vous</span>
+            <span className="shrink-0 rounded-full bg-a-doux px-2.5 py-1 text-[10px]
+              font-bold text-a1">vous</span>
           </li>
 
           {data.coHosts.map((coHost) => (
             <li
               key={coHost.id}
-              className="flex items-center gap-3 border-b border-gold/12 px-1 py-3
+              className="flex items-center gap-3 border-b border-edge-2 px-1 py-3
                 last:border-b-0"
             >
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13px] font-bold">{coHost.name}</span>
-                <span className="block truncate text-[11px] text-paper/45">{coHost.email}</span>
+                <span className="block truncate text-[11px] text-ink-3">{coHost.email}</span>
               </span>
               <button
                 onClick={() => remove.mutate(coHost.id)}
                 disabled={remove.isPending}
-                className="shrink-0 text-[11px] font-semibold text-red-400"
+                className="shrink-0 text-[11px] font-semibold text-danger"
               >
                 Retirer
               </button>
@@ -138,23 +138,23 @@ export function TeamScreen() {
       </section>
 
       <section className="mt-9 pb-6">
-        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
           Photographe officiel
         </h2>
-        <p className="mt-2 px-1 text-xs leading-relaxed text-paper/45">
+        <p className="mt-2 px-1 text-xs leading-relaxed text-ink-3">
           Un lien à lui transmettre. Il ouvre une pellicule sans limite de
           vues, sans compte et sans passer par le QR code des invités.
         </p>
 
         {link ? (
-          <div className="mt-3 rounded-xl border border-gold/30 bg-gold/8 p-4">
-            <p className="break-all font-mono text-[11px] leading-relaxed text-gold">
+          <div className="mt-3 rounded-carte border border-a1 bg-a-doux p-4">
+            <p className="break-all font-mono text-[11px] leading-relaxed text-a1">
               {link}
             </p>
             <Button full className="mt-3" onClick={() => copy(link)}>
               {copied ? 'Lien copié' : 'Copier le lien'}
             </Button>
-            <p className="mt-2.5 text-[11px] leading-relaxed text-paper/40">
+            <p className="mt-2.5 text-[11px] leading-relaxed text-ink-3">
               Ce lien vaut accès : ne le publiez pas, transmettez-le à une
               seule personne.
             </p>
@@ -174,7 +174,7 @@ export function TeamScreen() {
 
       <button
         onClick={() => navigate(`/hote/${eventId}/reglages`)}
-        className="pb-4 text-center text-xs text-paper/35"
+        className="pb-4 text-center text-xs text-ink-3"
       >
         ‹ Retour aux réglages
       </button>

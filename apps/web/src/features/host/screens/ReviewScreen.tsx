@@ -90,7 +90,7 @@ export function ReviewScreen() {
   const who = data.roll.firstName ?? 'Anonyme';
 
   return (
-    <div className="halo flex min-h-full flex-col safe-top">
+    <div className="quadrille flex min-h-full flex-col safe-top">
       <div className="bande bande-gauche" aria-hidden="true">
         <span>MEMORA 400</span>
         <span>{photos.length} VUES</span>
@@ -103,27 +103,27 @@ export function ReviewScreen() {
       <header className="flex items-center gap-3 px-5 pt-3">
         <button
           onClick={() => navigate(`/hote/${eventId}/invites`)}
-          className="text-sm text-paper/50"
+          className="text-sm text-ink-3"
         >
           ‹ Pellicules
         </button>
-        <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em] text-paper/45">
-          Lot <span className="tabular-nums text-gold">{lot + 1}</span> / {lots}
+        <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+          Lot <span className="tabular-nums text-a1">{lot + 1}</span> / {lots}
         </span>
       </header>
 
       <div className="mt-3 px-5">
-        <h1 className="font-serif text-[34px] leading-[0.95] tracking-tight">{who}</h1>
-        <p className="mt-1.5 text-xs text-paper/45">
+        <h1 className="decoupe text-[34px] leading-[0.95] tracking-tight">{who}</h1>
+        <p className="mt-1.5 text-xs text-ink-3">
           {data.roll.tableLabel ?? 'Sans table'} ·{' '}
           <span className="font-mono tabular-nums">{photos.length}</span> photographies ·
           {' '}touchez celles à écarter
         </p>
       </div>
 
-      <div className="mx-5 mt-3 h-0.5 overflow-hidden rounded-full bg-paper/10">
+      <div className="mx-5 mt-3 h-0.5 overflow-hidden rounded-full bg-pap-2">
         <span
-          className="block h-full rounded-full bg-gold transition-[width]
+          className="block h-full rounded-full bg-a1 transition-[width]
             duration-300 ease-out motion-reduce:transition-none"
           style={{ width: `${((lot + 1) / lots) * 100}%` }}
         />
@@ -141,8 +141,8 @@ export function ReviewScreen() {
         ))}
       </ul>
 
-      <footer className="sticky bottom-0 z-20 mt-3 flex gap-2 border-t border-gold/20
-        bg-film/95 px-5 py-3 backdrop-blur safe-bottom">
+      <footer className="sticky bottom-0 z-20 mt-3 flex gap-2 border-t border-edge
+        bg-pap px-5 py-3 backdrop-blur safe-bottom">
         <Button
           tone="ghost"
           className="flex-1"
@@ -201,8 +201,8 @@ function PhotoTile({ photo, hidden, onToggle, onZoom }: {
         onPointerCancel={cancel}
         aria-pressed={hidden}
         aria-label={`Photographie de ${heure(photo.takenAt)}${hidden ? ', écartée' : ''}`}
-        className="relative block aspect-square w-full overflow-hidden rounded-lg
-          ring-1 ring-gold/18"
+        className="relative block aspect-square w-full overflow-hidden rounded-champ
+          ring-1 ring-edge"
       >
         <img
           src={photo.url}
@@ -213,16 +213,16 @@ function PhotoTile({ photo, hidden, onToggle, onZoom }: {
         />
         {hidden && (
           <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center
-            rounded-full bg-red-500 text-xs font-bold text-white">✕</span>
+            rounded-full bg-danger text-xs font-bold text-white">✕</span>
         )}
         {/* L'ombre du texte n'est pas une elevation : elle detache l'heure
             d'une image dont on ne connait pas la clarte. */}
-        <span className="absolute bottom-1 left-2 font-mono text-[9px] tabular-nums text-paper/70
+        <span className="absolute bottom-1 left-2 font-mono text-[9px] tabular-nums text-ink-2
           [text-shadow:0_1px_3px_rgb(0_0_0/.8)]">
           {heure(photo.takenAt)}
         </span>
         {photo.momentLabel && (
-          <span className="absolute left-1.5 top-1.5 rounded-md bg-black/55 px-1.5 py-0.5
+          <span className="absolute left-1.5 top-1.5 rounded-champ bg-black/55 px-1.5 py-0.5
             text-[9px] text-white backdrop-blur">
             {photo.momentLabel}
           </span>

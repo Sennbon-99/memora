@@ -15,7 +15,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ApiError } from '../../../lib/api.js';
 import { connect, joinEventRoom } from '../../../lib/socket.js';
-import { applyEventTheme } from '../../../lib/theme.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
@@ -67,12 +66,12 @@ function Stat({ label, value, unit, note, edge = '' }: {
 }) {
   return (
     <div className={`px-3.5 py-3 ${edge}`}>
-      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/45">{label}</p>
-      <p className="mt-1.5 font-mono text-[26px] leading-none font-medium tabular-nums text-gold">
+      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">{label}</p>
+      <p className="mt-1.5 font-mono text-[26px] leading-none font-medium tabular-nums text-a1">
         {value}
-        {unit && <span className="ml-0.5 align-baseline text-base text-gold/55">{unit}</span>}
+        {unit && <span className="ml-0.5 align-baseline text-base text-ink-3">{unit}</span>}
       </p>
-      {note && <p className="mt-1.5 text-[11px] leading-tight text-paper/40">{note}</p>}
+      {note && <p className="mt-1.5 text-[11px] leading-tight text-ink-3">{note}</p>}
     </div>
   );
 }
@@ -84,14 +83,14 @@ function Action({ title, note, onClick }: {
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-3 border-b border-gold/12 px-1 py-3.5
-        text-left transition last:border-b-0 active:bg-paper/6"
+      className="flex w-full items-center gap-3 border-b border-edge-2 px-1 py-3.5
+        text-left transition last:border-b-0 active:bg-appui"
     >
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-bold">{title}</span>
-        <span className="block truncate text-[11px] text-paper/45">{note}</span>
+        <span className="block truncate text-[11px] text-ink-3">{note}</span>
       </span>
-      <span aria-hidden="true" className="shrink-0 text-sm text-gold/70">→</span>
+      <span aria-hidden="true" className="shrink-0 text-sm text-a1">→</span>
     </button>
   );
 }
@@ -104,9 +103,6 @@ export function DashboardScreen() {
   const { data: eventData, isPending } = useEvent(eventId);
   const { data: stats } = useStats(eventId);
   const { open, close } = useEventState(eventId);
-
-  const color = eventData?.event.color;
-  useEffect(() => { if (color) applyEventTheme(color); }, [color]);
 
   // Chaque photographie confirmee rafraichit les compteurs. Sans cela, l'hote
   // verrait des chiffres vieux de vingt secondes pendant que la salle
@@ -152,7 +148,7 @@ export function DashboardScreen() {
           )}
 
           {failure && (
-            <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm leading-relaxed text-red-300">
+            <p role="alert" className="rounded-carte bg-danger-doux p-3 text-sm leading-relaxed text-danger">
               {failure.code === 'PAYMENT_REQUIRED'
                 ? 'Votre première soirée est offerte. Celle-ci doit être réglée avant d’ouvrir la pellicule.'
                 : failure.message}
@@ -161,12 +157,12 @@ export function DashboardScreen() {
         </div>
       }
     >
-      <p className="mt-3 flex items-center gap-2 text-xs text-paper/55">
+      <p className="mt-3 flex items-center gap-2 text-xs text-ink-2">
         {live && (
           // Une bague de lumiere, pas une ombre portee : sur un fond sombre,
           // seule la clarte se voit.
           <span
-            className="h-1.5 w-1.5 rounded-full bg-emerald-400 ring-[3px] ring-emerald-400/20"
+            className="h-1.5 w-1.5 rounded-full bg-ok ring-[3px] ring-ok"
             aria-hidden="true"
           />
         )}
@@ -174,21 +170,21 @@ export function DashboardScreen() {
       </p>
 
       {/* La plaque de chiffres : un seul cadre, des filets a l'interieur. */}
-      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-gold/18
-        bg-paper/4">
-        <Stat label="Invités" value={stats?.activeGuests ?? '—'} edge="border-b border-r border-gold/12" />
-        <Stat label="Photos" value={stats?.totalPhotos ?? '—'} edge="border-b border-gold/12" />
+      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-carte border border-edge
+        bg-pap-2">
+        <Stat label="Invités" value={stats?.activeGuests ?? '—'} edge="border-b border-r border-edge-2" />
+        <Stat label="Photos" value={stats?.totalPhotos ?? '—'} edge="border-b border-edge-2" />
         <Stat
           label="Vues utilisées"
           value={stats?.quotaUsedPercent ?? '—'}
           unit={stats ? '%' : undefined}
           note={`${event.quotaShots} vues par invité`}
-          edge="border-r border-gold/12"
+          edge="border-r border-edge-2"
         />
         <Stat label="Tables" value={stats?.byTable.length ?? '—'} />
       </div>
 
-      <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+      <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
         À faire
       </h2>
       <div className="mt-1 flex flex-col">
@@ -220,24 +216,24 @@ export function DashboardScreen() {
 
       {stats && stats.byTable.length > 0 && (
         <section className="mt-8 pb-6">
-          <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">
+          <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
             Photos par table
           </h2>
           <ul className="mt-1 flex flex-col">
             {stats.byTable.slice(0, 5).map((row) => (
               <li
                 key={row.label}
-                className="flex items-center gap-3 border-b border-gold/12 px-1 py-2.5
+                className="flex items-center gap-3 border-b border-edge-2 px-1 py-2.5
                   text-xs last:border-b-0"
               >
-                <span className="w-16 shrink-0 truncate text-paper/60">{row.label}</span>
-                <span className="h-1 flex-1 overflow-hidden rounded-full bg-paper/8">
+                <span className="w-16 shrink-0 truncate text-ink-2">{row.label}</span>
+                <span className="h-1 flex-1 overflow-hidden rounded-full bg-pap-2">
                   <span
-                    className="block h-full rounded-full bg-gold/70"
+                    className="block h-full rounded-full bg-a-doux"
                     style={{ width: `${(row.photos / stats.byTable[0]!.photos) * 100}%` }}
                   />
                 </span>
-                <span className="w-8 text-right font-mono tabular-nums text-gold/80">
+                <span className="w-8 text-right font-mono tabular-nums text-a1">
                   {row.photos}
                 </span>
               </li>

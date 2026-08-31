@@ -103,7 +103,7 @@ export async function joinAsPhotographer(photographerToken: string, deviceToken?
     where: { photographerToken },
     // Le slug est rendu au client : sans lui, le photographe ne saurait pas
     // vers quelle adresse aller apres avoir ouvert sa pellicule.
-    select: { id: true, name: true, slug: true, state: true, color: true, closesAt: true },
+    select: { id: true, name: true, slug: true, state: true, color: true, carnet: true, closesAt: true },
   });
   if (!event) throw new NotFoundError('Événement');
   if (event.state !== 'OPEN') {
@@ -128,6 +128,9 @@ export async function joinAsPhotographer(photographerToken: string, deviceToken?
   return {
     deviceToken: signDeviceToken(roll.id),
     roll: { id: roll.id, shotsLeft: roll.shotsLeft, isPhotographer: true },
-    event: { name: event.name, slug: event.slug, color: event.color, closesAt: event.closesAt },
+    event: {
+      name: event.name, slug: event.slug, color: event.color, carnet: event.carnet,
+      closesAt: event.closesAt,
+    },
   };
 }

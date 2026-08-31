@@ -96,7 +96,7 @@ export function LoginScreen() {
         />
 
         {failure && (
-          <p role="alert" className="rounded-xl bg-red-500/10 p-3.5 text-sm text-red-300">
+          <p role="alert" className="rounded-carte bg-danger-doux p-3.5 text-sm text-danger">
             {failure.message}
           </p>
         )}

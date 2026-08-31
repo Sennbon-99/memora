@@ -112,7 +112,10 @@ export async function getPublicAlbum(
 ) {
   const event = await prisma.event.findUnique({
     where: { albumToken },
-    select: { id: true, name: true, color: true, state: true, scope: true, accessCodeHash: true },
+    select: {
+      id: true, name: true, color: true, carnet: true, state: true, scope: true,
+      accessCodeHash: true,
+    },
   });
   if (!event) throw new NotFoundError('Album');
 
@@ -139,7 +142,7 @@ export async function getPublicAlbum(
   );
 
   return {
-    event: { name: event.name, color: event.color },
+    event: { name: event.name, color: event.color, carnet: event.carnet },
     photos: await Promise.all(
       visible.map(async ({ objectKey, published: _p, status: _s, hidden: _h, ...photo }) => ({
         ...photo,

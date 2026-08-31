@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { publicAlbumApi, ApiError } from '../../../lib/api.js';
-import { applyEventTheme } from '../../../lib/theme.js';
+import { applyCarnet } from '../../../lib/theme.js';
 import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
@@ -31,8 +31,8 @@ export function PublicAlbumScreen() {
     retry: false,
   });
 
-  const color = data?.event.color;
-  useEffect(() => { if (color) applyEventTheme(color); }, [color]);
+  const carnet = data?.event.carnet;
+  useEffect(() => { applyCarnet(carnet); }, [carnet]);
 
   // L'attente garde l'enveloppe : les bandes de pellicule ne doivent pas
   // disparaitre le temps que l'album arrive.
@@ -72,17 +72,17 @@ export function PublicAlbumScreen() {
           }
         >
           <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Lien de partage
             </p>
 
-            <div className="border-y border-gold/20 py-6">
-              <p className="max-w-[22ch] font-serif text-[26px] leading-[1.15] text-paper/80">
+            <div className="border-y border-edge py-6">
+              <p className="max-w-[22ch] decoupe text-[26px] leading-[1.15] text-ink-2">
                 Six chiffres séparent cet album de vous.
               </p>
             </div>
 
-            <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
+            <div className="rounded-carte border border-edge bg-pap-2 p-6">
               <Field
                 label="Code d’accès"
                 inputMode="numeric"
@@ -109,11 +109,11 @@ export function PublicAlbumScreen() {
         }}
       >
         <div className="flex flex-1 flex-col justify-center pb-16">
-          <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          <div className="rounded-carte border border-edge bg-pap-2 p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Pellicule effacée
             </p>
-            <p className="mt-3 text-[15px] leading-relaxed text-paper/60">
+            <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
               Un album Memora vit trente jours, puis s’efface : c’est la
               promesse faite aux invités le soir de la soirée. Demandez un
               nouveau lien à l’organisateur.
@@ -138,14 +138,14 @@ export function PublicAlbumScreen() {
     >
       {photos.length === 0 ? (
         <div className="flex flex-1 flex-col justify-center pb-16">
-          <div className="rounded-xl border border-gold/18 bg-paper/5 p-6">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          <div className="rounded-carte border border-edge bg-pap-2 p-6">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche vide
             </p>
-            <h2 className="mt-3 font-serif text-[26px] leading-[1.15]">
+            <h2 className="mt-3 decoupe text-[26px] leading-[1.15]">
               L’album est vide pour le moment.
             </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-paper/55">
+            <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
               Les photographies apparaîtront ici dès que l’organisateur aura
               publié sa sélection.
             </p>
@@ -153,12 +153,12 @@ export function PublicAlbumScreen() {
         </div>
       ) : (
         <>
-          <div className="mt-8 flex items-baseline justify-between border-b border-gold/20 pb-3">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-gold">
+          <div className="mt-8 flex items-baseline justify-between border-b border-edge pb-3">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche contact
             </p>
-            <p className="font-mono text-[12px] tabular-nums text-paper/50">
-              <span className="text-gold">{photos.length}</span>{' '}
+            <p className="font-mono text-[12px] tabular-nums text-ink-3">
+              <span className="text-a1">{photos.length}</span>{' '}
               {photos.length > 1 ? 'photographies' : 'photographie'}
             </p>
           </div>
@@ -175,7 +175,7 @@ export function PublicAlbumScreen() {
                   alt={`Photographie prise à ${new Date(photo.takenAt)
                     .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
                   loading="lazy"
-                  className="aspect-square w-full rounded-lg bg-paper/5 object-cover"
+                  className="aspect-square w-full rounded-champ bg-pap-2 object-cover"
                 />
               </li>
             ))}

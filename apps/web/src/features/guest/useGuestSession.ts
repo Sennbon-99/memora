@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import type { JoinEventInput } from '@memora/types';
 import { guestApi, type GuestSession } from '../../lib/api.js';
-import { applyEventTheme } from '../../lib/theme.js';
+import { applyCarnet } from '../../lib/theme.js';
 
 export const sessionKey = (slug: string) => ['guest-session', slug] as const;
 
@@ -28,10 +28,12 @@ export function useGuestSession(slug: string) {
     retry: 1,
   });
 
-  const color = query.data?.event.color;
+  // Le carnet de la soiree. Tant que le serveur ne l'envoie pas, applyCarnet
+  // retombe sur celui de la marque : la page reste habillee, jamais nue.
+  const carnet = query.data?.event.carnet;
   useEffect(() => {
-    if (color) applyEventTheme(color);
-  }, [color]);
+    applyCarnet(carnet);
+  }, [carnet]);
 
   return query;
 }
