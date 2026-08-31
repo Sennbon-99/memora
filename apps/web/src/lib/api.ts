@@ -158,7 +158,10 @@ export interface GuestSession {
   roll: { id: string; firstName: string | null; shotsLeft: number; bonusShots: number; hasConsented: boolean };
   event: {
     name: string; quotaShots: number; previewMode: 'NONE' | 'FLASH' | 'BLURRED' | 'CONFIRM';
-    color: string; welcomeMessage: string | null; closesAt: string; useTableCodes: boolean;
+    /** @deprecated remplace par carnet ; conserve le temps de la migration. */
+    color: string;
+    carnet?: string | undefined;
+    welcomeMessage: string | null; closesAt: string; useTableCodes: boolean;
     /** Les tables de la soiree. Le champ tableId attend un de ces identifiants. */
     tables: { id: string; label: string }[];
     /** Etat de la soiree : le client en deduit l'ecran a montrer. */
@@ -331,7 +334,7 @@ export const teamApi = {
   joinAsPhotographer: (token: string) =>
     call<{
       roll: { id: string; shotsLeft: number; isPhotographer: boolean };
-      event: { name: string; slug: string; color: string; closesAt: string };
+      event: { name: string; slug: string; color: string; carnet?: string | undefined; closesAt: string };
     }>(`/p/${token}`),
 };
 
@@ -348,7 +351,7 @@ export const paymentApi = {
 };
 
 export interface PublicAlbum {
-  event: { name: string; color: string };
+  event: { name: string; color: string; carnet?: string | undefined };
   photos: { id: string; url: string; takenAt: string }[];
 }
 

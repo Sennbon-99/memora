@@ -1,0 +1,41 @@
+/* apps/web/src/carnets/carnet-noir.css
+   Pages noires, tirages a bord blanc, craie et or.
+
+   C'est le carnet par defaut d'un mariage, et de loin le meilleur des trois
+   pour montrer des photographies : sur fond clair c'est le papier qui
+   domine, ici ce sont les tirages. */
+
+[data-carnet='carnet-noir'] {
+  --color-pap: #16151a;
+  --color-pap-2: #201f26;
+  --color-tirage: #fbfaf6;
+  --color-ink-tirage: #4a463e;
+
+  --color-ink: #f2efe6;
+  --color-ink-2: #b0aba1;
+  --color-ink-3: #8b867c;
+
+  --color-edge: rgb(255 255 255 / 0.22);
+  --color-edge-2: rgb(255 255 255 / 0.1);
+
+  --color-a1: #e0b84c;
+  --color-on-a1: #16151a;
+  --color-a2: #ff7d94;
+  --color-on-a2: #16151a;
+  --color-a3: #e0b84c;
+  --color-on-a3: #16151a;
+
+  --color-well: #0b0a0e;
+  --color-ink-well: #f2efe6;
+  --color-ink-well-2: #8e8a82;
+  --color-a-well: #e0b84c;
+  --color-appui: rgb(255 255 255 / 0.09);
+
+  --radius-carte: 2px;
+  --radius-champ: 2px;
+
+  --grade: contrast(1.16) saturate(1.06) brightness(0.96);
+  --rule: rgb(255 255 255 / 0.075);
+  --tape: rgb(240 236 222 / 0.24);
+  --ombre-tirage: 0 18px 36px -14px rgb(0 0 0 / 0.9);
+}

@@ -18,19 +18,19 @@ export function ShotCounter({ shotsLeft, bonusShots, queued = 0 }: ShotCounterPr
   return (
     <div className="flex items-center gap-3" aria-live="polite">
       <div
-        className="flex h-11 min-w-14 items-center justify-center rounded-md bg-[#0E0A13]
-          px-3 font-mono text-2xl font-bold tabular-nums text-gold
-          ring-1 ring-gold/30"
+        className="flex h-11 min-w-14 items-center justify-center rounded-champ bg-well
+          px-3 font-mono text-2xl font-bold tabular-nums text-a-well
+          ring-1 ring-edge"
       >
         {total}
       </div>
-      <div className="text-xs leading-tight text-paper/50">
+      <div className="text-xs leading-tight text-ink-2">
         <div>{total > 1 ? 'vues restantes' : 'vue restante'}</div>
         {bonusShots > 0 && (
-          <div className="text-gold">dont {bonusShots} offertes</div>
+          <div className="text-a1">dont {bonusShots} offertes</div>
         )}
         {queued > 0 && (
-          <div className="text-gold">{queued} en attente d'envoi</div>
+          <div className="text-a1">{queued} en attente d'envoi</div>
         )}
       </div>
     </div>

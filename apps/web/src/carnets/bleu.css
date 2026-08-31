@@ -1,0 +1,41 @@
+/* apps/web/src/carnets/bleu.css
+   Une seule encre, bleu stylo bille, sur papier machine.
+
+   Le carnet des soirees d'entreprise : sobre, lisible huit heures d'affilee,
+   presentable devant un comite. Les photographies y sont desaturees, ce qui
+   est un parti pris et non un reglage — le bleu doit rester la seule couleur. */
+
+[data-carnet='bleu'] {
+  --color-pap: #f2f4f7;
+  --color-pap-2: #ffffff;
+  --color-tirage: #ffffff;
+  --color-ink-tirage: #1f3fa8;
+
+  --color-ink: #101a2e;
+  --color-ink-2: #45536b;
+  --color-ink-3: #647085;
+
+  --color-edge: #bccbe0;
+  --color-edge-2: #dee6f1;
+
+  --color-a1: #1f3fa8;
+  --color-on-a1: #ffffff;
+  --color-a2: #4a6cc4;
+  --color-on-a2: #ffffff;
+  --color-a3: #d8e3f7;
+  --color-on-a3: #101a2e;
+
+  --color-well: #1b2438;
+  --color-ink-well: #f2f4f7;
+  --color-ink-well-2: #98a3b5;
+  --color-a-well: #8fb4ff;
+  --color-appui: rgb(31 63 168 / 0.08);
+
+  --radius-carte: 2px;
+  --radius-champ: 2px;
+
+  --grade: saturate(0.5) contrast(1.06) brightness(1.05);
+  --rule: rgb(31 63 168 / 0.15);
+  --tape: rgb(196 213 240 / 0.62);
+  --ombre-tirage: 0 10px 22px -12px rgb(16 26 46 / 0.5);
+}

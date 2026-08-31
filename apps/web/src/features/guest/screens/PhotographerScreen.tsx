@@ -12,7 +12,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { teamApi, ApiError } from '../../../lib/api.js';
-import { applyEventTheme } from '../../../lib/theme.js';
+import { applyCarnet } from '../../../lib/theme.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 
@@ -27,7 +27,7 @@ export function PhotographerScreen() {
     void teamApi.joinAsPhotographer(token)
       .then(({ event }) => {
         if (cancelled) return;
-        applyEventTheme(event.color);
+        applyCarnet(event.carnet);
         // replace et non push : revenir en arriere ne doit pas rejouer
         // l'echange de jeton.
         navigate(`/e/${event.slug}`, { replace: true });

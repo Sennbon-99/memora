@@ -51,3 +51,33 @@ export const MOMENT_DEFAULT_MINUTES = 10;
  * tenait pas.
  */
 export const FREE_TIER = { events: 1, guests: 20, shots: 10 } as const;
+
+/**
+ * Les carnets.
+ *
+ * Un carnet est un jeu de valeurs — couleurs, formes, matiere, etalonnage des
+ * photographies — applique au parcours de l'invite. Il ne change aucune
+ * structure : les douze ecrans sont rigoureusement les memes dans les trois.
+ * C'est ce qui permet d'en ajouter un en une demi-journee.
+ */
+export const CARNETS = ['papier', 'carnet-noir', 'bleu'] as const;
+export type Carnet = (typeof CARNETS)[number];
+
+/**
+ * Le carnet de la marque. Il habille la page d'accueil publique, l'espace de
+ * l'hote, et le parcours d'un invite dont on ignore encore la soiree.
+ * Memora est le carnet vierge ; c'est la soiree qui le remplit et le colore.
+ */
+export const CARNET_MARQUE: Carnet = 'papier';
+
+/**
+ * Le carnet propose selon le type de soiree.
+ *
+ * L'hote peut en changer, mais il n'a jamais a choisir pour que sa soiree
+ * soit habillee : l'ecran de choix confirme un defaut, il ne le reclame pas.
+ */
+export const CARNET_PAR_TYPE: Record<EventType, Carnet> = {
+  MARIAGE: 'carnet-noir',
+  ANNIVERSAIRE: 'papier',
+  ENTREPRISE: 'bleu',
+};

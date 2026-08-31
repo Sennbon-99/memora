@@ -20,7 +20,6 @@ import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Segmented } from '../../../ui/Segmented.js';
 import { Spinner } from '../../../ui/Spinner.js';
-import { applyEventTheme } from '../../../lib/theme.js';
 import { toDateTimeInput } from '../../../lib/datetime.js';
 import { useEvent, useUpdateEvent } from '../useEvents.js';
 
@@ -194,7 +193,7 @@ export function EditSettingScreen() {
                   key={color}
                   aria-label={`Couleur ${color}`}
                   aria-pressed={value('color', event.color) === color}
-                  onClick={() => { set('color', color); applyEventTheme(color); }}
+                  onClick={() => set('color', color)}
                   style={{ background: color }}
                   className={`h-10 w-10 rounded-full border-2 ${
                     value('color', event.color) === color ? 'border-paper' : 'border-paper/15'}`}

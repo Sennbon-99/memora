@@ -23,7 +23,6 @@ import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Segmented } from '../../../ui/Segmented.js';
-import { applyEventTheme } from '../../../lib/theme.js';
 import { defaultClosing, toDateInput, toDateTimeInput } from '../../../lib/datetime.js';
 import { useCreateEvent, useEvents } from '../useEvents.js';
 
@@ -247,7 +246,7 @@ export function CreateEventScreen() {
                     key={value}
                     aria-label={`Couleur ${value}`}
                     aria-pressed={value === color}
-                    onClick={() => { setColor(value); applyEventTheme(value); }}
+                    onClick={() => setColor(value)}
                     style={{ background: value }}
                     className={`h-9 w-9 rounded-full border-2 ${
                       value === color ? 'border-paper' : 'border-paper/15'}`}

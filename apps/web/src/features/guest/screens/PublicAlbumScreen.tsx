@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { publicAlbumApi, ApiError } from '../../../lib/api.js';
-import { applyEventTheme } from '../../../lib/theme.js';
+import { applyCarnet } from '../../../lib/theme.js';
 import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
@@ -31,8 +31,8 @@ export function PublicAlbumScreen() {
     retry: false,
   });
 
-  const color = data?.event.color;
-  useEffect(() => { if (color) applyEventTheme(color); }, [color]);
+  const carnet = data?.event.carnet;
+  useEffect(() => { applyCarnet(carnet); }, [carnet]);
 
   // L'attente garde l'enveloppe : les bandes de pellicule ne doivent pas
   // disparaitre le temps que l'album arrive.

@@ -1,0 +1,42 @@
+/* apps/web/src/carnets/papier.css
+   Le carnet de la marque, et l'etat vide du produit : papier creme,
+   quadrillage d'ecolier, quatre couleurs d'autocollants.
+
+   Il repete les valeurs par defaut de styles.css au lieu de s'y fier :
+   sans cette repetition, revenir a Papier depuis un autre carnet ne
+   remettrait rien en place. */
+
+[data-carnet='papier'] {
+  --color-pap: #f5f2ea;
+  --color-pap-2: #ffffff;
+  --color-tirage: #ffffff;
+  --color-ink-tirage: #3a3a34;
+
+  --color-ink: #1a1a18;
+  --color-ink-2: #4a4a42;
+  --color-ink-3: #69675e;
+
+  --color-edge: #c2beaf;
+  --color-edge-2: #e2dfd4;
+
+  --color-a1: #d92f52;
+  --color-on-a1: #ffffff;
+  --color-a2: #23796f;
+  --color-on-a2: #ffffff;
+  --color-a3: #f5c518;
+  --color-on-a3: #1a1a18;
+
+  --color-well: #22221f;
+  --color-ink-well: #f5f2ea;
+  --color-ink-well-2: #9a988f;
+  --color-a-well: #f5c518;
+  --color-appui: rgb(0 0 0 / 0.06);
+
+  --radius-carte: 2px;
+  --radius-champ: 2px;
+
+  --grade: contrast(1.06) saturate(1.1) brightness(1.04);
+  --rule: rgb(90 120 190 / 0.16);
+  --tape: rgb(255 247 214 / 0.68);
+  --ombre-tirage: 0 12px 26px -12px rgb(0 0 0 / 0.5), 0 1px 0 rgb(0 0 0 / 0.1);
+}

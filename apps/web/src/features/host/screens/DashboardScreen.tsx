@@ -15,7 +15,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ApiError } from '../../../lib/api.js';
 import { connect, joinEventRoom } from '../../../lib/socket.js';
-import { applyEventTheme } from '../../../lib/theme.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
@@ -104,9 +103,6 @@ export function DashboardScreen() {
   const { data: eventData, isPending } = useEvent(eventId);
   const { data: stats } = useStats(eventId);
   const { open, close } = useEventState(eventId);
-
-  const color = eventData?.event.color;
-  useEffect(() => { if (color) applyEventTheme(color); }, [color]);
 
   // Chaque photographie confirmee rafraichit les compteurs. Sans cela, l'hote
   // verrait des chiffres vieux de vingt secondes pendant que la salle

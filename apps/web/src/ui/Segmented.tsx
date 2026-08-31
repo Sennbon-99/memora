@@ -26,7 +26,7 @@ export function Segmented<T extends string>({
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-semibold text-paper/60">{label}</span>
+      <span className="text-sm font-semibold text-ink-2">{label}</span>
       <div role="radiogroup" aria-label={label} className={`grid ${grid} gap-1.5`}>
         {options.map((option) => {
           const selected = option.value === value;
@@ -37,11 +37,11 @@ export function Segmented<T extends string>({
               role="radio"
               aria-checked={selected}
               onClick={() => onChange(option.value)}
-              className={`h-11 rounded-xl border px-2 text-[13px] transition
-                focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]
+              className={`h-11 rounded-champ border px-2 text-[13px] transition
+                focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-a1
                 ${selected
-                  ? 'border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-text)]'
-                  : 'border-gold/18 text-paper/55 active:bg-paper/6'}`}
+                  ? 'border-a1 bg-a1 font-bold text-on-a1'
+                  : 'border-edge text-ink-2 active:bg-appui'}`}
             >
               {option.label}
             </button>
