@@ -40,6 +40,19 @@ server {
     gzip_types text/css application/javascript application/json image/svg+xml;
     gzip_min_length 1024;
 
+    # Les maquettes du dossier de projet. Elles chargent leurs polices chez
+    # Google Fonts, ce que la politique de securite du produit interdit : ce
+    # bloc les sert avec une politique qui l'autorise, sans toucher a celle
+    # de l'application. Elles ne portent aucune donnee — des pages statiques
+    # de presentation, rien d'autre.
+    location ^~ /maquettes/ {
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:" always;
+        try_files $uri =404;
+    }
+
     # Les fichiers produits portent une empreinte dans leur nom : ils ne
     # changent jamais sans changer d'adresse, on peut donc les garder un an.
     location /assets/ {

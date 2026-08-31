@@ -1,0 +1,118 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<!-- Maquettes de l'espace hôte, figure 2 du dossier.
+     Carnet papier : c'est le carnet de la marque, celui que l'hôte voit avant
+     d'avoir choisi quoi que ce soit. Rendu en img/maq-hote.png (1060 × 720). -->
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',Arial,sans-serif;background:#fff;padding:24px}
+.grid{display:grid;grid-template-columns:repeat(3,300px);gap:30px;justify-content:center}
+.cap{font-size:12px;color:#6E6E6E;margin-bottom:7px;text-align:center}
+.ph{width:300px;height:600px;border:8px solid #131313;border-radius:30px;overflow:hidden;
+  display:flex;flex-direction:column;color:#1a1a18;
+  /* Papier creme et quadrillage d'ecolier, la matiere du carnet de la marque. */
+  background:#f5f2ea;
+  background-image:linear-gradient(rgb(90 120 190/.16) 1px,transparent 1px),
+    linear-gradient(90deg,rgb(90 120 190/.16) 1px,transparent 1px);
+  background-size:24px 24px}
+.bar{height:26px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;font-size:10px;color:#69675e;flex:none}
+.body{flex:1;padding:14px 18px;display:flex;flex-direction:column;overflow:hidden}
+.k{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:#d92f52;font-weight:500}
+.t{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:27px;line-height:.92;
+  letter-spacing:-.01em;text-transform:uppercase;margin-top:6px}
+.hand{font-family:Caveat,cursive;font-size:18px;color:#23796f}
+.p{font-size:12px;color:#4a4a42;line-height:1.5;margin-top:8px}
+.lbl{font-size:10.5px;color:#69675e;margin-top:11px}
+.fld{border:1px solid #c2beaf;border-radius:2px;padding:9px 12px;font-size:12.5px;
+  color:#1a1a18;margin-top:5px;background:#fff;display:flex;justify-content:space-between}
+.fld em{font-style:normal;color:#9a988f;font-size:11px}
+.cta{margin-top:auto;background:#d92f52;color:#fff;border-radius:2px;
+  text-align:center;padding:13px;font-size:13.5px;font-weight:700}
+/* Le choix du carnet : trois vignettes-matiere, pas trois pastilles. */
+.carnets{display:flex;gap:8px;margin-top:5px}
+.cn{flex:1;border-radius:2px;border:1px solid #c2beaf;padding:7px 6px 6px;background:#fff}
+.cn i{display:block;height:34px;border-radius:2px}
+.cn span{display:block;font-size:9.5px;color:#69675e;margin-top:5px;text-align:center}
+.cn.on{box-shadow:0 0 0 2px #d92f52;border-color:#d92f52}
+/* La plaque de chiffres : un puits sombre, chiffres jaunes, filets internes. */
+.well{background:#22221f;border-radius:2px;margin-top:12px;padding:2px;
+  display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.well div{padding:11px 13px}
+.well b{display:block;font-family:'JetBrains Mono',monospace;font-size:24px;
+  font-weight:700;color:#f5c518;line-height:1.05}
+.well span{font-size:9.5px;color:#9a988f;letter-spacing:.06em;text-transform:uppercase}
+.act{border-top:1px solid #c2beaf;padding:11px 2px;display:flex;
+  justify-content:space-between;align-items:center;font-size:12.5px}
+.act small{display:block;font-size:10px;color:#69675e;margin-top:2px}
+.act u{text-decoration:none;color:#d92f52;font-weight:700}
+.mom{border:1px solid #c2beaf;background:#fff;border-radius:2px;padding:10px 12px;margin-top:8px}
+.mom b{font-size:12.5px}
+.mom small{display:block;font-size:10px;color:#69675e;margin-top:2px}
+.mom.on{border-color:#23796f;background:rgb(35 121 111/.08)}
+.badge{float:right;font-family:'JetBrains Mono',monospace;font-size:9px;
+  background:#23796f;color:#fff;border-radius:2px;padding:2px 6px}
+</style></head><body>
+<div class="grid">
+
+<div><div class="cap">Écran 7 — Création de l'événement</div>
+<div class="ph"><div class="bar"><span>14:02</span><span>memora.</span></div>
+<div class="body">
+  <span class="k">Nouvelle soirée</span>
+  <div class="t">Une pellicule<br>pour votre soirée</div>
+  <div class="lbl">Nom de l'événement</div>
+  <div class="fld">Mariage de Léa &amp; Sam</div>
+  <div class="lbl">Type</div>
+  <div class="fld">Mariage <em>anniversaire · entreprise</em></div>
+  <div class="lbl">Vues par invité</div>
+  <div class="fld" style="justify-content:center;gap:22px;align-items:center">
+    <span style="font-size:16px;color:#69675e">−</span>
+    <b style="font-family:'JetBrains Mono',monospace;font-size:20px;color:#d92f52">24</b>
+    <span style="font-size:16px;color:#69675e">+</span>
+  </div>
+  <div class="lbl">Ce que l'invité voit après sa photo</div>
+  <div class="carnets">
+    <div class="cn on"><span style="margin-top:0;font-size:10px;padding:8px 0;color:#1a1a18">Aucun</span></div>
+    <div class="cn"><span style="margin-top:0;font-size:10px;padding:8px 0">Aperçu 2,5 s</span></div>
+    <div class="cn"><span style="margin-top:0;font-size:10px;padding:8px 0">Floutée</span></div>
+  </div>
+  <p class="hand" style="margin-top:8px">le carnet « Carnet noir » sera appliqué (mariage)</p>
+  <div class="cta">Créer la soirée</div>
+</div></div></div>
+
+<div><div class="cap">Écran 8 — Tableau de bord en direct</div>
+<div class="ph"><div class="bar"><span>21:52</span><span>memora.</span></div>
+<div class="body">
+  <span class="k">En cours · ferme à 2 h</span>
+  <div class="t">Léa &amp; Sam</div>
+  <div class="well">
+    <div><b>11</b><span>invités</span></div>
+    <div><b>79</b><span>photos</span></div>
+    <div><b>30%</b><span>vues utilisées</span></div>
+    <div><b>4</b><span>tables</span></div>
+  </div>
+  <div class="lbl" style="margin-top:14px">À faire</div>
+  <div class="act"><div>Trier les photographies<small>une pellicule d'invité à la fois</small></div><u>›</u></div>
+  <div class="act"><div>Moments forts<small>3 moments préparés</small></div><u>›</u></div>
+  <div class="act"><div>Kit QR<small>à imprimer et poser sur les tables</small></div><u>›</u></div>
+  <div class="cta" style="background:#fff;color:#1a1a18;border:1px solid #c2beaf">
+    Fermer la pellicule maintenant</div>
+</div></div></div>
+
+<div><div class="cap">Écran 9 — Moments forts</div>
+<div class="ph"><div class="bar"><span>21:53</span><span>memora.</span></div>
+<div class="body">
+  <span class="k">3 moments préparés</span>
+  <div class="t">Moments forts</div>
+  <p class="p">Un moment lancé prévient tous les invités et offre des vues
+  bonus : les photographies arrivent quand il se passe quelque chose.</p>
+  <div class="mom"><b>Cocktail</b><small>19 h 00 · terminé · 41 photos</small></div>
+  <div class="mom on"><span class="badge">EN COURS</span><b>Ouverture du bal</b>
+    <small>21 h 30 · +5 vues offertes à chacun</small></div>
+  <div class="mom"><b>Le gâteau</b><small>23 h 00 · prévu</small></div>
+  <p class="hand" style="margin-top:10px">le bal fait monter les photos ↑</p>
+  <div class="cta">Lancer le prochain moment</div>
+</div></div></div>
+
+</div></body></html>
