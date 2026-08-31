@@ -13,6 +13,8 @@ import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   PREVIEW_MODES, QUOTA_MAX, QUOTA_MIN, type PreviewMode,
+  CARNETS,
+  type Carnet,
 } from '@memora/types';
 import type { ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
@@ -22,8 +24,9 @@ import { Segmented } from '../../../ui/Segmented.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { toDateTimeInput } from '../../../lib/datetime.js';
 import { useEvent, useUpdateEvent } from '../useEvents.js';
+import { CARNET_LABEL, CARNET_NOTE } from '../../../carnets/labels.js';
 
-type Setting = 'quota' | 'preview' | 'closes' | 'tables' | 'welcome' | 'color';
+type Setting = 'quota' | 'preview' | 'closes' | 'tables' | 'welcome' | 'carnet';
 
 const PREVIEW_LABEL: Record<PreviewMode, string> = {
   NONE: 'Rien', BLURRED: 'Vignette floutée',
@@ -36,7 +39,6 @@ const PREVIEW_HINT: Record<PreviewMode, string> = {
   CONFIRM: "Vos invités pourront refaire leurs photos. La soirée sera plus soignée, et moins spontanée.",
 };
 
-const COLORS = ['#C97C1E', '#7B3FE4', '#1FA97A', '#E0533D', '#2F6BE0'];
 
 const TITLES: Record<Setting, string> = {
   quota: 'Vues par invité',
@@ -44,7 +46,7 @@ const TITLES: Record<Setting, string> = {
   closes: 'Heure de fermeture',
   tables: 'Numéros de table',
   welcome: 'Mot d’accueil',
-  color: 'Couleur de la soirée',
+  carnet: 'Le carnet de la soirée',
 };
 
 export function EditSettingScreen() {
@@ -184,25 +186,54 @@ export function EditSettingScreen() {
           />
         )}
 
-        {setting === 'color' && (
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-ink-2">Couleur de la soirée</span>
-            <div className="flex gap-2.5">
-              {COLORS.map((color) => (
+        {setting === 'carnet' && (
+          <div className="flex flex-col gap-3">
+            {/* Le carnet est fige pendant la soiree. Le changer a minuit ferait
+                changer d'application sous les doigts d'un invite en train de
+                photographier — c'est la regle deja appliquee a l'apercu. */}
+            {event.state === 'OPEN' && (
+              <p className="rounded-carte border border-edge bg-pap-2 p-3 text-[13px]
+                leading-relaxed text-ink-2">
+                La soirée est en cours : le carnet ne change plus jusqu’à sa fermeture.
+                Vous pourrez le reprendre avant de publier l’album.
+              </p>
+            )}
+            {CARNETS.map((carnet) => {
+              const choisi = value('carnet', event.carnet ?? 'papier') === carnet;
+              return (
                 <button
-                  key={color}
-                  aria-label={`Couleur ${color}`}
-                  aria-pressed={value('color', event.color) === color}
-                  onClick={() => set('color', color)}
-                  style={{ background: color }}
-                  className={`h-10 w-10 rounded-full border-2 ${
-                    value('color', event.color) === color ? 'border-edge' : 'border-edge'}`}
-                />
-              ))}
-            </div>
-            <p className="mt-1 text-xs leading-relaxed text-ink-3">
-              Le changement est immédiat pour les invités déjà connectés.
-            </p>
+                  key={carnet}
+                  type="button"
+                  role="radio"
+                  aria-checked={choisi}
+                  disabled={event.state === 'OPEN'}
+                  onClick={() => set('carnet', carnet)}
+                  className={`flex items-stretch gap-3 rounded-carte border p-3 text-left transition
+                    disabled:opacity-40 ${choisi ? 'border-a1' : 'border-edge'}`}
+                >
+                  {/* L'apercu porte l'attribut du carnet : il se peint donc dans
+                      ses propres couleurs, sans une ligne de style en plus. */}
+                  <span
+                    data-carnet={carnet}
+                    aria-hidden="true"
+                    className="quadrille flex w-16 shrink-0 flex-col justify-between rounded-carte
+                      border border-edge bg-pap p-1.5"
+                  >
+                    <span className="block h-6 rounded-carte bg-tirage shadow-sm" />
+                    <span className="mt-1 flex gap-1">
+                      <span className="block h-2 w-2 rounded-full bg-a1" />
+                      <span className="block h-2 flex-1 rounded-full bg-ink-3" />
+                    </span>
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-bold">{CARNET_LABEL[carnet]}</span>
+                    <span className="mt-1 block text-[12.5px] leading-relaxed text-ink-2">
+                      {CARNET_NOTE[carnet]}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

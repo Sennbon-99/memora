@@ -50,7 +50,6 @@ const PREVIEW_LABEL: Record<PreviewMode, string> = {
   NONE: 'Rien', BLURRED: 'Vignette floutée', FLASH: 'Aperçu 2,5 s', CONFIRM: 'Garder ou reprendre',
 };
 
-const COLORS = ['#C97C1E', '#7B3FE4', '#1FA97A', '#E0533D', '#2F6BE0'];
 
 /** Date du jour et 2 h du matin le lendemain, au format des champs natifs. */
 function defaultDates() {
@@ -72,7 +71,6 @@ export function CreateEventScreen() {
   const [closesAt, setClosesAt] = useState(dates.closesAt);
   const [quotaShots, setQuotaShots] = useState(QUOTA_DEFAULT);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('BLURRED');
-  const [color, setColor] = useState(COLORS[0]!);
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [useTableCodes, setUseTableCodes] = useState(true);
 
@@ -89,7 +87,6 @@ export function CreateEventScreen() {
       closesAt: new Date(closesAt),
       quotaShots,
       previewMode,
-      color,
       useTableCodes,
       ...(welcomeMessage.trim() ? { welcomeMessage: welcomeMessage.trim() } : {}),
     };
@@ -238,22 +235,6 @@ export function CreateEventScreen() {
 
         {step === 3 && (
           <>
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-ink-2">Couleur de la soirée</span>
-              <div className="flex gap-2.5">
-                {COLORS.map((value) => (
-                  <button
-                    key={value}
-                    aria-label={`Couleur ${value}`}
-                    aria-pressed={value === color}
-                    onClick={() => setColor(value)}
-                    style={{ background: value }}
-                    className={`h-9 w-9 rounded-full border-2 ${
-                      value === color ? 'border-edge' : 'border-edge'}`}
-                  />
-                ))}
-              </div>
-            </div>
 
             <Field
               label="Mot d’accueil"

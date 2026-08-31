@@ -229,7 +229,9 @@ export interface EventSummary {
   state: 'DRAFT' | 'OPEN' | 'CLOSED' | 'PUBLISHED' | 'PURGED';
   eventDate: string;
   closesAt: string;
+  /** @deprecated remplace par carnet ; plus aucun ecran ne le demande. */
   color: string;
+  carnet: string;
   quotaShots: number;
   previewMode: 'NONE' | 'FLASH' | 'BLURRED' | 'CONFIRM';
   welcomeMessage: string | null;

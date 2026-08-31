@@ -19,6 +19,8 @@ import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { useSession, useLogout } from '../useAuth.js';
 import { useEvent } from '../useEvents.js';
+import { CARNET_LABEL } from '../../../carnets/labels.js';
+import type { Carnet } from '@memora/types';
 import { useRolls } from '../useRolls.js';
 
 const PREVIEW_LABEL: Record<PreviewMode, string> = {
@@ -108,7 +110,11 @@ export function SettingsScreen() {
           onClick={() => edit('tables')}
         />
         <Line label="Mot d’accueil" value={event.welcomeMessage ? 'Défini' : 'Aucun'} onClick={() => edit('welcome')} />
-        <Line label="Couleur" onClick={() => edit('color')} />
+        <Line
+          label="Le carnet"
+          value={CARNET_LABEL[(event.carnet ?? 'papier') as Carnet]}
+          onClick={() => edit('carnet')}
+        />
       </Group>
 
       <Group title="La soirée">
