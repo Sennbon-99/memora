@@ -242,7 +242,16 @@ input, textarea {
 
      Le texte prend --color-ink-tirage, l'encre faite pour ce papier : celle de
      la page serait trop claire dans le Carnet noir, ou le tirage est blanc et
-     la page ne l'est pas. */
+     la page ne l'est pas.
+
+     C'est aussi la limite de cette classe. Elle ne convient qu'a un bloc dont
+     on maitrise TOUTES les encres : un enfant qui porte encore text-ink ou
+     text-ink-2 garde l'encre de la page, et dans le Carnet noir ces encres
+     sont claires. Mesure sur #fbfaf6 : text-ink tombe a 1,10:1, text-ink-2 a
+     2,19:1, text-ink-3 a 3,47:1 — contre 14,21, 7,15 et 4,51 sur la surface
+     de page. Une carte de texte existante ne se convertit donc pas en tirage
+     par un simple echange de classe ; elle prend l'elevation et garde sa
+     surface. */
   .tirage-texte {
     background: var(--color-tirage);
     color: var(--color-ink-tirage);
