@@ -147,6 +147,69 @@ async function call<T>(path: string, init: CallInit = {}, retried = false): Prom
   return payload as T;
 }
 
+/**
+ * Telecharge un fichier binaire avec la meme authentification que call().
+ *
+ * `call()` ne convient pas : il termine sur response.json(), et un PDF n'est
+ * pas du JSON. Ouvrir l'adresse dans un onglet ne convient pas davantage —
+ * c'est ce que faisait le kit — parce qu'une navigation du navigateur ne porte
+ * aucun en-tete Authorization. La route repondait donc UNAUTHORIZED « Jeton
+ * manquant » a chaque fois, et le kit imprimable n'a jamais ete telechargeable
+ * une fois l'authentification en place.
+ *
+ * Le renouvellement du jeton est rejoue ici aussi : sans lui, un hote dont
+ * l'acces vient d'expirer verrait exactement le meme refus qu'avant.
+ */
+async function telecharger(
+  path: string,
+  retried = false,
+): Promise<{ blob: Blob; nom: string }> {
+  const response = await fetch(`${BASE}${path}`, {
+    credentials: 'include',
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+  });
+
+  if (response.status === 401 && !retried && (await renewAccess())) {
+    return telecharger(path, true);
+  }
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as {
+      code?: string; message?: string; traceId?: string;
+    };
+    throw new ApiError(
+      payload.code ?? 'UNKNOWN',
+      response.status,
+      payload.message ?? 'Le telechargement a echoue',
+      payload.traceId,
+    );
+  }
+
+  // Le nom vient du serveur : lui seul sait si la selection tient dans un seul
+  // PDF ou demande une archive.
+  const dispo = response.headers.get('Content-Disposition') ?? '';
+  const nom = /filename="([^"]+)"/.exec(dispo)?.[1] ?? 'memora-kit';
+  return { blob: await response.blob(), nom };
+}
+
+/**
+ * Remet un fichier telecharge a l'utilisateur.
+ *
+ * L'ancre est creee puis retiree, et l'adresse objet revoquee : sans cela le
+ * blob reste en memoire tant que l'onglet vit, et un hote qui telecharge huit
+ * variantes de son kit les y garde toutes.
+ */
+export function remettreFichier({ blob, nom }: { blob: Blob; nom: string }) {
+  const url = URL.createObjectURL(blob);
+  const lien = document.createElement('a');
+  lien.href = url;
+  lien.download = nom;
+  document.body.append(lien);
+  lien.click();
+  lien.remove();
+  URL.revokeObjectURL(url);
+}
+
 /** Distingue une panne reseau d'un refus du serveur. */
 export function isNetworkError(error: unknown): boolean {
   return error instanceof TypeError || (error instanceof Error && error.name === 'AbortError');
@@ -434,8 +497,22 @@ export const eventApi = {
   open: (id: string) => call<{ event: EventSummary }>(`/events/${id}/open`, { method: 'POST' }),
   close: (id: string) => call<{ event: EventSummary }>(`/events/${id}/close`, { method: 'POST' }),
   stats: (id: string) => call<EventStats>(`/events/${id}/stats`),
-  /** Adresse du kit QR. Ouverte dans un onglet, pas passee par call(). */
-  // Une seule piece renvoie un PDF, plusieurs renvoient une archive.
-  qrKitUrl: (id: string, pieces: readonly string[]) =>
-    `${BASE}/events/${id}/qr-kit?pieces=${pieces.join(',')}`,
+  /**
+   * Telecharge le kit QR. Une seule piece renvoie un PDF, plusieurs une archive.
+   *
+   * Passe par telecharger() et non par une adresse ouverte dans un onglet : la
+   * route est derriere requireAuth, qui n'accepte qu'un en-tete Bearer.
+   */
+  qrKit: (id: string, pieces: readonly string[]) =>
+    telecharger(`/events/${id}/qr-kit?pieces=${pieces.join(',')}`),
+
+  /**
+   * Telecharge l'album en archive.
+   *
+   * Le chemin est `/archive`, jamais `/download` : `/download` est le prefixe
+   * de montage du routeur, pas une route. L'ecran des reglages l'appelait tel
+   * quel et recevait un 404 — et l'aurait recu meme avec le bon chemin,
+   * l'adresse etant ouverte dans un onglet, sans en-tete d'authentification.
+   */
+  archive: (id: string) => telecharger(`/events/${id}/archive`),
 };

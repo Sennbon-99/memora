@@ -214,17 +214,20 @@ function PhotoTile({ photo, hidden, onToggle, onZoom }: {
         />
         {hidden && (
           <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center
-            rounded-full bg-danger text-xs font-bold text-white">✕</span>
+            rounded-full bg-danger text-xs font-bold text-on-danger">✕</span>
         )}
         {/* L'ombre du texte n'est pas une elevation : elle detache l'heure
-            d'une image dont on ne connait pas la clarte. */}
-        <span className="absolute bottom-1 left-2 font-mono text-[9px] tabular-nums text-ink-2
+            d'une image dont on ne connait pas la clarte. Elle ne peut le faire
+            que sous un texte clair : `text-ink-2` valait #4a4a42 en Papier,
+            soit une encre sombre ombree de noir — 2,35:1 sur une photographie
+            sombre. L'encre du puits, elle, tient 18:1 dans les trois carnets. */}
+        <span className="absolute bottom-1 left-2 font-mono text-[9px] tabular-nums text-ink-well
           [text-shadow:0_1px_3px_rgb(0_0_0/.8)]">
           {heure(photo.takenAt)}
         </span>
         {photo.momentLabel && (
           <span className="absolute left-1.5 top-1.5 rounded-champ bg-black/55 px-1.5 py-0.5
-            text-[9px] text-white backdrop-blur">
+            text-[9px] text-ink-well backdrop-blur">
             {photo.momentLabel}
           </span>
         )}
@@ -272,11 +275,11 @@ function Zoom({ photos, index, hidden, onIndex, onToggle, onClose }: {
 
         <div className="absolute inset-x-0 top-0 flex justify-between p-4 safe-top">
           <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-[11px]
-            tabular-nums text-white backdrop-blur">
+            tabular-nums text-ink-well backdrop-blur">
             {index + 1} / {photos.length}
           </span>
           <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-[11px]
-            tabular-nums text-white backdrop-blur">
+            tabular-nums text-ink-well backdrop-blur">
             {heure(photo.takenAt)}
           </span>
         </div>
@@ -284,10 +287,10 @@ function Zoom({ photos, index, hidden, onIndex, onToggle, onClose }: {
         <div className="absolute inset-x-2 top-1/2 flex -translate-y-1/2 justify-between">
           <button onClick={() => step(-1)} aria-label="Photographie précédente"
             className="grid h-11 w-11 place-items-center rounded-full bg-black/45
-              text-lg text-white backdrop-blur">‹</button>
+              text-lg text-ink-well backdrop-blur">‹</button>
           <button onClick={() => step(1)} aria-label="Photographie suivante"
             className="grid h-11 w-11 place-items-center rounded-full bg-black/45
-              text-lg text-white backdrop-blur">›</button>
+              text-lg text-ink-well backdrop-blur">›</button>
         </div>
       </div>
 

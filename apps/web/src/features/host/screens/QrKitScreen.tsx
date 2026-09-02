@@ -10,7 +10,7 @@ import {
 } from '@memora/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { eventApi, tableApi, type ApiError } from '../../../lib/api.js';
+import { eventApi, remettreFichier, tableApi, type ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
@@ -43,6 +43,14 @@ export function QrKitScreen() {
     onSuccess: () => void client.invalidateQueries({ queryKey: ['host', 'event', eventId] }),
   });
 
+  // Le telechargement est une mutation comme une autre : il peut echouer, et
+  // l'API compose le PDF a la demande — plusieurs secondes pour une affiche A2
+  // pendant lesquelles le bouton doit dire ce qu'il fait.
+  const kit = useMutation({
+    mutationFn: () => eventApi.qrKit(eventId, choisies),
+    onSuccess: remettreFichier,
+  });
+
   if (isPending || !data) return <Spinner label="Préparation du kit" />;
   const { event } = data;
 
@@ -58,18 +66,31 @@ export function QrKitScreen() {
       }}
       footer={
         <div className="flex flex-col gap-3">
-          {/* Telechargement direct : le PDF est genere par l'API, pas ici. */}
+          {/* Le PDF est genere par l'API, pas ici, et recupere avec l'en-tete
+              d'authentification : la route est derriere requireAuth. */}
           {/* Le bouton compte : « Télécharger 3 fichiers » confirme la
               sélection au lieu de la faire oublier. */}
           <Button
             full
-            disabled={choisies.length === 0}
-            onClick={() => window.open(eventApi.qrKitUrl(eventId, choisies), '_blank')}
+            disabled={choisies.length === 0 || kit.isPending}
+            onClick={() => kit.mutate()}
           >
-            {choisies.length === 1
-              ? 'Télécharger 1 fichier'
-              : `Télécharger ${choisies.length} fichiers`}
+            {kit.isPending
+              ? 'Composition du fichier…'
+              : choisies.length === 1
+                ? 'Télécharger 1 fichier'
+                : `Télécharger ${choisies.length} fichiers`}
           </Button>
+
+          {/* Le kit est le seul objet physique du produit : un refus muet ici
+              laisse l'hote arriver a sa soiree sans rien a poser sur les
+              tables. */}
+          {kit.error && (
+            <div role="alert" className="rounded-carte bg-danger-doux p-3 text-sm leading-relaxed
+              text-danger">
+              {(kit.error as ApiError).message}
+            </div>
+          )}
 
           {event.state === 'DRAFT' ? (
             <Button
