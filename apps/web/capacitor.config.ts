@@ -39,7 +39,10 @@ const config: CapacitorConfig = {
     // La barre d'etat se superpose au contenu : les ecrans utilisent deja
     // les zones sures, et le viseur doit occuper toute la hauteur.
     contentInset: 'never',
-    backgroundColor: '#1C1916',
+    // Le fond visible avant que la page ne soit chargee : celui du carnet
+    // de la marque (--color-pap de papier.css). Avec l'ancien brun sombre,
+    // chaque ouverture a froid passait du noir au papier en un eclair.
+    backgroundColor: '#f5f2ea',
   },
 };
 

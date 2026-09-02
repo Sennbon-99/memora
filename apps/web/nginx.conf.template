@@ -40,6 +40,23 @@ server {
     gzip_types text/css application/javascript application/json image/svg+xml;
     gzip_min_length 1024;
 
+    # Le fichier que l'iPhone lit a l'installation de l'application, pour
+    # savoir quels liens de ce domaine lui reviennent : /e/ (le QR code de
+    # la table), /album/ (le lien partage), /p/ (le lien du photographe).
+    # L'espace de l'hote reste au navigateur.
+    #
+    # Servi d'ici et non depuis les fichiers du client, pour deux raisons.
+    # L'identifiant d'equipe Apple est un reglage du deploiement, pas du
+    # code — il vient de l'environnement, comme l'adresse de l'API. Et
+    # surtout, sans ce bloc, la regle « toute adresse inconnue rend
+    # index.html » repondrait une page HTML avec un 200 : Apple lirait du
+    # HTML la ou il attend du JSON, et conclurait en silence qu'il n'y a
+    # rien. Un lien universel qui ne marche pas ne dit jamais pourquoi.
+    location = /.well-known/apple-app-site-association {
+        default_type application/json;
+        return 200 '{"applinks":{"details":[{"appIDs":["${APPLE_TEAM_ID}.app.memora.client"],"components":[{"/":"/e/*"},{"/":"/album/*"},{"/":"/p/*"}]}]}}';
+    }
+
     # Les maquettes du dossier de projet. Elles chargent leurs polices chez
     # Google Fonts, ce que la politique de securite du produit interdit : ce
     # bloc les sert avec une politique qui l'autorise, sans toucher a celle
@@ -113,4 +130,14 @@ server {
     location / {
         try_files $uri $uri/ /index.html;
     }
+}
+
+# www renvoie vers la racine. Une seule adresse pour les cookies, les liens
+# universels et les QR codes — et la plus courte des deux sur le carton.
+# Le domaine vient du deploiement, pas de l'image : la meme image sert
+# sous l'adresse provisoire et sous la definitive.
+server {
+    listen 80;
+    server_name www.${PUBLIC_HOST};
+    return 301 https://${PUBLIC_HOST}$request_uri;
 }

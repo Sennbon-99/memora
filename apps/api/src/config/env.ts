@@ -29,7 +29,11 @@ const envSchema = z.object({
   // Notifications push : facultatives, l'API tourne sans.
   VAPID_PUBLIC_KEY: z.string().optional(),
   VAPID_PRIVATE_KEY: z.string().optional(),
-  VAPID_SUBJECT: z.string().default('contact@memora.app'),
+  // Facultatif : sans valeur, c'est l'adresse du site qui sert de contact.
+  // L'ancien defaut, contact@memora.app, pointait sur un domaine qui n'est
+  // pas le notre — un service de push qui y aurait ecrit n'aurait joint
+  // personne.
+  VAPID_SUBJECT: z.string().optional(),
 
   // Notifications de l'application installee sur iPhone. Facultatives : sans
   // elles l'API demarre et le canal Web Push fonctionne seul.

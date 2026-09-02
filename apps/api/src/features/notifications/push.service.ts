@@ -19,6 +19,23 @@ import { apnsConfigured, sendApns } from './apns.js';
 let configured = false;
 
 /**
+ * Le « sujet » VAPID : l'adresse a laquelle un service de push joint
+ * l'exploitant si ses envois posent probleme. Le protocole accepte une
+ * adresse mailto: ou une URL https:.
+ *
+ * Sans reglage, c'est l'adresse du site — elle existe forcement, la ou une
+ * boite contact@ suppose quelqu'un pour la relever. Une adresse de
+ * messagerie nue recoit son prefixe ; une valeur deja prefixee, ou une URL,
+ * est prise telle quelle.
+ */
+export function sujetVapid(): string {
+  const sujet = env.VAPID_SUBJECT?.trim();
+  if (!sujet) return env.CLIENT_URL;
+  if (sujet.startsWith('mailto:') || sujet.startsWith('https://')) return sujet;
+  return `mailto:${sujet}`;
+}
+
+/**
  * Configure les cles VAPID a la premiere utilisation.
  *
  * Ce n'est pas fait au demarrage : le push est facultatif, et l'API doit
@@ -28,11 +45,7 @@ function ensureConfigured(): boolean {
   if (configured) return true;
   if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) return false;
 
-  webpush.setVapidDetails(
-    `mailto:${env.VAPID_SUBJECT}`,
-    env.VAPID_PUBLIC_KEY,
-    env.VAPID_PRIVATE_KEY,
-  );
+  webpush.setVapidDetails(sujetVapid(), env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY);
   configured = true;
   return true;
 }
