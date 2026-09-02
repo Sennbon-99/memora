@@ -65,15 +65,12 @@ COPY --from=build --chown=memora:memora /app/apps/api/prisma.config.ts ./apps/ap
 
 USER memora
 WORKDIR /app/apps/api
-EXPOSE 3000
 
-# La sonde interroge la meme route que Coolify : si la base ou Redis ne
-# repondent pas, le conteneur est declare malade et le trafic ne bascule pas.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD node -e "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-
-COPY --from=build --chown=memora:memora /app/apps/api/docker-entrypoint.sh ./
-CMD ["./docker-entrypoint.sh"]
+# Cette etape s'arrete ici : ni port, ni sonde, ni commande. Elle porte ce
+# que les deux processus partagent, et rien de ce qui les distingue. Une
+# sonde posee ici serait heritee par le travailleur, qui n'ecoute sur aucun
+# port : elle echouerait toutes les trente secondes sur un conteneur en
+# parfaite sante.
 
 # --- Etape 4 : le travailleur ----------------------------------------------
 # Meme image que l'API, autre point d'entree. Une cible de construction
@@ -84,15 +81,34 @@ CMD ["./docker-entrypoint.sh"]
 # `FROM memora-api:latest`, une etiquette qui n'existe que sur une machine
 # ayant deja construit l'API a la main : aucune plateforme de deploiement ne
 # peut la resoudre, et le travailleur n'a donc jamais ete deployable.
+#
+# Le travailleur n'a volontairement aucune sonde. `HEALTHCHECK NONE` n'aurait
+# pas convenu : l'instruction laisse une sonde declaree dans l'image, Coolify
+# la voit, passe outre le reglage qui la desactive, et interroge un
+# `.State.Health` que Docker ne renseigne jamais dans ce cas — le
+# deploiement echoue sur un « template parsing error » qui ne dit rien de sa
+# cause. L'absence d'instruction, elle, ne laisse aucune trace.
+#
+# Le conteneur reste malgre tout surveille : le processus est PID 1, s'il
+# meurt le conteneur s'arrete, et l'hebergeur le redemarre.
 FROM runtime AS worker
-
-# Le travailleur n'ecoute sur aucun port. La sonde HTTP heritee de l'etape
-# d'execution interroge localhost:3000 : ici elle echouerait toutes les
-# trente secondes, et l'hebergeur declarerait malade un conteneur en parfaite
-# sante. On la retire plutot que d'en inventer une.
-HEALTHCHECK NONE
 
 # Pas de migrations au demarrage, contrairement a l'API : c'est elle qui les
 # applique, et `migrate deploy` prend un verrou consultatif que deux
 # conteneurs demarrant ensemble se disputeraient pour rien.
 CMD ["node", "dist/worker.js"]
+
+# --- Etape 5 : l'API -------------------------------------------------------
+# En dernier, donc construite par defaut : c'est la cible que prend une
+# plateforme qui n'en precise aucune. Le travailleur, lui, se demande
+# explicitement — `--target worker`.
+FROM runtime AS api
+EXPOSE 3000
+
+# La sonde interroge la meme route que Coolify : si la base ou Redis ne
+# repondent pas, le conteneur est declare malade et le trafic ne bascule pas.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD node -e "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+COPY --from=build --chown=memora:memora /app/apps/api/docker-entrypoint.sh ./
+CMD ["./docker-entrypoint.sh"]
