@@ -74,3 +74,25 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 
 COPY --from=build --chown=memora:memora /app/apps/api/docker-entrypoint.sh ./
 CMD ["./docker-entrypoint.sh"]
+
+# --- Etape 4 : le travailleur ----------------------------------------------
+# Meme image que l'API, autre point d'entree. Une cible de construction
+# plutot qu'un second Dockerfile : la recette d'execution — les trois
+# dossiers node_modules que pnpm eparpille, l'utilisateur non privilegie, le
+# client Prisma genere — ne doit vivre qu'a un seul endroit, sinon elle
+# derive. Le fichier `Dockerfile.worker` qu'elle remplace partait de
+# `FROM memora-api:latest`, une etiquette qui n'existe que sur une machine
+# ayant deja construit l'API a la main : aucune plateforme de deploiement ne
+# peut la resoudre, et le travailleur n'a donc jamais ete deployable.
+FROM runtime AS worker
+
+# Le travailleur n'ecoute sur aucun port. La sonde HTTP heritee de l'etape
+# d'execution interroge localhost:3000 : ici elle echouerait toutes les
+# trente secondes, et l'hebergeur declarerait malade un conteneur en parfaite
+# sante. On la retire plutot que d'en inventer une.
+HEALTHCHECK NONE
+
+# Pas de migrations au demarrage, contrairement a l'API : c'est elle qui les
+# applique, et `migrate deploy` prend un verrou consultatif que deux
+# conteneurs demarrant ensemble se disputeraient pour rien.
+CMD ["node", "dist/worker.js"]
