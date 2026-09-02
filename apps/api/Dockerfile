@@ -65,6 +65,52 @@ COPY --from=build --chown=memora:memora /app/apps/api/prisma.config.ts ./apps/ap
 
 USER memora
 WORKDIR /app/apps/api
+
+# Cette etape s'arrete ici : ni port, ni sonde, ni commande. Elle porte ce
+# que les deux processus partagent, et rien de ce qui les distingue. Une
+# sonde posee ici serait heritee par le travailleur, qui n'ecoute sur aucun
+# port : elle echouerait toutes les trente secondes sur un conteneur en
+# parfaite sante.
+
+# --- Etape 4 : le travailleur ----------------------------------------------
+# Meme image que l'API, autre point d'entree. Une cible de construction
+# plutot qu'un second Dockerfile : la recette d'execution — les trois
+# dossiers node_modules que pnpm eparpille, l'utilisateur non privilegie, le
+# client Prisma genere — ne doit vivre qu'a un seul endroit, sinon elle
+# derive. Le fichier `Dockerfile.worker` qu'elle remplace partait de
+# `FROM memora-api:latest`, une etiquette qui n'existe que sur une machine
+# ayant deja construit l'API a la main : aucune plateforme de deploiement ne
+# peut la resoudre, et le travailleur n'a donc jamais ete deployable.
+#
+FROM runtime AS worker
+
+# Le travailleur n'ecoute sur aucun port : il n'y a rien a interroger en HTTP.
+# Sa sonde relit donc le fichier temoin que `worker.ts` repose a la fin de
+# chaque cycle de fermeture, toutes les minutes. Trois cycles manques et le
+# conteneur est declare malade.
+#
+# Ce detour vaut mieux que les deux raccourcis possibles. Ne rien declarer
+# laisse Coolify chercher un `.State.Health` que Docker ne renseigne pas, et
+# le deploiement echoue sur un « template parsing error » muet ; `HEALTHCHECK
+# NONE` produit exactement le meme echec, l'instruction declarant une sonde
+# au lieu de la supprimer. Surtout, une sonde qui rendrait toujours 0
+# n'aurait rien surveille : un processus vivant mais bloque — une requete qui
+# ne rend jamais la main — garderait le conteneur debout pendant que plus
+# rien ne serait ferme ni purge. C'est la panne qu'on veut voir, puisque
+# c'est celle qui arreterait la suppression a trente jours en silence.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "const{statSync}=require('node:fs');process.exit(Date.now()-statSync('/tmp/battement').mtimeMs < 180000 ? 0 : 1)"
+
+# Pas de migrations au demarrage, contrairement a l'API : c'est elle qui les
+# applique, et `migrate deploy` prend un verrou consultatif que deux
+# conteneurs demarrant ensemble se disputeraient pour rien.
+CMD ["node", "dist/worker.js"]
+
+# --- Etape 5 : l'API -------------------------------------------------------
+# En dernier, donc construite par defaut : c'est la cible que prend une
+# plateforme qui n'en precise aucune. Le travailleur, lui, se demande
+# explicitement — `--target worker`.
+FROM runtime AS api
 EXPOSE 3000
 
 # La sonde interroge la meme route que Coolify : si la base ou Redis ne

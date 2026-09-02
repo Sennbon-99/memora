@@ -78,6 +78,14 @@ applications à ce qu'elles portent, jamais à leur nom, et s'arrête sans rien
 écrire s'il en manque une. Il ne touche pas à MinIO : une fois 2a fait à la
 main, relancer avec `--photos` pour faire suivre `S3_ENDPOINT`.
 
+`--photos` ne se croit pas sur parole : le script interroge d'abord
+`https://photos.memora-app.fr` et refuse d'écrire si l'hôte ne répond pas,
+si son certificat n'est pas valide, ou s'il rend du HTML — ce dernier cas
+étant le domaine posé sur le port 9001 (la console) au lieu du 9000 (l'API
+S3). C'est la panne la plus coûteuse de la bascule, parce qu'elle est
+silencieuse côté serveur : l'API continue de signer des adresses
+parfaitement valides, et pas une ne sert de photographie.
+
 ### 2a. MinIO → `photos.memora-app.fr`
 
 Service MinIO → Domaines : `https://photos.memora-app.fr` sur le port
