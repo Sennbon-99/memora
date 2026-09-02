@@ -49,7 +49,7 @@ export function HostLayout() {
         bg-pap px-4 pb-3 pt-3 backdrop-blur safe-top">
         <button
           onClick={() => navigate('/hote')}
-          className="text-[15px] font-extrabold tracking-tight"
+          className="text-lecture font-extrabold tracking-tight"
         >
           memora<span className="text-a1">.</span>
         </button>
@@ -72,7 +72,7 @@ export function HostLayout() {
                   <li key={event.id}>
                     <button
                       onClick={() => { setOpen(false); navigate(`/hote/${event.id}`); }}
-                      className={`w-full truncate px-4 py-2.5 text-left text-[13px]
+                      className={`w-full truncate px-4 py-2.5 text-left text-note
                         ${event.id === eventId ? 'text-a1 font-semibold' : 'text-ink-2'}`}
                     >
                       {event.name}
@@ -82,7 +82,7 @@ export function HostLayout() {
                 <li className="mt-1 border-t border-edge pt-1">
                   <button
                     onClick={() => { setOpen(false); navigate('/hote'); }}
-                    className="w-full px-4 py-2.5 text-left text-[13px] text-ink-3"
+                    className="w-full px-4 py-2.5 text-left text-note text-ink-3"
                   >
                     Toutes mes soirées
                   </button>

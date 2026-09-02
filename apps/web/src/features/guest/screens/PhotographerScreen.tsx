@@ -72,12 +72,12 @@ export function PhotographerScreen() {
       {/* Trois temps plutot qu'un titre suivi de rien : la version precedente
           laissait les deux tiers de l'ecran vides sous le sous-titre. */}
       <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+        <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
           Accès photographe
         </p>
 
         <div className="border-y border-edge py-6">
-          <p className="max-w-[20ch] decoupe text-[26px] leading-[1.15] text-ink-2">
+          <p className="max-w-[20ch] decoupe text-titre leading-[1.15] text-ink-2">
             {closed
               ? 'La pellicule est refermée.'
               : 'Ce lien n’ouvre plus rien.'}
@@ -85,7 +85,7 @@ export function PhotographerScreen() {
         </div>
 
         <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
-          <p className="text-[15px] leading-relaxed text-ink-2">
+          <p className="text-lecture leading-relaxed text-ink-2">
             {closed
               ? 'Vos photographies déjà déposées sont conservées trente jours. L’organisateur y a accès pour composer sa sélection.'
               : 'Un lien de photographe est nominatif et révocable. Demandez-en un nouveau à l’organisateur : il le génère depuis son tableau de bord.'}

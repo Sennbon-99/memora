@@ -35,10 +35,10 @@ const DERNIERE_MISE_A_JOUR = '2 septembre 2026';
 function Section({ titre, children }: { titre: string; children: ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+      <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
         {titre}
       </h2>
-      <div className="mt-3 space-y-4 text-[15px] leading-relaxed text-ink-2">{children}</div>
+      <div className="mt-3 space-y-4 text-lecture leading-relaxed text-ink-2">{children}</div>
     </section>
   );
 }
@@ -51,7 +51,7 @@ export function ConfidentialiteScreen() {
       titreRepliable
       code={{ hautGauche: 'MEMORA 400', basGauche: 'CONFIDENTIALITE' }}
     >
-      <p className="mt-6 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+      <p className="mt-6 px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
         Mise à jour du {DERNIERE_MISE_A_JOUR}
       </p>
 
@@ -195,7 +195,7 @@ export function ConfidentialiteScreen() {
       </Section>
 
       <div className="mb-12 mt-12 border-t border-edge pt-6">
-        <Link to="/" className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-3">
+        <Link to="/" className="font-mono text-mini uppercase tracking-[0.16em] text-ink-3">
           ← Retour
         </Link>
       </div>

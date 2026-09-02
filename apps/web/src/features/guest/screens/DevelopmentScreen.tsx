@@ -79,13 +79,13 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
               after:border-transparent after:border-t-a1
               after:animate-[spin_2.4s_linear_infinite] motion-reduce:after:animate-none"
           />
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+          <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
             Bain de révélateur
           </p>
         </div>
 
         <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-5">
-          <h2 className="decoupe text-[24px] leading-tight">
+          <h2 className="decoupe text-sous-titre leading-tight">
             {queued > 0 ? (
               <>
                 <span className="font-mono tabular-nums text-a1">{queued}</span>
@@ -96,7 +96,7 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
               'Vos photographies sont déposées'
             )}
           </h2>
-          <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
+          <p className="mt-2.5 text-corps leading-relaxed text-ink-2">
             Rien ne se perd : elles sont conservées trente jours. Vous pouvez
             fermer cette page.
           </p>
@@ -108,8 +108,8 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
             {canAsk && (
               <div className="rounded-carte border border-edge
                 bg-a-doux p-5">
-                <h2 className="decoupe text-[24px] leading-tight">Être prévenu ?</h2>
-                <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
+                <h2 className="decoupe text-sous-titre leading-tight">Être prévenu ?</h2>
+                <p className="mt-2.5 text-corps leading-relaxed text-ink-2">
                   Une seule notification, quand l’album sera en ligne. Rien d’autre.
                 </p>
                 <Button full className="mt-4" onClick={ask} disabled={outcome === 'busy'}>

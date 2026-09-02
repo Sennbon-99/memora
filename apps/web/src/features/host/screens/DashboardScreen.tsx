@@ -66,12 +66,12 @@ function Stat({ label, value, unit, note, edge = '' }: {
 }) {
   return (
     <div className={`px-3.5 py-3 ${edge}`}>
-      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">{label}</p>
-      <p className="mt-1.5 font-mono text-[26px] leading-none font-medium tabular-nums text-a1">
+      <p className="font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">{label}</p>
+      <p className="mt-1.5 font-mono text-titre leading-none font-medium tabular-nums text-a1">
         {value}
         {unit && <span className="ml-0.5 align-baseline text-base text-ink-3">{unit}</span>}
       </p>
-      {note && <p className="mt-1.5 text-[11px] leading-tight text-ink-3">{note}</p>}
+      {note && <p className="mt-1.5 text-mini leading-tight text-ink-3">{note}</p>}
     </div>
   );
 }
@@ -87,8 +87,8 @@ function Action({ title, note, onClick }: {
         text-left transition last:border-b-0 active:bg-appui"
     >
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13px] font-bold">{title}</span>
-        <span className="block truncate text-[11px] text-ink-3">{note}</span>
+        <span className="block truncate text-note font-bold">{title}</span>
+        <span className="block truncate text-mini text-ink-3">{note}</span>
       </span>
       <span aria-hidden="true" className="shrink-0 text-sm text-a1">→</span>
     </button>
@@ -184,7 +184,7 @@ export function DashboardScreen() {
         <Stat label="Tables" value={stats?.byTable.length ?? '—'} />
       </div>
 
-      <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+      <h2 className="mt-8 px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
         À faire
       </h2>
       <div className="mt-1 flex flex-col">
@@ -216,7 +216,7 @@ export function DashboardScreen() {
 
       {stats && stats.byTable.length > 0 && (
         <section className="mt-8 pb-6">
-          <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+          <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
             Photos par table
           </h2>
           <ul className="mt-1 flex flex-col">

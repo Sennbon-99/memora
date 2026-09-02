@@ -33,7 +33,7 @@ const PREVIEW_LABEL: Record<PreviewMode, string> = {
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-8">
-      <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">{title}</h2>
+      <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">{title}</h2>
       <div className="mt-1 flex flex-col">{children}</div>
     </section>
   );
@@ -57,13 +57,13 @@ function Line({ label, value, mono, onClick, danger }: {
       onClick={onClick}
       disabled={!onClick}
       className={`flex w-full items-center gap-3 border-b border-edge-2 px-1 py-3.5 text-left
-        text-[13px] transition last:border-b-0 active:bg-appui disabled:active:bg-transparent
+        text-note transition last:border-b-0 active:bg-appui disabled:active:bg-transparent
         ${danger ? 'text-danger' : ''}`}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {value && (
         <span
-          className={`shrink-0 text-[12px] ${mono
+          className={`shrink-0 text-petit ${mono
             ? 'font-mono tabular-nums text-a1'
             : 'text-ink-3'}`}
         >
@@ -155,7 +155,7 @@ export function SettingsScreen() {
         />
       </Group>
 
-      <p className="mt-8 pb-4 text-center text-[11px] leading-relaxed text-ink-3">
+      <p className="mt-8 pb-4 text-center text-mini leading-relaxed text-ink-3">
         Les photographies de cette soirée seront effacées automatiquement
         trente jours après sa fermeture.
       </p>

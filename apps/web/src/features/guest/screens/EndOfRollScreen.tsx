@@ -60,15 +60,15 @@ export function EndOfRollScreen({
           decompte des envois, le code de secours. La version precedente
           posait une seule carte sous le titre et laissait le reste vide. */}
       <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+        <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
           Toutes vos vues sont parties
         </p>
 
         <div className="flex items-center gap-4 border-y border-edge py-5">
-          <span className="font-mono text-[34px] leading-none tabular-nums text-a1">
+          <span className="font-mono text-grand leading-none tabular-nums text-a1">
             {queued}
           </span>
-          <p className="text-[14px] leading-relaxed text-ink-2">
+          <p className="text-corps leading-relaxed text-ink-2">
             {queued > 0
               ? `${queued > 1 ? 'vues attendent' : 'vue attend'} le retour du réseau. Elles partent seules, vous pouvez fermer cette page.`
               : 'vue en attente d’envoi. Tout est arrivé à bon port.'}
@@ -76,13 +76,13 @@ export function EndOfRollScreen({
         </div>
 
         <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+          <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
             Code de secours
           </p>
-          <h2 className="mt-2 decoupe text-[24px] leading-tight">
+          <h2 className="mt-2 decoupe text-sous-titre leading-tight">
             Retrouver vos photos plus tard
           </h2>
-          <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
+          <p className="mt-2.5 text-corps leading-relaxed text-ink-2">
             Ce téléphone se souvient de vous. Choisissez un code à quatre
             chiffres si vous voulez aussi y accéder depuis un autre appareil
             {firstName ? `, avec le prénom ${firstName}` : ''}.

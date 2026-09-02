@@ -95,7 +95,7 @@ export function TabBar({ eventId }: { eventId: string }) {
           to={tab.to}
           end={tab.end}
           className={({ isActive }) =>
-            `flex flex-1 flex-col items-center gap-1 pb-1 pt-1 text-[10px]
+            `flex flex-1 flex-col items-center gap-1 pb-1 pt-1 text-micro
              ${isActive ? 'text-a-well' : 'text-ink-well-2'}`
           }
         >

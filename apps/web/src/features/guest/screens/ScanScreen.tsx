@@ -213,7 +213,7 @@ export function ScanScreen() {
         <canvas ref={canvasRef} className="hidden" />
 
         {refuse && (
-          <p className="mt-6 flex items-start gap-2 text-[13px] leading-relaxed text-warn">
+          <p className="mt-6 flex items-start gap-2 text-note leading-relaxed text-warn">
             <Icon nom="alerte" taille={16} className="mt-0.5" />
             Ce QR code ne mène pas à une soirée Memora.
           </p>

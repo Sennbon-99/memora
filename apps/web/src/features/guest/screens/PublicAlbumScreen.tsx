@@ -78,12 +78,12 @@ export function PublicAlbumScreen() {
           }
         >
           <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+            <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Lien de partage
             </p>
 
             <div className="border-y border-edge py-6">
-              <p className="max-w-[22ch] decoupe text-[26px] leading-[1.15] text-ink-2">
+              <p className="max-w-[22ch] decoupe text-titre leading-[1.15] text-ink-2">
                 Six chiffres séparent cet album de vous.
               </p>
             </div>
@@ -116,10 +116,10 @@ export function PublicAlbumScreen() {
       >
         <div className="flex flex-1 flex-col justify-center pb-16">
           <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+            <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Pellicule effacée
             </p>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
+            <p className="mt-3 text-lecture leading-relaxed text-ink-2">
               Un album Memora vit trente jours, puis s’efface : c’est la
               promesse faite aux invités le soir de la soirée. Demandez un
               nouveau lien à l’organisateur.
@@ -146,13 +146,13 @@ export function PublicAlbumScreen() {
       {photos.length === 0 ? (
         <div className="flex flex-1 flex-col justify-center pb-16">
           <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+            <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Planche vide
             </p>
-            <h2 className="mt-3 decoupe text-[26px] leading-[1.15]">
+            <h2 className="mt-3 decoupe text-titre leading-[1.15]">
               L’album est vide pour le moment.
             </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
+            <p className="mt-3 text-lecture leading-relaxed text-ink-2">
               Les photographies apparaîtront ici dès que l’organisateur aura
               publié sa sélection.
             </p>
@@ -161,10 +161,10 @@ export function PublicAlbumScreen() {
       ) : (
         <>
           <div className="mt-8 flex items-baseline justify-between border-b border-edge pb-3">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+            <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Planche contact
             </p>
-            <p className="font-mono text-[12px] tabular-nums text-ink-3">
+            <p className="font-mono text-petit tabular-nums text-ink-3">
               <span className="text-a1">{photos.length}</span>{' '}
               {photos.length > 1 ? 'photographies' : 'photographie'}
             </p>

@@ -108,13 +108,13 @@ export function ReviewScreen() {
         >
           ‹ Pellicules
         </button>
-        <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+        <span className="ml-auto font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
           Lot <span className="tabular-nums text-a1">{lot + 1}</span> / {lots}
         </span>
       </header>
 
       <div className="mt-3 px-5">
-        <h1 className="decoupe text-[34px] leading-[0.95] tracking-tight">{who}</h1>
+        <h1 className="decoupe text-grand leading-[0.95] tracking-tight">{who}</h1>
         <p className="mt-1.5 text-xs text-ink-3">
           {data.roll.tableLabel ?? 'Sans table'} ·{' '}
           <span className="font-mono tabular-nums">{photos.length}</span> photographies ·
@@ -221,13 +221,13 @@ function PhotoTile({ photo, hidden, onToggle, onZoom }: {
             que sous un texte clair : `text-ink-2` valait #4a4a42 en Papier,
             soit une encre sombre ombree de noir — 2,35:1 sur une photographie
             sombre. L'encre du puits, elle, tient 18:1 dans les trois carnets. */}
-        <span className="absolute bottom-1 left-2 font-mono text-[9px] tabular-nums text-ink-well
+        <span className="absolute bottom-1 left-2 font-mono text-etiquette tabular-nums text-ink-well
           [text-shadow:0_1px_3px_rgb(0_0_0/.8)]">
           {heure(photo.takenAt)}
         </span>
         {photo.momentLabel && (
           <span className="absolute left-1.5 top-1.5 rounded-champ bg-black/55 px-1.5 py-0.5
-            text-[9px] text-ink-well backdrop-blur">
+            text-etiquette text-ink-well backdrop-blur">
             {photo.momentLabel}
           </span>
         )}
@@ -274,11 +274,11 @@ function Zoom({ photos, index, hidden, onIndex, onToggle, onClose }: {
         <Photo src={photo.url} alt="" className="absolute inset-0 h-full w-full object-contain" />
 
         <div className="absolute inset-x-0 top-0 flex justify-between p-4 safe-top">
-          <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-[11px]
+          <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-mini
             tabular-nums text-ink-well backdrop-blur">
             {index + 1} / {photos.length}
           </span>
-          <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-[11px]
+          <span className="rounded-full bg-black/55 px-3 py-1.5 font-mono text-mini
             tabular-nums text-ink-well backdrop-blur">
             {heure(photo.takenAt)}
           </span>

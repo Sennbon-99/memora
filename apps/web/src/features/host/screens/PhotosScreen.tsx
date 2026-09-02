@@ -50,7 +50,7 @@ const FILTERS: { value: Filter; label: string }[] = [
 function Tally({ label, value, edge = '' }: { label: string; value: number; edge?: string }) {
   return (
     <div className={`px-3.5 py-2.5 ${edge}`}>
-      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">{label}</p>
+      <p className="font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">{label}</p>
       <p className="mt-1 font-mono text-xl leading-none font-medium tabular-nums text-a1">
         {value}
       </p>

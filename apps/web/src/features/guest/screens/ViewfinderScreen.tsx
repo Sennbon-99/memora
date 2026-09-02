@@ -143,7 +143,7 @@ export function ViewfinderScreen({
             bg-pap px-8 backdrop-blur"
           style={{ animation: 'fade 180ms ease-out' }}
         >
-          <p className="text-center text-[15px] leading-relaxed text-ink-2">
+          <p className="text-center text-lecture leading-relaxed text-ink-2">
             Faites scanner cet écran. Votre voisin rejoint la même soirée,
             avec ses propres vingt-quatre poses.
           </p>

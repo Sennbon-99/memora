@@ -44,7 +44,7 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
         </div>
       }
     >
-      <div className="mt-10 space-y-5 text-[15px] leading-relaxed text-ink-2">
+      <div className="mt-10 space-y-5 text-lecture leading-relaxed text-ink-2">
         <p>
           Vos photographies sont visibles par l'organisateur de l'événement, puis
           par les invités si l'organisateur décide de les publier.

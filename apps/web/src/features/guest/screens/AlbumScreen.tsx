@@ -67,10 +67,10 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
       >
         <div className="flex flex-1 flex-col justify-center pb-16">
           <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+            <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Planche indisponible
             </p>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
+            <p className="mt-3 text-lecture leading-relaxed text-ink-2">
               Vos photographies sont conservées trente jours : rien n’est perdu,
               l’album se rouvrira au retour du réseau.
             </p>
@@ -98,13 +98,13 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
         // centree perdue au milieu de l'ecran ressemble a une panne.
         <div className="flex flex-1 flex-col justify-center pb-16">
           <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+            <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Planche vide
             </p>
-            <h2 className="mt-3 decoupe text-[26px] leading-[1.15]">
+            <h2 className="mt-3 decoupe text-titre leading-[1.15]">
               Rien à montrer pour l’instant.
             </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
+            <p className="mt-3 text-lecture leading-relaxed text-ink-2">
               L’organisateur n’a pas encore publié sa sélection de la soirée.
               Revenez dans un jour ou deux.
             </p>
@@ -113,10 +113,10 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
       ) : (
         <>
           <div className="mt-8 flex items-baseline justify-between border-b border-edge pb-3">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+            <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Planche contact
             </p>
-            <p className="font-mono text-[12px] tabular-nums text-ink-3">
+            <p className="font-mono text-petit tabular-nums text-ink-3">
               <span className="text-a1">{photos.length}</span>{' '}
               {photos.length > 1 ? 'photographies' : 'photographie'}
             </p>
@@ -141,7 +141,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                 />
                 {done.includes(photo.id) ? (
                   <span className="absolute inset-x-1.5 bottom-1.5 rounded-champ bg-pap px-2
-                    py-1 text-center font-mono text-[9px] uppercase tracking-[0.16em]
+                    py-1 text-center font-mono text-etiquette uppercase tracking-[0.16em]
                     text-a1 backdrop-blur">
                     Retrait demandé
                   </span>
@@ -174,11 +174,11 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
           />
           <div className="relative m-3 rounded-carte border border-edge bg-well p-5
             animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+            <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Droit à l’image
             </p>
-            <h2 className="mt-2 decoupe text-[26px] leading-tight">Demander le retrait</h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
+            <h2 className="mt-2 decoupe text-titre leading-tight">Demander le retrait</h2>
+            <p className="mt-2 text-note leading-relaxed text-ink-2">
               Votre demande est transmise à l’organisateur, qui décide. Dites
               en quelques mots pourquoi.
             </p>
