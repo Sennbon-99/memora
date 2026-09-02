@@ -19,7 +19,9 @@
 #
 # Le script ne devine rien : il lit les applications, les reconnait a ce
 # qu'elles portent, montre ce qu'il va changer, et s'arrete si quelque chose
-# ne colle pas. Sans --apply, il n'ecrit jamais. Aucune dependance hors de
+# ne colle pas. Le client et l'API sont exiges ; le travailleur est traite
+# comme facultatif, parce qu'il peut simplement ne pas etre deploye.
+# Sans --apply, il n'ecrit jamais. Aucune dependance hors de
 # la bibliotheque standard — un serveur n'a pas forcement jq.
 
 import json
@@ -31,6 +33,9 @@ import urllib.request
 
 DOMAINE = 'memora-app.fr'
 PHOTOS = f'photos.{DOMAINE}'
+# Le depot dont les applications portent la bascule. Sert a delimiter le
+# perimetre avant toute reconnaissance de role — voir perimetre().
+DEPOT = 'memora'
 COOLIFY = os.environ.get('COOLIFY_URL', 'http://localhost:8000').rstrip('/')
 TOKEN = os.environ.get('COOLIFY_TOKEN', '')
 TEAM_ID = os.environ.get('APPLE_TEAM_ID', '').strip()
@@ -96,14 +101,55 @@ def envs_de(uuid):
         return {}
 
 
+def perimetre(applications):
+    """Ne garde que les applications de Memora.
+
+    Ce tri doit avoir lieu AVANT la reconnaissance des roles, et non
+    l'inverse. Le critere de role le plus naturel — le chemin du Dockerfile,
+    `/apps/web/Dockerfile` — est la convention de tous les monorepos d'un
+    meme compte : sur ce Coolify, `tracly-web` le porte a l'identique. En
+    balayant toutes les applications du compte, la reconnaissance donnait le
+    role de client de Memora a `tracly-web`, et la bascule aurait pose
+    memora-app.fr sur tracly.ulivry.com — en emportant au passage le domaine
+    d'un autre site en production, sans jamais toucher memora-web.
+
+    On part donc du depot, qui lui ne se confond avec rien, puis on elargit
+    a son environnement Coolify : MinIO est deploye depuis une image et pas
+    depuis le depot, un futur travailleur y sera aussi.
+    """
+    du_depot = [a for a in applications
+                if (a.get('git_repository') or '').lower().rsplit('/', 1)[-1] == DEPOT]
+    if not du_depot:
+        raise SystemExit(f"\nAucune application construite depuis un depot « {DEPOT} » : "
+                         "je ne sais pas quoi basculer. Rien n'a ete change.")
+    environnements = {a.get('environment_id') for a in du_depot}
+    if len(environnements) != 1:
+        raise SystemExit(f"\nLes applications de « {DEPOT} » sont reparties sur "
+                         f"{len(environnements)} environnements Coolify "
+                         f"({sorted(map(str, environnements))}). Je ne saurais pas "
+                         "laquelle basculer : rien n'a ete change.")
+    (environnement,) = environnements
+    return [a for a in applications if a.get('environment_id') == environnement]
+
+
 def reconnaitre(applications):
-    """Classe chaque application d'apres ce qu'elle porte, jamais d'apres son nom."""
+    """Classe chaque application d'apres ce qu'elle porte, jamais d'apres son nom.
+
+    A n'appeler que sur le perimetre de Memora. Deux applications qui
+    revendiquent le role de client arretent tout : c'est le signe que le
+    critere ne discrimine plus, et choisir au hasard entre deux candidats
+    revient a poser un domaine de production sur le mauvais conteneur.
+    """
     roles = {'web': None, 'api': None, 'worker': None}
     for app in applications:
         envs = envs_de(app['uuid'])
         app['_envs'] = envs
         dockerfile = (app.get('dockerfile_location') or '').lower()
         if 'API_UPSTREAM' in envs or dockerfile.endswith('apps/web/dockerfile'):
+            if roles['web'] is not None:
+                raise SystemExit(
+                    f"\nDeux applications repondent au role de client : "
+                    f"{roles['web']['name']} et {app['name']}. Rien n'a ete change.")
             roles['web'] = app
         elif 'CLIENT_URL' in envs and 'DATABASE_URL' in envs:
             if 'worker' in dockerfile:
@@ -122,9 +168,16 @@ def valeur(app, cle):
 
 def poser_env(app, cle, val):
     """Cree ou met a jour une variable d'execution. Jamais de variable de
-    construction : nginx et l'API les lisent au demarrage du conteneur."""
-    corps = {'key': cle, 'value': val, 'is_preview': False, 'is_build_time': False,
-             'is_literal': False}
+    construction : nginx et l'API les lisent au demarrage du conteneur.
+
+    Ni POST ni PATCH n'acceptent `is_build_time` : Coolify 4.1.2 repond
+    « This field is not allowed. » en HTTP 422. Le champ n'est donc pas
+    envoye — l'absence de mention vaut variable d'execution, ce qui est
+    exactement ce qu'on veut. Le declarer faisait echouer la bascule apres
+    qu'elle avait deja pose les domaines, c'est-a-dire dans l'etat le plus
+    inconfortable : le client bascule, l'API restee en arriere.
+    """
+    corps = {'key': cle, 'value': val, 'is_preview': False, 'is_literal': False}
     if cle in app['_envs']:
         api('PATCH', f"/applications/{app['uuid']}/envs", corps)
     else:
@@ -205,13 +258,18 @@ def main():
     if not TOKEN:
         raise SystemExit('COOLIFY_TOKEN manquant : Coolify → Keys & Tokens → API tokens.')
 
-    applications = api('GET', '/applications') or []
+    applications = perimetre(api('GET', '/applications') or [])
     roles = reconnaitre(applications)
     if ILLISIBLES:
         print(f"  ({len(ILLISIBLES)} application(s) dont Coolify refuse de lire les variables, "
               f"ignorees : {', '.join(f'{u} → HTTP {c}' for u, c in ILLISIBLES)})")
 
-    manquants = [r for r, app in roles.items() if app is None]
+    # Le client et l'API sont indispensables : sans eux la bascule n'a pas
+    # de sens. Le travailleur, lui, peut n'etre deploye nulle part — c'etait
+    # le cas le jour de la bascule. Refuser d'ecrire pour cette raison
+    # bloquerait le domaine sur un manque qui ne le concerne en rien : on le
+    # dit, et on continue sans lui.
+    manquants = [r for r in ('web', 'api') if roles[r] is None]
     if manquants:
         print('Applications trouvees :')
         for app in applications:
@@ -219,6 +277,8 @@ def main():
         raise SystemExit(f"\nJe ne reconnais pas : {', '.join(manquants)}. Rien n'a ete change.")
 
     web, apiapp, worker = roles['web'], roles['api'], roles['worker']
+    # Les applications qui portent CLIENT_URL et S3_ENDPOINT.
+    arriere = [a for a in (apiapp, worker) if a is not None]
     s3_actuel = valeur(apiapp, 'S3_ENDPOINT')
     s3_cible = f'https://{PHOTOS}' if PHOTOS_AUSSI else s3_actuel
 
@@ -227,16 +287,18 @@ def main():
         (web, 'domaines', web.get('fqdn'), f'https://{DOMAINE},https://www.{DOMAINE}'),
         (web, 'PUBLIC_HOST', valeur(web, 'PUBLIC_HOST'), DOMAINE),
         (web, 'APPLE_TEAM_ID', valeur(web, 'APPLE_TEAM_ID'), TEAM_ID or valeur(web, 'APPLE_TEAM_ID') or '(vide — a remplir plus tard)'),
-        (apiapp, 'CLIENT_URL', valeur(apiapp, 'CLIENT_URL'), f'https://{DOMAINE}'),
-        (worker, 'CLIENT_URL', valeur(worker, 'CLIENT_URL'), f'https://{DOMAINE}'),
-        (apiapp, 'S3_ENDPOINT', s3_actuel, s3_cible),
-        (worker, 'S3_ENDPOINT', valeur(worker, 'S3_ENDPOINT'), s3_cible),
     ]
+    for app in arriere:
+        plan.append((app, 'CLIENT_URL', valeur(app, 'CLIENT_URL'), f'https://{DOMAINE}'))
+    for app in arriere:
+        plan.append((app, 'S3_ENDPOINT', valeur(app, 'S3_ENDPOINT'), s3_cible))
 
     print(f"\nCoolify : {COOLIFY}")
     print(f"  client  : {web['name']}  ({web.get('fqdn')})")
     print(f"  api     : {apiapp['name']}")
-    print(f"  worker  : {worker['name']}\n")
+    print(f"  worker  : {worker['name']}\n" if worker else
+          "  worker  : aucun. Rien ne ferme les evenements a echeance ni ne purge\n"
+          "            les medias a trente jours tant qu'il n'est pas deploye.\n")
     print('Plan :')
     for app, quoi, avant, apres in plan:
         marque = '  ' if avant == apres else '→ '
@@ -277,7 +339,7 @@ def main():
         poser_env(web, 'APPLE_TEAM_ID', TEAM_ID)
     elif 'APPLE_TEAM_ID' not in web['_envs']:
         poser_env(web, 'APPLE_TEAM_ID', '')
-    for app in (apiapp, worker):
+    for app in arriere:
         poser_env(app, 'CLIENT_URL', f'https://{DOMAINE}')
         if PHOTOS_AUSSI:
             poser_env(app, 'S3_ENDPOINT', s3_cible)
@@ -285,7 +347,7 @@ def main():
 
     # L'API et le worker d'abord, le client ensuite : le client relaie vers
     # l'API, autant qu'elle soit deja repartie quand il redemarre.
-    for app in (apiapp, worker, web):
+    for app in arriere + [web]:
         deployer(app)
         print(f"  redeploiement lance : {app['name']}")
 
