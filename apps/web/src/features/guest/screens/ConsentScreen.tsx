@@ -30,6 +30,17 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
           <p className="text-center text-xs text-ink-3">
             Refuser ferme simplement cette page. Aucune donnée n'est conservée.
           </p>
+          {/* Le detail de ce qui est conserve, pour qui veut le lire avant
+              d'accepter. Dans un nouvel onglet, et non par navigation : le
+              parcours de l'invite ne doit pas se defaire sous ses pieds. */}
+          <a
+            href="/confidentialite"
+            target="_blank"
+            rel="noreferrer"
+            className="text-center text-xs text-ink-3 underline underline-offset-2"
+          >
+            Politique de confidentialité
+          </a>
         </div>
       }
     >

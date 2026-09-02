@@ -12,6 +12,7 @@ import { GuestJourney } from './features/guest/GuestJourney.js';
 import { PhotographerScreen } from './features/guest/screens/PhotographerScreen.js';
 import { PublicAlbumScreen } from './features/guest/screens/PublicAlbumScreen.js';
 import { ScanScreen } from './features/guest/screens/ScanScreen.js';
+import { ConfidentialiteScreen } from './features/legal/ConfidentialiteScreen.js';
 import { DecouverteHote, DecouverteInvite } from './features/onboarding/routes.js';
 import { HostLayout, RequireHost } from './features/host/HostLayout.js';
 import { CreateEventScreen } from './features/host/screens/CreateEventScreen.js';
@@ -33,6 +34,12 @@ export const router = createBrowserRouter([
   // Pas de redirection vers l'espace de l'hote : l'application native est
   // installee par des invites, a qui l'on ne demande jamais de compte.
   { path: '/', element: <EntryScreen /> },
+
+  // La politique de confidentialite. Publique, hors de tout parcours et hors
+  // de toute session : son adresse est deposee telle quelle dans App Store
+  // Connect, qui refuse la soumission sans elle, et un invite doit pouvoir
+  // l'ouvrir avant meme d'avoir accepte quoi que ce soit.
+  { path: '/confidentialite', element: <ConfidentialiteScreen /> },
 
   // Parcours invite : aucune session, aucun compte.
   { path: '/e/:slug', element: <GuestJourney /> },
