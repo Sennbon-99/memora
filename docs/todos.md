@@ -18,8 +18,11 @@ message générique « Ce site a été mis à jour en arrière-plan », et Firef
 peut révoquer l'abonnement après plusieurs envois silencieux.
 
 C'est le canal par défaut partout sauf l'application iPhone installée. Donc
-aujourd'hui : **un moment fort déclenché par l'hôte ne prévient personne, sauf
-sur iPhone via APNs** — et APNs n'est pas encore configuré non plus.
+aujourd'hui, un moment fort déclenché par l'hôte **ne prévient que les
+invités qui ont déjà l'écran sous les yeux** — ceux-là le reçoivent par
+socket.io (`moment:started`), qui fonctionne. Les autres, c'est-à-dire la
+plupart : rien. Sur iPhone le canal APNs prendrait le relais, mais ses clés
+ne sont pas encore configurées non plus.
 
 À faire : un script complémentaire chargé par `workbox.importScripts` (ou
 passer en `injectManifest`), qui sur `push` lit `event.data.json()` et
