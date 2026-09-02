@@ -86,6 +86,11 @@ export function ViewfinderScreen({
   // pleine-largeur : le viseur deborde des bandes de pellicule. Le cadrage
   // prime ici sur la signature graphique — cinquante-deux pixels de moins,
   // c'est un visage coupe au bord de l'image.
+  // Le fond du viseur reste noir, jamais `bg-well` : un carnet peut porter un
+  // fond bleu nuit, et une bande teintee autour d'une image en fausse les
+  // couleurs. Ce qui se pose PAR-DESSUS ce noir, en revanche, doit venir de la
+  // famille `ink-well` : sinon le carnet Papier y peint son encre #1a1a18,
+  // soit 1,20:1 de contraste — invisible.
   return (
     <div className="pleine-largeur relative flex h-full flex-col bg-black">
       <video
@@ -111,7 +116,7 @@ export function ViewfinderScreen({
         </div>
         <div className="mt-2 flex items-center gap-2">
           <span className="max-w-32 truncate rounded-full bg-black/50 px-3 py-1
-            text-xs text-ink-2 backdrop-blur">
+            text-xs text-ink-well-2 backdrop-blur">
             {eventName}
           </span>
           <button
@@ -119,7 +124,7 @@ export function ViewfinderScreen({
             onClick={() => setPartage(true)}
             aria-label="Montrer le code à quelqu’un"
             className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-black/50
-              text-ink backdrop-blur active:bg-black/70"
+              text-ink-well backdrop-blur active:bg-black/70"
           >
             {/* Un carre de visee, pas un faux QR code : l'icone dit le geste
                 sans pretendre etre le code. Le vrai est derriere. */}
@@ -145,7 +150,10 @@ export function ViewfinderScreen({
           {/* Le code est presente comme un tirage : bord blanc epais, comme
               sur le carton imprime. Le cadre porte l'identite, jamais le
               code. */}
-          <div className="bg-white p-3 shadow-2xl">
+          {/* Blanc pur, et pas un jeton : c'est la zone de silence du
+                  code. Un appareil photo a besoin de ce contraste-la quel que
+                  soit le carnet — meme raison qu'au sommet de QrCode.tsx. */}
+              <div className="bg-white p-3 shadow-2xl">
             <QrCode
               value={`${window.location.origin}/e/${slug}`}
               size={216}
@@ -196,9 +204,9 @@ export function ViewfinderScreen({
           onClick={takeShot}
           disabled={shot.isPending || total === 0}
           aria-label={`Prendre une photo, ${total} restantes`}
-          className="h-20 w-20 rounded-full bg-white ring-4 ring-edge
+          className="h-20 w-20 rounded-full bg-ink-well ring-4 ring-edge
             transition active:scale-95 disabled:opacity-40
-            focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-white"
+            focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-ink-well"
         >
           <span className="sr-only">Declencher</span>
         </button>
