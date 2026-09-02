@@ -83,7 +83,7 @@ export function IdentityScreen({ slug, useTableCodes, tables, onDone }: Identity
                     role="radio"
                     aria-checked={chosen}
                     onClick={() => { setSelected(chosen ? null : table.id); }}
-                    className={`h-11 rounded-carte border text-[13px] transition
+                    className={`h-11 rounded-carte border text-note transition
                       ${chosen
                         ? 'border-a1 bg-a1 font-bold text-on-a1'
                         : 'border-edge text-ink-2'}`}

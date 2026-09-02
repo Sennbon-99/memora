@@ -135,10 +135,10 @@ export function QrKitScreen() {
       <div className="mt-2">
 
       <section className="mt-6 w-full">
-        <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+        <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
           Ce que vous imprimez
         </h2>
-        <p className="mt-2 px-1 text-[13px] leading-relaxed text-ink-2">
+        <p className="mt-2 px-1 text-note leading-relaxed text-ink-2">
           L’affiche se pose à l’entrée, les cartes sur les tables. Chaque pièce
           est un fichier : cochez celles dont vous avez besoin.
         </p>
@@ -164,7 +164,7 @@ export function QrKitScreen() {
                   <span
                     aria-hidden="true"
                     className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-champ
-                      border text-[11px] font-bold
+                      border text-mini font-bold
                       ${cochee
                         ? 'border-a1 bg-a1 text-on-a1'
                         : 'border-edge'}`}
@@ -172,15 +172,15 @@ export function QrKitScreen() {
                     {cochee ? '✓' : ''}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[14px] font-semibold">{info.label}</span>
+                    <span className="block text-corps font-semibold">{info.label}</span>
                     {/* Le format et le nombre de pages sont annonces avant le
                         telechargement : sans eux, l'hote decouvre huit cartes
                         A5 quand il attendait une affiche. */}
-                    <span className="mt-0.5 block font-mono text-[9.5px] uppercase
+                    <span className="mt-0.5 block font-mono text-etiquette uppercase
                       tracking-[0.1em] text-ink-3">
                       {info.format} · QR {info.qrMm} mm · {pages}
                     </span>
-                    <span className="mt-1 block text-[12px] leading-snug text-ink-3">
+                    <span className="mt-1 block text-petit leading-snug text-ink-3">
                       {info.note}
                     </span>
                   </span>
@@ -193,10 +193,10 @@ export function QrKitScreen() {
 
         {event.useTableCodes && (
           <section className="w-full">
-            <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+            <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
               Vos tables
             </h2>
-            <p className="mt-2 px-1 text-[13px] leading-relaxed text-ink-2">
+            <p className="mt-2 px-1 text-note leading-relaxed text-ink-2">
               Vous demandez le numéro de table à vos invités. Créez-les ici :
               chacune reçoit son propre QR code dans le kit.
             </p>
@@ -225,7 +225,7 @@ export function QrKitScreen() {
                     aria-label="Une table de plus"
                     className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
                   >+</button>
-                  <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em]
+                  <span className="ml-auto font-mono text-etiquette uppercase tracking-[0.16em]
                     text-ink-3">Tables</span>
                 </div>
                 <Button

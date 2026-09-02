@@ -70,7 +70,7 @@ export function EventListScreen() {
                         pixels en haut de la carte : une bande aussi fine ne
                         peut pas epouser un rayon de vingt-quatre, et se
                         detachait en pastille flottante au-dessus du cadre. */}
-                    <p className="flex items-center gap-2 text-[15px] font-extrabold tracking-tight">
+                    <p className="flex items-center gap-2 text-lecture font-extrabold tracking-tight">
                       <span
                         aria-hidden="true"
                         className="size-2.5 shrink-0 rounded-full"

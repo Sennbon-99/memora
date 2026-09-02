@@ -33,19 +33,19 @@ function subtitle(roll: RollSummary): string {
 function Badge({ roll }: { roll: RollSummary }) {
   if (roll.pendingRemoval) {
     return (
-      <span className="shrink-0 rounded-full bg-danger-doux px-2 py-1 text-[10px] font-bold
+      <span className="shrink-0 rounded-full bg-danger-doux px-2 py-1 text-micro font-bold
         text-danger">retrait</span>
     );
   }
   if (!roll.reviewed) {
     return (
-      <span className="shrink-0 rounded-full bg-a-doux px-2 py-1 text-[10px] font-bold
+      <span className="shrink-0 rounded-full bg-a-doux px-2 py-1 text-micro font-bold
         text-a1">à trier</span>
     );
   }
   const kept = roll.photos - roll.hidden;
   return (
-    <span className="shrink-0 rounded-full bg-ok-doux px-2 py-1 text-[10px] font-bold
+    <span className="shrink-0 rounded-full bg-ok-doux px-2 py-1 text-micro font-bold
       text-ok">
       <span className="font-mono tabular-nums">{kept}</span> gardée{kept > 1 ? 's' : ''}
     </span>
@@ -94,7 +94,7 @@ export function GuestsScreen() {
           {/* L'avancement du tri est un chiffre, pas une phrase : mono et or,
               libelle en petites capitales. */}
           <div className="mt-6 flex items-center gap-3">
-            <span className="whitespace-nowrap font-mono text-[11px] tabular-nums text-a1">
+            <span className="whitespace-nowrap font-mono text-mini tabular-nums text-a1">
               {progress.done}/{progress.total}
             </span>
             <span className="h-1 flex-1 overflow-hidden rounded-full bg-pap-2">
@@ -104,7 +104,7 @@ export function GuestsScreen() {
                 style={{ width: `${progress.percent}%` }}
               />
             </span>
-            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+            <span className="font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
               Triées
             </span>
           </div>
@@ -135,10 +135,10 @@ export function GuestsScreen() {
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-bold">
+                    <span className="block truncate text-note font-bold">
                       {roll.firstName ?? 'Anonyme'}
                     </span>
-                    <span className="block truncate text-[11px] text-ink-3">{subtitle(roll)}</span>
+                    <span className="block truncate text-mini text-ink-3">{subtitle(roll)}</span>
                   </span>
 
                   <Badge roll={roll} />

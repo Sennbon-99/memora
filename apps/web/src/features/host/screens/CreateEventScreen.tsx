@@ -199,7 +199,7 @@ export function CreateEventScreen() {
                   aria-label="Une vue de plus"
                   className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
                 >+</button>
-                <span className="ml-auto text-right text-[11px] leading-tight text-ink-3">
+                <span className="ml-auto text-right text-mini leading-tight text-ink-3">
                   {quotaMeaning(quotaShots)}
                 </span>
               </div>

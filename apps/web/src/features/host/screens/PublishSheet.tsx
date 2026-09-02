@@ -54,10 +54,10 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
 
       <div className="relative m-3 rounded-carte border border-edge bg-well p-5
         animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
-        <h2 className="decoupe text-[26px] leading-tight tracking-tight">
+        <h2 className="decoupe text-titre leading-tight tracking-tight">
           Qui pourra voir l’album ?
         </h2>
-        <p className="mt-2 text-[13px] leading-relaxed text-ink-3">
+        <p className="mt-2 text-note leading-relaxed text-ink-3">
           <span className="font-mono tabular-nums text-a1">{count}</span>{' '}
           photographie{count > 1 ? 's' : ''} prête{count > 1 ? 's' : ''} à être publiée
           {count > 1 ? 's' : ''}. Ce choix vaut pour toute la soirée : les publications
@@ -85,8 +85,8 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
                   {selected && <span className="h-2 w-2 rounded-full bg-a1" />}
                 </span>
                 <span>
-                  <span className="block text-[13px] font-bold">{choice.label}</span>
-                  <span className="mt-0.5 block text-[11px] leading-relaxed text-ink-3">
+                  <span className="block text-note font-bold">{choice.label}</span>
+                  <span className="mt-0.5 block text-mini leading-relaxed text-ink-3">
                     {choice.note}
                   </span>
                 </span>

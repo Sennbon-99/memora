@@ -94,10 +94,10 @@ export function BillingScreen() {
 
         {/* Ce qui est compris n'est pas une carte de plus : c'est une liste,
             et une liste se lit en rangees separees par un filet. */}
-        <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+        <h2 className="mt-8 px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
           Ce que comprend une soirée
         </h2>
-        <ul className="mt-1 flex flex-col text-[13px] text-ink-2">
+        <ul className="mt-1 flex flex-col text-note text-ink-2">
           <li className="border-b border-edge-2 px-1 py-3">
             Jusqu’à <span className="font-mono tabular-nums">200</span> invités,
             sans application à installer
@@ -116,7 +116,7 @@ export function BillingScreen() {
           </li>
         </ul>
 
-        <p className="mt-6 px-1 text-[11px] leading-relaxed text-ink-3">
+        <p className="mt-6 px-1 text-mini leading-relaxed text-ink-3">
           Le paiement est traité par Stripe. Aucun numéro de carte ne passe
           par Memora, ni n’y est conservé.
         </p>

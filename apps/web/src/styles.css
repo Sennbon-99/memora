@@ -109,6 +109,45 @@
      manuscrite dans une soiree d'entreprise n'aurait aucun sens. */
   --font-display: Anton, Impact, 'Haettenschweiler', sans-serif;
   --font-sans: 'DM Sans Variable', system-ui, -apple-system, sans-serif;
+
+  /* L'echelle typographique.
+
+     Le produit portait seize tailles arbitraires en `text-[Npx]`, dont des
+     doublons a un demi-pixel et six valeurs uniques. Chaque palier ci-dessous
+     reprend une valeur deja employee : la migration ne deplace rien a l'ecran,
+     sauf quatre elements isoles fondus dans le palier voisin.
+
+     Les tailles nommees de Tailwind — text-sm, text-xs — ne sont PAS reprises
+     ici : elles emportent une interligne que ces jetons n'ont pas, et les
+     remplacer la ferait disparaitre sur une centaine d'elements. Elles restent
+     l'echelle du texte courant ; celle-ci est l'echelle des corps choisis. */
+  /* les libelles en capitales espacees, le plus petit corps du produit */
+  --text-etiquette: 9px;
+  /* les mentions techniques : formats, dimensions */
+  --text-micro: 10px;
+  /* le corps le plus employe des annotations */
+  --text-mini: 11px;
+  /* les notes secondaires */
+  --text-petit: 12px;
+  /* l'aide sous un titre */
+  --text-note: 13px;
+  /* le texte courant d'une carte */
+  --text-corps: 14px;
+  /* le texte suivi qu'on lit vraiment, paragraphe apres paragraphe */
+  --text-lecture: 15px;
+  /* le titre replie de Screen, et lui seul */
+  --text-bandeau: 19px;
+  /* les titres de section */
+  --text-sous-titre: 24px;
+  /* les titres d'ecran secondaires */
+  --text-titre: 26px;
+  /* les titres d'ecran */
+  --text-grand: 34px;
+  /* le titre principal d'un ecran d'invite */
+  --text-affiche: 42px;
+  /* le nom du produit, une seule fois */
+  --text-marque: 64px;
+
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 

@@ -131,10 +131,10 @@ export function MomentsScreen() {
           decompte — la seule chose qu'on vient lire ici. */}
       {running && (
         <div className="mt-6 rounded-carte border border-a1 bg-a-doux p-5">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-a1">
+          <p className="font-mono text-etiquette uppercase tracking-[0.16em] text-a1">
             En cours
           </p>
-          <p className="mt-1.5 decoupe text-[28px] leading-none text-ink">{running.label}</p>
+          <p className="mt-1.5 decoupe text-titre leading-none text-ink">{running.label}</p>
           {/* Le decompte seul en gros chiffres : c'est ce qu'on vient lire.
               Le mot « Encore » en corps de titre le diluait. */}
           {(() => {
@@ -144,18 +144,18 @@ export function MomentsScreen() {
             ) : (
               <p className="mt-3 font-mono text-2xl leading-none font-medium tabular-nums text-a1">
                 {formatCountdown(left)}
-                <span className="ml-2 font-sans text-[11px] font-normal text-ink-3">restant</span>
+                <span className="ml-2 font-sans text-mini font-normal text-ink-3">restant</span>
               </p>
             );
           })()}
-          <p className="mt-2.5 text-[11px] text-ink-3">
+          <p className="mt-2.5 text-mini text-ink-3">
             <span className="font-mono tabular-nums">{running.photoCount}</span> photo
             {running.photoCount > 1 ? 's' : ''} reçue{running.photoCount > 1 ? 's' : ''}
           </p>
           <button
             onClick={() => close.mutate(running.id)}
             disabled={close.isPending}
-            className="mt-4 h-10 w-full rounded-champ border border-a1 text-[13px]
+            className="mt-4 h-10 w-full rounded-champ border border-a1 text-note
               font-bold text-a1 transition active:bg-appui"
           >
             {close.isPending ? 'Fermeture…' : 'Fermer maintenant'}
@@ -220,7 +220,7 @@ export function MomentsScreen() {
             </p>
           ) : waiting.length > 0 ? (
             <>
-              <h2 className="mt-8 px-1 font-mono text-[9px] uppercase tracking-[0.16em]
+              <h2 className="mt-8 px-1 font-mono text-etiquette uppercase tracking-[0.16em]
                 text-ink-3">
                 Préparés
               </h2>
@@ -239,8 +239,8 @@ export function MomentsScreen() {
                       style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[13px] font-bold">{moment.label}</span>
-                        <span className="block text-[11px] text-ink-3">
+                        <span className="block truncate text-note font-bold">{moment.label}</span>
+                        <span className="block text-mini text-ink-3">
                           <span className="font-mono tabular-nums">{moment.bonusShots}</span> vue
                           {moment.bonusShots > 1 ? 's' : ''} offerte
                           {moment.bonusShots > 1 ? 's' : ''} ·{' '}
@@ -255,7 +255,7 @@ export function MomentsScreen() {
                       </span>
 
                       {done ? (
-                        <span className="shrink-0 rounded-full bg-pap-2 px-2.5 py-1 text-[10px]
+                        <span className="shrink-0 rounded-full bg-pap-2 px-2.5 py-1 text-micro
                           font-bold text-ink-3">terminé</span>
                       ) : (
                         // Une touche, sans confirmation : on ne vise pas deux
@@ -264,7 +264,7 @@ export function MomentsScreen() {
                         <button
                           onClick={() => trigger.mutate(moment.id)}
                           disabled={trigger.isPending || running !== null || !live}
-                          className="h-10 shrink-0 rounded-champ bg-a1 px-4 text-[12px]
+                          className="h-10 shrink-0 rounded-champ bg-a1 px-4 text-petit
                             font-bold text-on-a1 disabled:opacity-35"
                         >
                           Déclencher
@@ -278,7 +278,7 @@ export function MomentsScreen() {
           ) : null}
 
           {running && (
-            <p className="mt-4 text-center text-[11px] text-ink-3">
+            <p className="mt-4 text-center text-mini text-ink-3">
               Un seul moment à la fois. Fermez celui en cours pour en lancer un autre.
             </p>
           )}
@@ -317,7 +317,7 @@ function Stepper({ label, value, min, max, onChange, note }: {
           aria-label={`${label} : augmenter`}
           className="h-11 w-11 rounded-champ bg-pap-2 text-xl active:bg-appui"
         >+</button>
-        <span className="ml-auto text-right text-[11px] leading-tight text-ink-3">{note}</span>
+        <span className="ml-auto text-right text-mini leading-tight text-ink-3">{note}</span>
       </div>
     </div>
   );

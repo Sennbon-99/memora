@@ -88,10 +88,10 @@ export function RemovalsScreen() {
                 className="aspect-[4/3] w-full object-cover"
               />
               <div className="p-4">
-                <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+                <p className="font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
                   Demandé le {dateFr(request.createdAt)}
                 </p>
-                <p className="mt-1.5 text-[12px] text-ink-2">{requesterLabel(request)}</p>
+                <p className="mt-1.5 text-petit text-ink-2">{requesterLabel(request)}</p>
                 <p className="mt-3 text-sm italic leading-relaxed text-ink-2">
                   « {request.reason} »
                 </p>
@@ -101,14 +101,14 @@ export function RemovalsScreen() {
                     onClick={() => handle.mutate({ id: request.id, accept: false })}
                     disabled={handle.isPending}
                     className="h-11 flex-1 rounded-champ border border-edge bg-pap-2
-                      text-[13px] font-semibold transition active:bg-appui"
+                      text-note font-semibold transition active:bg-appui"
                   >
                     Conserver
                   </button>
                   <button
                     onClick={() => handle.mutate({ id: request.id, accept: true })}
                     disabled={handle.isPending}
-                    className="h-11 flex-[1.3] rounded-champ bg-a1 text-[13px]
+                    className="h-11 flex-[1.3] rounded-champ bg-a1 text-note
                       font-bold text-on-a1"
                   >
                     {handle.isPending ? 'Un instant…' : 'Effacer la photo'}
@@ -120,7 +120,7 @@ export function RemovalsScreen() {
 
           {handled.length > 0 && (
             <section>
-              <h2 className="px-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+              <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
                 Déjà traitées
               </h2>
               <ul className="mt-1 flex flex-col">
@@ -137,14 +137,14 @@ export function RemovalsScreen() {
                         ${request.state === 'ACCEPTED' ? 'opacity-30 grayscale' : ''}`}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[12px] text-ink-2">
+                      <span className="block truncate text-petit text-ink-2">
                         {requesterLabel(request)}
                       </span>
-                      <span className="block text-[10px] text-ink-3">
+                      <span className="block text-micro text-ink-3">
                         {request.handledAt ? dateFr(request.handledAt) : ''}
                       </span>
                     </span>
-                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold
+                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-micro font-bold
                       ${request.state === 'ACCEPTED'
                         ? 'bg-pap-2 text-ink-3'
                         : 'bg-ok-doux text-ok'}`}>

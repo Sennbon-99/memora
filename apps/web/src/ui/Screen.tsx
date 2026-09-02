@@ -127,7 +127,7 @@ export function Screen({
             transition-opacity duration-200 motion-reduce:transition-none
             ${replie.replie ? 'opacity-100' : 'opacity-0'}`}
         >
-          <p className="decoupe mx-auto max-w-md truncate text-[19px] leading-none safe-top">
+          <p className="decoupe mx-auto max-w-md truncate text-bandeau leading-none safe-top">
             {title}
           </p>
         </div>
@@ -138,13 +138,13 @@ export function Screen({
           className={
             hideTitle
               ? 'sr-only'
-              : 'decoupe text-[42px] leading-[0.95] tracking-tight text-balance'
+              : 'decoupe text-affiche leading-[0.95] tracking-tight text-balance'
           }
         >
           {title}
         </h1>
         {subtitle && !hideTitle && (
-          <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{subtitle}</p>
+          <p className="mt-3 text-lecture leading-relaxed text-ink-2">{subtitle}</p>
         )}
         {/* Sentinelle : sa sortie de l'ecran declenche le repli. Un ecouteur
             de defilement ferait le meme travail, mais a chaque image et sur

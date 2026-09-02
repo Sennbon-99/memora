@@ -66,7 +66,7 @@ export function CameraDeniedScreen({
       {/* Trois temps plutot qu'un compteur seul sous le titre : l'etat de la
           pellicule, le decompte, ce que fait le declencheur. */}
       <div className="flex flex-1 flex-col justify-between pb-6 pt-7">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+        <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
           Repli sans viseur
         </p>
 
@@ -79,8 +79,8 @@ export function CameraDeniedScreen({
 
         <div className="flex flex-col gap-4">
           <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-5">
-            <h2 className="decoupe text-[24px] leading-tight">La pellicule continue</h2>
-            <p className="mt-2.5 text-[14px] leading-relaxed text-ink-2">
+            <h2 className="decoupe text-sous-titre leading-tight">La pellicule continue</h2>
+            <p className="mt-2.5 text-corps leading-relaxed text-ink-2">
               Chaque vue prise par l’appareil photo de votre téléphone rejoint
               votre pellicule, et le compteur baisse d’autant. Vous ne perdez
               rien à passer par ce chemin.

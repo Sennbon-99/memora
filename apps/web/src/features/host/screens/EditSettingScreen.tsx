@@ -130,7 +130,7 @@ export function EditSettingScreen() {
               aria-label="Une vue de plus"
               className="h-11 w-11 rounded-champ bg-pap-2 text-xl disabled:opacity-30"
             >+</button>
-            <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em]
+            <span className="ml-auto font-mono text-etiquette uppercase tracking-[0.16em]
               text-ink-3">Vues</span>
           </div>
         )}
@@ -192,7 +192,7 @@ export function EditSettingScreen() {
                 changer d'application sous les doigts d'un invite en train de
                 photographier — c'est la regle deja appliquee a l'apercu. */}
             {event.state === 'OPEN' && (
-              <p className="rounded-carte border border-edge bg-pap-2 p-3 text-[13px]
+              <p className="rounded-carte border border-edge bg-pap-2 p-3 text-note
                 leading-relaxed text-ink-2">
                 La soirée est en cours : le carnet ne change plus jusqu’à sa fermeture.
                 Vous pourrez le reprendre avant de publier l’album.
@@ -226,8 +226,8 @@ export function EditSettingScreen() {
                     </span>
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] font-bold">{CARNET_LABEL[carnet]}</span>
-                    <span className="mt-1 block text-[12.5px] leading-relaxed text-ink-2">
+                    <span className="block text-lecture font-bold">{CARNET_LABEL[carnet]}</span>
+                    <span className="mt-1 block text-note leading-relaxed text-ink-2">
                       {CARNET_NOTE[carnet]}
                     </span>
                   </span>

@@ -40,13 +40,13 @@ export function EntryScreen() {
           marque, la promesse, le geste attendu. La version precedente laissait
           un tiers de l'ecran vide au milieu, faute de rythme. */}
       <div className="flex flex-1 flex-col justify-between pb-6 pt-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
+        <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
           Appareil photo jetable · soirées
         </p>
 
         <div>
-          <h2 className="decoupe text-[64px] leading-[0.88] tracking-tight">Memora</h2>
-          <p className="mt-6 max-w-[19ch] decoupe text-[26px] leading-[1.15] text-ink-2">
+          <h2 className="decoupe text-marque leading-[0.88] tracking-tight">Memora</h2>
+          <p className="mt-6 max-w-[19ch] decoupe text-titre leading-[1.15] text-ink-2">
             Votre soirée vue par tous ceux qui y étaient.
           </p>
         </div>
@@ -59,7 +59,7 @@ export function EntryScreen() {
               scanner. Un pictogramme de vingt-quatre unites de cote ne ment
               pas ; un damier de donnees, si. */}
           <Icon nom="qr" taille={44} className="text-a1" />
-          <p className="text-[14px] leading-relaxed text-ink-2">
+          <p className="text-corps leading-relaxed text-ink-2">
             Scannez le QR code posé sur votre table. Il charge votre pellicule,
             sans compte ni inscription.
           </p>
