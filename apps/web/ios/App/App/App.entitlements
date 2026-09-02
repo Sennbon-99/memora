@@ -4,5 +4,13 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<!-- Les liens universels : un QR code de table scanne avec l'appareil
+	     photo ouvre l'application installee sur la soiree, au lieu de Safari.
+	     Le domaine doit servir /.well-known/apple-app-site-association avec
+	     le meme identifiant d'equipe : voir nginx.conf.template. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:memora-app.fr</string>
+	</array>
 </dict>
 </plist>

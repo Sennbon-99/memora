@@ -37,4 +37,12 @@ COPY apps/web/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 
 ENV API_UPSTREAM=http://memora-api:3000
+# Le domaine public et l'identifiant d'equipe Apple sont remplis par le
+# deploiement. Leur valeur par defaut n'est pas decorative : envsubst ne
+# remplace que les variables definies, et une variable absente resterait
+# ecrite « ${PUBLIC_HOST} » dans la configuration — que nginx lirait comme
+# une variable inconnue, et refuserait de demarrer. Le site entier tomberait
+# pour un reglage oublie.
+ENV PUBLIC_HOST=memora-app.fr
+ENV APPLE_TEAM_ID=""
 EXPOSE 80

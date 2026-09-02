@@ -19,8 +19,12 @@ export default defineConfig({
         description: 'Vos invites deviennent le photographe',
         start_url: '/',
         display: 'standalone',
-        background_color: '#141019',
-        theme_color: '#141019',
+        // Le carnet de la marque (--color-pap de papier.css) : c'est ce que
+        // montre l'ecran de lancement d'une application installee depuis
+        // le navigateur. La balise theme-color, elle, suit le carnet de la
+        // soiree a l'execution ; ici c'est seulement le premier instant.
+        background_color: '#f5f2ea',
+        theme_color: '#f5f2ea',
         // Ces trois adresses ne pointaient sur aucun fichier : le manifeste
         // annoncait des icones qui n'ont jamais existe, et le systeme
         // retombait sur une capture de la page a l'installation.
@@ -34,7 +38,9 @@ export default defineConfig({
         // Les photographies ne sont jamais mises en cache : elles sont
         // volumineuses, servies par adresse signee expirante, et l'invite
         // n'est de toute facon pas cense les revoir.
-        navigateFallbackDenylist: [/^\/api/],
+        // Ni l'API, ni /.well-known : ce dossier porte le fichier que
+        // l'iPhone lit pour les liens universels, et il doit venir de nginx.
+        navigateFallbackDenylist: [/^\/api/, /^\/\.well-known/],
         // Les polices sont servies par l'application elle-meme et deja
         // precachees avec le reste des ressources : la regle qui mettait en
         // cache fonts.googleapis.com ne s'appliquait a rien, l'application

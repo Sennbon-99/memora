@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router.js';
+import { ecouterLesPortes } from './lib/natif.js';
 import './styles.css';
 
 /**
@@ -20,6 +21,11 @@ const queryClient = new QueryClient({
     queries: { refetchOnWindowFocus: false, retry: 1 },
   },
 });
+
+// L'application installee recoit ses adresses par le natif — QR code
+// scanne avec l'appareil photo, notification touchee — et non par la barre
+// du navigateur. Sur le web, l'appel ne fait rien.
+ecouterLesPortes((chemin) => void router.navigate(chemin));
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
