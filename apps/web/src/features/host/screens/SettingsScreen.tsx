@@ -12,7 +12,9 @@
 // blocs gris de meme poids, ou l'on ne voyait plus la coupure entre la
 // soiree et le compte.
 
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
+import { eventApi, remettreFichier } from '../../../lib/api.js';
 import type { ReactNode } from 'react';
 import type { PreviewMode } from '@memora/types';
 import { Screen } from '../../../ui/Screen.js';
@@ -80,6 +82,12 @@ export function SettingsScreen() {
   const { data: rolls } = useRolls(eventId);
   const { data: session } = useSession();
   const logout = useLogout();
+  // L'archive d'une soiree bien remplie pese lourd et met du temps a se
+  // composer : le libelle doit le dire, sinon l'hote appuie trois fois.
+  const archive = useMutation({
+    mutationFn: () => eventApi.archive(eventId),
+    onSuccess: remettreFichier,
+  });
 
   if (!data) return <Spinner label="Chargement des réglages" />;
   const { event } = data;
@@ -127,11 +135,13 @@ export function SettingsScreen() {
           onClick={() => navigate(`/hote/${eventId}/retraits`)}
         />
         <Line label="Co-hôtes et photographe" onClick={() => navigate(`/hote/${eventId}/equipe`)} />
-        {/* Telechargement direct : l'archive est construite au fil de l'eau
-            par le serveur, elle ne passe pas par le client. */}
+        {/* L'archive est construite au fil de l'eau par le serveur, elle ne
+            passe pas par le client — mais elle est derriere requireAuth, donc
+            elle se recupere avec l'en-tete, pas en ouvrant une adresse. */}
         <Line
           label="Télécharger l’album"
-          onClick={() => window.open(`/api/events/${eventId}/download`, '_blank')}
+          value={archive.isPending ? 'En cours…' : undefined}
+          onClick={() => { if (!archive.isPending) archive.mutate(); }}
         />
       </Group>
 
