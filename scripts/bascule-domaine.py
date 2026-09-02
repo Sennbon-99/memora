@@ -13,7 +13,9 @@
 #   APPLE_TEAM_ID   facultatif — l'identifiant d'equipe Apple, pour les liens universels
 #   --photos        passe aussi S3_ENDPOINT sur https://photos.memora-app.fr. A ne
 #                   donner qu'une fois le domaine de MinIO deplace dans Coolify :
-#                   avant, plus aucune photographie ne se chargerait.
+#                   avant, plus aucune photographie ne se chargerait. Le script
+#                   le verifie de lui-meme et refuse d'ecrire si l'hote ne sert
+#                   pas encore l'API S3.
 #
 # Le script ne devine rien : il lit les applications, les reconnait a ce
 # qu'elles portent, montre ce qu'il va changer, et s'arrete si quelque chose
@@ -134,6 +136,55 @@ def deployer(app):
     return reponse
 
 
+def sonder(url, secondes=10):
+    """Un GET, certificat verifie. Rend (statut, type de contenu).
+
+    Un certificat invalide leve, comme une panne : c'est voulu. La bascule
+    ne doit pas s'appuyer sur un hote que le navigateur d'un invite
+    refusera.
+    """
+    import ssl
+    requete = urllib.request.Request(url, method='GET')
+    try:
+        with urllib.request.urlopen(requete, timeout=secondes,
+                                    context=ssl.create_default_context()) as reponse:
+            return reponse.status, reponse.headers.get('Content-Type', '')
+    except urllib.error.HTTPError as erreur:
+        return erreur.code, erreur.headers.get('Content-Type', '')
+
+
+def souci_minio(hote):
+    """Dit ce qui empeche de faire suivre S3_ENDPOINT sur `hote`, ou rien.
+
+    Deux erreurs que ce controle attrape, et qui coutent cher parce qu'elles
+    ne se voient qu'au premier invite qui ouvre un album :
+
+    - le domaine pas encore pose, ou son certificat pas encore emis : plus
+      rien ne repond ;
+    - le port 9001 au lieu du 9000 : la console repond, en HTML, et
+      S3_ENDPOINT pointerait alors sur une interface web au lieu de l'API
+      S3. Les adresses signees seraient emises sans erreur, et aucune ne
+      servirait une photographie.
+
+    Dans les deux cas le kit est deja imprime quand on s'en apercoit.
+    """
+    try:
+        statut, _ = sonder(f'https://{hote}/minio/health/live')
+    except Exception as erreur:
+        return f'https://{hote} ne repond pas ({erreur}).'
+    if statut != 200:
+        return (f'https://{hote}/minio/health/live → HTTP {statut} : '
+                'un MinIO en bonne sante repond 200.')
+    try:
+        _, type_contenu = sonder(f'https://{hote}/')
+    except Exception as erreur:
+        return f'https://{hote} ne repond pas ({erreur}).'
+    if 'html' in type_contenu.lower():
+        return (f'https://{hote}/ rend du HTML : c\'est la console (port 9001), '
+                'pas l\'API S3. Le domaine doit pointer sur le port 9000.')
+    return None
+
+
 def attendre_https(hote, secondes=180):
     """Attend que Traefik serve le domaine avec un certificat valide."""
     import ssl
@@ -196,9 +247,26 @@ def main():
     if not TEAM_ID and not valeur(web, 'APPLE_TEAM_ID'):
         print("\n  APPLE_TEAM_ID vide : tout marche sauf les liens universels, a remplir plus tard.")
 
+    # --photos ne se donne qu'une fois MinIO deplace. On le verifie plutot
+    # que de le rappeler : la panne qu'on evite ici est silencieuse cote
+    # serveur — l'API signe des adresses parfaitement valides vers un hote
+    # qui ne sert rien.
+    souci = souci_minio(PHOTOS) if PHOTOS_AUSSI else None
+    if souci:
+        print(f"\n  --photos, mais {souci}")
+        print(f"  Fais d'abord l'etape MinIO : domaine https://{PHOTOS} sur le port 9000,")
+        print(f"  variable MINIO_SERVER_URL=https://{PHOTOS}, puis redeploiement.")
+    elif PHOTOS_AUSSI:
+        print(f"\n  https://{PHOTOS} sert l'API S3 avec un certificat valide : "
+              'S3_ENDPOINT peut suivre.')
+
     if not APPLIQUER:
         print("\nRien n'a ete change. Relance avec --apply pour appliquer.")
         return
+
+    if souci:
+        raise SystemExit("\nRien n'a ete change : --photos ferait pointer S3_ENDPOINT sur un "
+                         "hote qui ne sert pas les photographies.")
 
     print('\nApplication…')
     api('PATCH', f"/applications/{web['uuid']}", {'domains': f'https://{DOMAINE},https://www.{DOMAINE}'})
