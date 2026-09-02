@@ -19,3 +19,6 @@ apps/web/.env.native
 
 # Cache incremental de TypeScript : regenere a chaque compilation.
 *.tsbuildinfo
+
+# Python : le cache de compilation du script de bascule
+__pycache__/
