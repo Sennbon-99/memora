@@ -227,10 +227,34 @@ input, textarea {
 
   /* Un tirage : bord blanc, ombre courte, legere rotation. La rotation est
      posee par l'appelant via --pose-angle, pour qu'aucune image ne soit
-     exactement alignee sur la suivante. */
+     exactement alignee sur la suivante.
+
+     Aucun filet : c'est l'image posee dessus qui donne le contraste, la marge
+     blanche ne fait que l'isoler du papier. Cerner une photographie d'un trait
+     beige n'en ferait plus un tirage mais un cadre. */
   .tirage {
     background: var(--color-tirage);
     padding: 8px;
+    box-shadow: var(--ombre-tirage);
+    transform: rotate(var(--pose-angle, 0deg));
+  }
+
+  /* Le meme papier, mais qui ne porte que du texte.
+
+     Sans image dedans, plus rien ne porte le contraste : il ne reste que du
+     blanc sur du presque-blanc. L'ecart mesure entre le tirage et le fond vaut
+     1,12:1 en Papier et 1,10:1 en Bleu — le Carnet noir, lui, est a 17,39:1 et
+     n'en aurait pas besoin. Le filet est donc pose pour les deux carnets
+     clairs ; dans le sombre il se confond avec le bord du tirage et ne coute
+     rien.
+
+     Le texte prend --color-ink-tirage, l'encre faite pour ce papier : celle de
+     la page serait trop claire dans le Carnet noir, ou le tirage est blanc et
+     la page ne l'est pas. */
+  .tirage-texte {
+    background: var(--color-tirage);
+    color: var(--color-ink-tirage);
+    border: 1px solid var(--color-edge);
     box-shadow: var(--ombre-tirage);
     transform: rotate(var(--pose-angle, 0deg));
   }

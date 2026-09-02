@@ -27,6 +27,18 @@ function hue(hex: string): number {
   return (t * 60 + 360) % 360;
 }
 
+/**
+ * La coloration d'une teinte, de 0 a 100.
+ *
+ * L'ecart entre le canal le plus fort et le plus faible, et non la saturation
+ * HLS : celle-ci s'emballe aux extremites de clarte et donne 35 % a #f5f2ea,
+ * un creme que personne n'appellerait colore.
+ */
+function chroma(hex: string): number {
+  const c = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+  return ((Math.max(...c) - Math.min(...c)) / 255) * 100;
+}
+
 const ICI = dirname(fileURLToPath(import.meta.url));
 
 /**
@@ -99,5 +111,27 @@ describe('les carnets', () => {
       const teinte = hue(danger as string);
       expect(teinte >= 340 || teinte <= 25, `teinte ${teinte.toFixed(0)}deg`).toBe(true);
     });
+
+    // Une encre est une encre, pas un accent.
+    //
+    // Le carnet Bleu portait --color-ink-tirage: #1f3fa8, soit son accent
+    // copie a la place d'une encre : tout texte pose sur un tirage y sortait
+    // en bleu vif. Le controle de contraste ne l'a pas vu, et ne pouvait pas
+    // le voir — #1f3fa8 tient 8,99:1 sur du blanc. Ce qui le trahit, c'est la
+    // coloration.
+    //
+    // Borne haute seulement : l'encre la plus coloree des trois carnets est a
+    // 14,9 %, la valeur fautive etait a 53,7 %. On ne borne pas dans l'autre
+    // sens, un accent ayant parfaitement le droit d'etre pale — le a3 du Bleu
+    // est a 12,2 %.
+    it.each(['ink', 'ink-2', 'ink-3', 'ink-tirage', 'ink-well', 'ink-well-2'])(
+      "%s reste une encre, pas un accent",
+      (jeton) => {
+        const valeur = trouve[jeton];
+        expect(valeur, `le jeton --color-${jeton} manque`).toBeDefined();
+        const colore = chroma(valeur as string);
+        expect(colore, `${valeur} est colore a ${colore.toFixed(1)} %`).toBeLessThan(30);
+      },
+    );
   });
 });

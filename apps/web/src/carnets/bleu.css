@@ -9,7 +9,11 @@
   --color-pap: #f2f4f7;
   --color-pap-2: #ffffff;
   --color-tirage: #ffffff;
-  --color-ink-tirage: #1f3fa8;
+  /* L'encre posee SUR un tirage, jamais l'accent du carnet. Elle valait
+     #1f3fa8 — l'accent, copie ici par erreur : chaque paragraphe pose sur
+     un tirage sortait en bleu vif, la ou les deux autres carnets emploient
+     un gris desature (5 % et 9 % de saturation contre 69 %). */
+  --color-ink-tirage: #333e52;
 
   --color-ink: #101a2e;
   --color-ink-2: #45536b;
@@ -45,7 +49,11 @@
   --grade: saturate(0.5) contrast(1.06) brightness(1.05);
   --rule: rgb(31 63 168 / 0.15);
   --tape: rgb(196 213 240 / 0.62);
-  --ombre-tirage: 0 10px 22px -12px rgb(16 26 46 / 0.5);
+  /* Deux couches, comme le carnet Papier : la portee, puis une ligne de
+     contact d'un pixel. Sans elle, un tirage blanc sur un fond #f2f4f7 ne
+     se detache que de 1,10:1 — l'ombre floue seule ne suffit pas a poser
+     un bord. */
+  --ombre-tirage: 0 10px 22px -12px rgb(16 26 46 / 0.5), 0 1px 0 rgb(16 26 46 / 0.14);
 
   --font-display: 'DM Sans Variable', system-ui, sans-serif;
   --font-hand: 'DM Sans Variable', system-ui, sans-serif;
