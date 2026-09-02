@@ -16,7 +16,6 @@
 /* opsz et non l'entree par defaut : ce fichier porte l'axe de taille
    optique, celui qui redessine les lettres selon le corps de rendu. */
 @import '@fontsource/anton';
-@import '@fontsource-variable/caveat';
 @import '@fontsource-variable/dm-sans';
 @import '@fontsource-variable/jetbrains-mono';
 
@@ -109,7 +108,6 @@
      sur les trois. C'est ce que fait Bleu de bureau, ou une ecriture
      manuscrite dans une soiree d'entreprise n'aurait aucun sens. */
   --font-display: Anton, Impact, 'Haettenschweiler', sans-serif;
-  --font-hand: 'Caveat Variable', 'Segoe Script', cursive;
   --font-sans: 'DM Sans Variable', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
@@ -208,12 +206,6 @@ input, textarea {
     font-family: var(--font-display);
     letter-spacing: var(--tracking-display);
     line-height: 0.92;
-  }
-
-  /* L'annotation manuscrite, celle qu'on ajoute dans la marge. */
-  .annotation {
-    font-family: var(--font-hand);
-    line-height: 1.2;
   }
 
   /* Le quadrillage du carnet. Un carnet qui n'en veut pas met --rule a

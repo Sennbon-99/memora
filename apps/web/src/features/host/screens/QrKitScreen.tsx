@@ -163,7 +163,7 @@ export function QrKitScreen() {
                 >
                   <span
                     aria-hidden="true"
-                    className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-[4px]
+                    className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-champ
                       border text-[11px] font-bold
                       ${cochee
                         ? 'border-a1 bg-a1 text-on-a1'
