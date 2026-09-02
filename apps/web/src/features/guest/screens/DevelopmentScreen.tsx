@@ -84,7 +84,7 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
           </p>
         </div>
 
-        <div className="rounded-carte border border-edge bg-pap-2 p-5">
+        <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-5">
           <h2 className="decoupe text-[24px] leading-tight">
             {queued > 0 ? (
               <>

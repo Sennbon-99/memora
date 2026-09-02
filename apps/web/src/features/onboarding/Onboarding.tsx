@@ -151,7 +151,7 @@ export function Onboarding({ role, onDone }: OnboardingProps) {
           {etapes.map((_, rang) => (
             <span
               key={rang}
-              className={`h-1.5 rounded-sm transition-all duration-300 motion-reduce:transition-none
+              className={`h-1.5 rounded-full transition-all duration-300 motion-reduce:transition-none
                 ${rang === index ? 'w-8 bg-a1' : 'w-4 bg-edge'}`}
             />
           ))}

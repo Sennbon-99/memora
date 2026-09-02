@@ -92,7 +92,7 @@ export function QrCode({ value, size = 200, label }: QrCodeProps) {
       role="img"
       aria-label={label}
       style={{ width: size, height: size }}
-      className="rounded-sm bg-white"
+      className="rounded-carte bg-white"
     />
   );
 }

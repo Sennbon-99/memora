@@ -75,7 +75,7 @@ export function EndOfRollScreen({
           </p>
         </div>
 
-        <div className="rounded-carte border border-edge bg-pap-2 p-6">
+        <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
             Code de secours
           </p>

@@ -5,7 +5,7 @@
 // filtrage est fait cote serveur par canSeePhoto : le client affiche ce
 // qu'on lui envoie, il ne decide rien.
 
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { photoApi, ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
@@ -14,6 +14,11 @@ import { Spinner } from '../../../ui/Spinner.js';
 import { Photo } from '../../../ui/Photo.js';
 
 export function AlbumScreen({ firstName }: { firstName: string | null }) {
+  /** Angle de pose d'un tirage. Cinq valeurs qui se repetent : deux vues
+   *  voisines ne sont jamais alignees, et la planche ne part pas en
+   *  travers. La rotation est lue par .tirage via --pose-angle. */
+  const pose = (index: number) => `${[-0.6, 0.45, -0.3, 0.7, -0.45][index % 5]}deg`;
+
   const [asking, setAsking] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [done, setDone] = useState<string[]>([]);
@@ -61,7 +66,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
         code={{ hautGauche: 'MEMORA 400', basGauche: 'ALBUM', hautDroite: 'HORS LIGNE' }}
       >
         <div className="flex flex-1 flex-col justify-center pb-16">
-          <div className="rounded-carte border border-edge bg-pap-2 p-6">
+          <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche indisponible
             </p>
@@ -92,7 +97,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
         // La planche vide occupe la hauteur au lieu d'y flotter : une ligne
         // centree perdue au milieu de l'ecran ressemble a une panne.
         <div className="flex flex-1 flex-col justify-center pb-16">
-          <div className="rounded-carte border border-edge bg-pap-2 p-6">
+          <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-a1">
               Planche vide
             </p>
@@ -121,14 +126,18 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
             {photos.map((photo, index) => (
               <li
                 key={photo.id}
-                className="relative animate-[rise_.3s_ease_backwards] motion-reduce:animate-none"
-                style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
+                className="tirage relative animate-[rise_.3s_ease_backwards]
+                  motion-reduce:animate-none"
+                style={{
+                  animationDelay: `${Math.min(index, 10) * 30}ms`,
+                  '--pose-angle': pose(index),
+                } as CSSProperties}
               >
                 <Photo
                   src={photo.url}
                   alt={`Photographie prise le ${new Date(photo.takenAt).toLocaleString('fr-FR')}`}
                   loading="lazy"
-                  className="aspect-square w-full rounded-champ bg-pap-2 object-cover"
+                  className="aspect-square w-full object-cover"
                 />
                 {done.includes(photo.id) ? (
                   <span className="absolute inset-x-1.5 bottom-1.5 rounded-champ bg-pap px-2

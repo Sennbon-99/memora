@@ -84,7 +84,7 @@ export function PhotographerScreen() {
           </p>
         </div>
 
-        <div className="rounded-carte border border-edge bg-pap-2 p-6">
+        <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
           <p className="text-[15px] leading-relaxed text-ink-2">
             {closed
               ? 'Vos photographies déjà déposées sont conservées trente jours. L’organisateur y a accès pour composer sa sélection.'

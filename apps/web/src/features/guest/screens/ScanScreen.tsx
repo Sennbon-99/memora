@@ -191,6 +191,10 @@ export function ScanScreen() {
                 complet se confond avec le bord du QR code et l'invite ne sait
                 plus lequel viser. */}
             <div aria-hidden="true" className="pointer-events-none absolute inset-6">
+              {/* Huit pixels, hors du systeme, et volontairement : ce sont des
+                  equerres de visee, pas des cartes. A --radius-carte, soit deux
+                  pixels, l'angle redevient droit et l'equerre cesse de se lire
+                  comme un cadrage. */}
               {(['left-0 top-0 border-l-2 border-t-2 rounded-tl-lg',
                  'right-0 top-0 border-r-2 border-t-2 rounded-tr-lg',
                  'left-0 bottom-0 border-b-2 border-l-2 rounded-bl-lg',
