@@ -36,8 +36,23 @@ APPLIQUER = '--apply' in sys.argv[1:]
 PHOTOS_AUSSI = '--photos' in sys.argv[1:]
 
 
-def api(methode, chemin, corps=None):
-    """Un appel a l'API de Coolify. Une erreur HTTP montre la reponse entiere :
+# Les applications dont Coolify refuse de dire les variables, signalees une
+# fois a la fin de la reconnaissance.
+ILLISIBLES = []
+
+
+class Refus(Exception):
+    """Coolify a repondu une erreur. Portee pour que l'appelant decide si
+    elle est fatale — lire les variables d'une application etrangere ne
+    l'est pas, en poser une sur les notres l'est."""
+
+    def __init__(self, code, detail):
+        super().__init__(f'HTTP {code}')
+        self.code, self.detail = code, detail
+
+
+def api(methode, chemin, corps=None, fatal=True):
+    """Un appel a l'API de Coolify. Une erreur montre la reponse entiere :
     c'est elle qui dit ce que Coolify a refuse, et pourquoi."""
     donnees = json.dumps(corps).encode() if corps is not None else None
     requete = urllib.request.Request(
@@ -51,15 +66,32 @@ def api(methode, chemin, corps=None):
             return json.loads(texte) if texte else None
     except urllib.error.HTTPError as erreur:
         detail = erreur.read().decode(errors='replace')
+        if not fatal:
+            raise Refus(erreur.code, detail)
         raise SystemExit(f'\n{methode} {chemin} → HTTP {erreur.code}\n{detail}\n')
     except urllib.error.URLError as erreur:
         raise SystemExit(f"\nImpossible de joindre {COOLIFY} : {erreur.reason}\n"
-                         "Depuis le serveur, COOLIFY_URL vaut http://localhost:8000. "
-                         "L'API doit etre activee : Coolify → Settings → API.\n")
+                         "COOLIFY_URL doit porter l'adresse ou vous ouvrez Coolify "
+                         "dans votre navigateur — par exemple https://coolify.mon-domaine "
+                         "— ou http://localhost:8000 si vous etes sur le serveur.\n"
+                         "L'API doit aussi etre activee : Coolify → Settings → API.\n")
 
 
 def envs_de(uuid):
-    return {e['key']: e for e in (api('GET', f'/applications/{uuid}/envs') or [])}
+    """Les variables d'une application, ou rien si Coolify refuse de les dire.
+
+    Un compte Coolify heberge souvent d'autres choses que le projet, et
+    certaines font tomber ce point d'entree en erreur 500. Abandonner la
+    au premier refus reviendrait a laisser une application etrangere
+    empecher la bascule des notres : on la met de cote et on continue.
+    Si le refus portait sur l'une des trois qui nous interessent, la
+    reconnaissance echouera juste apres, en le disant.
+    """
+    try:
+        return {e['key']: e for e in (api('GET', f'/applications/{uuid}/envs', fatal=False) or [])}
+    except Refus as refus:
+        ILLISIBLES.append((uuid, refus.code))
+        return {}
 
 
 def reconnaitre(applications):
@@ -124,6 +156,10 @@ def main():
 
     applications = api('GET', '/applications') or []
     roles = reconnaitre(applications)
+    if ILLISIBLES:
+        print(f"  ({len(ILLISIBLES)} application(s) dont Coolify refuse de lire les variables, "
+              f"ignorees : {', '.join(f'{u} → HTTP {c}' for u, c in ILLISIBLES)})")
+
     manquants = [r for r, app in roles.items() if app is None]
     if manquants:
         print('Applications trouvees :')
