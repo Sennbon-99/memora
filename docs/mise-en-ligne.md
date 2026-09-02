@@ -63,6 +63,21 @@ Dans l'ordre : MinIO d'abord (l'API en dépend), puis l'API et le worker,
 puis le client. Chaque changement de variable demande un redéploiement du
 conteneur concerné — Coolify le propose.
 
+**Le script fait 2b, 2c et les redéploiements à votre place**, par l'API
+de Coolify, depuis son terminal intégré (Servers → localhost → Terminal) :
+
+```
+curl -fsSL https://raw.githubusercontent.com/Sennbon-99/memora/main/scripts/bascule-domaine.py -o bascule.py
+COOLIFY_TOKEN=… APPLE_TEAM_ID=… python3 bascule.py            # montre le plan, ne touche à rien
+COOLIFY_TOKEN=… APPLE_TEAM_ID=… python3 bascule.py --apply    # applique, redéploie, vérifie
+```
+
+Le jeton vient de Coolify → Keys & Tokens → API tokens (droits d'écriture),
+et l'API doit être activée (Settings → API). Le script reconnaît les trois
+applications à ce qu'elles portent, jamais à leur nom, et s'arrête sans rien
+écrire s'il en manque une. Il ne touche pas à MinIO : une fois 2a fait à la
+main, relancer avec `--photos` pour faire suivre `S3_ENDPOINT`.
+
 ### 2a. MinIO → `photos.memora-app.fr`
 
 Service MinIO → Domaines : `https://photos.memora-app.fr` sur le port
