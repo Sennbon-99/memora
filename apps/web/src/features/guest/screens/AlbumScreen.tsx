@@ -7,13 +7,14 @@
 
 import { useState, type CSSProperties } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { photoApi, ApiError } from '../../../lib/api.js';
+import { photoApi, ApiError, remettreFichier } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { Photo } from '../../../ui/Photo.js';
+import { PhotoViewer } from './PhotoViewer.js';
 
-export function AlbumScreen({ firstName }: { firstName: string | null }) {
+export function AlbumScreen({ slug, firstName }: { slug: string; firstName: string | null }) {
   /** Angle de pose d'un tirage. Cinq valeurs qui se repetent : deux vues
    *  voisines ne sont jamais alignees, et la planche ne part pas en
    *  travers. La rotation est lue par .tirage via --pose-angle. */
@@ -22,9 +23,10 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
   const [asking, setAsking] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [done, setDone] = useState<string[]>([]);
+  const [selected, setSelected] = useState<number | null>(null);
 
   const { data, isPending, isError } = useQuery({
-    queryKey: ['my-photos'],
+    queryKey: ['my-photos', slug],
     queryFn: photoApi.mine,
   });
 
@@ -40,6 +42,11 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
       setAsking(null);
       setReason('');
     },
+  });
+
+  const archive = useMutation({
+    mutationFn: photoApi.archive,
+    onSuccess: remettreFichier,
   });
 
   // L'attente reste dans l'enveloppe : un indicateur pose seul perdrait les
@@ -81,12 +88,15 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
   }
 
   const photos = data.photos;
+  const collective = data.scope === 'EVERYONE';
 
   return (
     <Screen
       title={firstName ? `Vos photos, ${firstName}` : 'Vos photos'}
       titreRepliable
-      subtitle="Ce que l’organisateur a publié de la soirée."
+      subtitle={collective
+        ? 'Les photographies de la soirée publiées par l’organisateur.'
+        : 'Les photographies de votre pellicule publiées par l’organisateur.'}
       code={{
         hautGauche: 'MEMORA 400',
         basGauche: `${photos.length} VUES`,
@@ -122,6 +132,21 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
             </p>
           </div>
 
+          <Button
+            tone="ghost"
+            full
+            className="mt-4"
+            disabled={archive.isPending}
+            onClick={() => archive.mutate()}
+          >
+            {archive.isPending ? 'Préparation de l’album…' : 'Télécharger tout l’album'}
+          </Button>
+          {archive.error && (
+            <p role="alert" className="mt-2 text-center text-xs text-danger">
+              {(archive.error as ApiError).message}
+            </p>
+          )}
+
           <ul className="mt-4 grid grid-cols-2 gap-2 pb-10">
             {photos.map((photo, index) => (
               <li
@@ -133,12 +158,19 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
                   '--pose-angle': pose(index),
                 } as CSSProperties}
               >
-                <Photo
-                  src={photo.url}
-                  alt={`Photographie prise le ${new Date(photo.takenAt).toLocaleString('fr-FR')}`}
-                  loading="lazy"
-                  className="aspect-square w-full object-cover"
-                />
+                <button
+                  type="button"
+                  onClick={() => setSelected(index)}
+                  aria-label={`Ouvrir la photographie ${index + 1} sur ${photos.length}`}
+                  className="block w-full"
+                >
+                  <Photo
+                    src={photo.url}
+                    alt={`Photographie prise le ${new Date(photo.takenAt).toLocaleString('fr-FR')}`}
+                    loading="lazy"
+                    className="aspect-square w-full object-cover"
+                  />
+                </button>
                 {done.includes(photo.id) ? (
                   <span className="absolute inset-x-1.5 bottom-1.5 rounded-champ bg-pap px-2
                     py-1 text-center font-mono text-etiquette uppercase tracking-[0.16em]
@@ -172,7 +204,7 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
             onClick={() => setAsking(null)}
             className="absolute inset-0 bg-pap animate-[fade_.2s_ease] motion-reduce:animate-none"
           />
-          <div className="relative m-3 rounded-carte border border-edge bg-well p-5
+          <div className="relative m-3 rounded-carte border border-edge bg-pap-2 p-5
             animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
             <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
               Droit à l’image
@@ -216,6 +248,14 @@ export function AlbumScreen({ firstName }: { firstName: string | null }) {
             </div>
           </div>
         </div>
+      )}
+      {selected !== null && (
+        <PhotoViewer
+          photos={photos}
+          index={selected}
+          onIndex={setSelected}
+          onClose={() => setSelected(null)}
+        />
       )}
     </Screen>
   );

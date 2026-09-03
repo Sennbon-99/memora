@@ -5,7 +5,7 @@
 // pour valider. Appeler une route avec une charge utile invalide echoue donc
 // a la compilation, pas en production.
 
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import type {
   ConsentInput, CreateEventInput, CreateMomentInput, JoinEventInput, LoginInput,
   RecoveryCodeInput, RegisterInput, ReservePhotoInput,
@@ -16,7 +16,7 @@ import type {
 // d'origine commune — la page vient de capacitor://localhost — et une
 // adresse relative viserait un serveur inexistant. On donne alors l'origine
 // explicitement, sans quoi aucune requete n'aboutit.
-const NATIVE_ORIGIN = import.meta.env.VITE_API_ORIGIN as string | undefined;
+const NATIVE_ORIGIN = (import.meta.env.VITE_API_ORIGIN as string | undefined)?.replace(/\/+$/, '');
 const BASE = Capacitor.isNativePlatform() ? `${NATIVE_ORIGIN ?? ''}/api` : '/api';
 
 if (Capacitor.isNativePlatform() && !NATIVE_ORIGIN) {
@@ -103,6 +103,11 @@ function renewAccess(): Promise<boolean> {
  */
 export function apiUrl(path: string): string {
   return `${BASE}${path}`;
+}
+
+/** Origine publique à placer dans un lien partageable, jamais l'origine locale de Capacitor. */
+export function publicAppOrigin(): string {
+  return Capacitor.isNativePlatform() ? NATIVE_ORIGIN! : window.location.origin.replace(/\/+$/, '');
 }
 
 type CallInit = Omit<RequestInit, 'body'> & { body?: unknown };
@@ -199,7 +204,20 @@ async function telecharger(
  * blob reste en memoire tant que l'onglet vit, et un hote qui telecharge huit
  * variantes de son kit les y garde toutes.
  */
-export function remettreFichier({ blob, nom }: { blob: Blob; nom: string }) {
+export async function remettreFichier({ blob, nom }: { blob: Blob; nom: string }) {
+  if (Capacitor.isNativePlatform() && typeof navigator.share === 'function') {
+    const file = new File([blob], nom, { type: blob.type || 'application/octet-stream' });
+    if (typeof navigator.canShare !== 'function' || navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: nom });
+        return;
+      } catch (error) {
+        // Fermer la feuille de partage n'est pas une erreur de telechargement.
+        if ((error as { name?: string }).name === 'AbortError') return;
+      }
+    }
+  }
+
   const url = URL.createObjectURL(blob);
   const lien = document.createElement('a');
   lien.href = url;
@@ -207,7 +225,7 @@ export function remettreFichier({ blob, nom }: { blob: Blob; nom: string }) {
   document.body.append(lien);
   lien.click();
   lien.remove();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
 }
 
 /** Distingue une panne reseau d'un refus du serveur. */
@@ -218,8 +236,12 @@ export function isNetworkError(error: unknown): boolean {
 // --- Parcours invite ---------------------------------------------------------
 
 export interface GuestSession {
-  roll: { id: string; firstName: string | null; shotsLeft: number; bonusShots: number; hasConsented: boolean };
+  roll: {
+    id: string; firstName: string | null; tableId: string | null;
+    shotsLeft: number; bonusShots: number; hasConsented: boolean;
+  };
   event: {
+    id: string; slug: string; joinCode: string;
     name: string; quotaShots: number; previewMode: 'NONE' | 'FLASH' | 'BLURRED' | 'CONFIRM';
     /** @deprecated remplace par carnet ; conserve le temps de la migration. */
     color: string;
@@ -229,13 +251,15 @@ export interface GuestSession {
     tables: { id: string; label: string }[];
     /** Etat de la soiree : le client en deduit l'ecran a montrer. */
     state: 'DRAFT' | 'OPEN' | 'CLOSED' | 'PUBLISHED' | 'PURGED';
+    scope: 'NONE' | 'EVERYONE' | 'SELECTED' | 'OWN_ONLY';
     /** Vrai des que l'hote a publie : c'est ce qui ouvre l'album. */
     albumPublished: boolean;
   };
 }
 
 export const guestApi = {
-  join: (slug: string) => call<GuestSession>(`/e/${slug}`),
+  join: (slug: string, tableToken?: string) =>
+    call<GuestSession>(`/e/${slug}${tableToken ? `?t=${encodeURIComponent(tableToken)}` : ''}`),
   consent: (slug: string, body: ConsentInput) =>
     call<{ consentedAt: string }>(`/e/${slug}/consent`, { method: 'POST', body }),
   identity: (slug: string, body: JoinEventInput) =>
@@ -244,12 +268,18 @@ export const guestApi = {
     call<{ saved: boolean }>(`/e/${slug}/recovery-code`, { method: 'POST', body: { code } }),
   recover: (slug: string, body: RecoveryCodeInput) =>
     call<{ rollId: string }>(`/e/${slug}/recover`, { method: 'POST', body }),
+  recoveryLink: (slug: string) =>
+    call<{ token: string }>(`/e/${slug}/recovery-link`),
+  openRecoveryLink: (slug: string, token: string) =>
+    call<{ rollId: string }>(`/e/${slug}/recovery-link`, {
+      method: 'POST', body: { token },
+    }),
 };
 
 // --- Photographies -----------------------------------------------------------
 
 export interface Reservation {
-  photoId: string; uploadUrl: string; shotsLeft: number; fromBonus: boolean;
+  photoId: string; uploadUrl: string; shotsLeft: number; bonusShots: number; fromBonus: boolean;
 }
 
 export const photoApi = {
@@ -259,7 +289,11 @@ export const photoApi = {
     call<{ photoId: string; status: string }>('/photos/confirm', {
       method: 'POST', body: { idempotencyKey },
     }),
-  mine: () => call<{ photos: { id: string; url: string; takenAt: string }[] }>('/photos/mine'),
+  mine: () => call<{
+    scope: 'EVERYONE' | 'OWN_ONLY';
+    photos: { id: string; url: string; takenAt: string }[];
+  }>('/photos/mine'),
+  archive: () => telecharger('/photos/archive'),
   requestRemoval: (photoId: string, reason: string) =>
     call<{ request: { id: string } }>('/photos/removal', { method: 'POST', body: { photoId, reason } }),
 };
@@ -272,6 +306,40 @@ export const photoApi = {
  * jeton, ni en-tete d'autorisation — la signature suffit.
  */
 export async function uploadPhoto(uploadUrl: string, blob: Blob): Promise<void> {
+  if (Capacitor.isNativePlatform()) {
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(reader.error ?? new Error('Lecture de la photo impossible'));
+      reader.onload = () => {
+        const value = String(reader.result ?? '');
+        resolve(value.slice(value.indexOf(',') + 1));
+      };
+      reader.readAsDataURL(blob);
+    });
+
+    try {
+      const response = await CapacitorHttp.request({
+        url: uploadUrl,
+        method: 'PUT',
+        headers: { 'Content-Type': 'image/jpeg' },
+        data: base64,
+        dataType: 'file',
+        // L'adresse est deja signee et encodee par le stockage. La reencoder
+        // cote natif invaliderait sa signature (403) sur certains appareils.
+        shouldEncodeUrlParams: false,
+        connectTimeout: 30_000,
+        readTimeout: 120_000,
+      });
+      if (response.status < 200 || response.status >= 300) {
+        throw new Error(`Echec du transfert : ${response.status}`);
+      }
+      return;
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Echec du transfert')) throw error;
+      throw new TypeError('La photo sera envoyée dès que la connexion sera disponible', { cause: error });
+    }
+  }
+
   const response = await fetch(uploadUrl, {
     method: 'PUT',
     headers: { 'Content-Type': 'image/jpeg' },
@@ -288,6 +356,8 @@ export interface EventSummary {
   id: string;
   name: string;
   slug: string;
+  joinCode: string;
+  role: 'OWNER' | 'CO_HOST';
   type: 'MARIAGE' | 'ANNIVERSAIRE' | 'ENTREPRISE';
   state: 'DRAFT' | 'OPEN' | 'CLOSED' | 'PUBLISHED' | 'PURGED';
   eventDate: string;
@@ -299,6 +369,8 @@ export interface EventSummary {
   previewMode: 'NONE' | 'FLASH' | 'BLURRED' | 'CONFIRM';
   welcomeMessage: string | null;
   useTableCodes: boolean;
+  /** Present sur le detail d'une soiree, omis dans la liste. */
+  tables?: { id: string; label: string }[];
   _count?: { rolls: number; photos: number };
 }
 
@@ -422,7 +494,7 @@ export interface PublicAlbum {
 
 export const publicAlbumApi = {
   read: (token: string, code?: string) =>
-    call<PublicAlbum>(`/album/${token}${code ? `?code=${encodeURIComponent(code)}` : ''}`),
+    call<PublicAlbum>(`/album/${token}${code ? `?accessCode=${encodeURIComponent(code)}` : ''}`),
 };
 
 export interface RemovalRequest {

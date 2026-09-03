@@ -30,6 +30,19 @@ export function buildToken(bytes = 16): string {
   return randomBytes(bytes).toString('base64url');
 }
 
+/**
+ * Code court tape par un invite quand le QR code ne peut pas etre scanne.
+ *
+ * Les caracteres ambigus (0/O, 1/I) sont retires. Six caracteres donnent
+ * pres d'un milliard de combinaisons tout en restant dic tables en pleine
+ * soiree. La contrainte unique en base reste l'autorite en cas de collision.
+ */
+export function buildJoinCode(): string {
+  const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const bytes = randomBytes(6);
+  return Array.from(bytes, (value) => alphabet[value % alphabet.length]).join('');
+}
+
 /** Code a quatre chiffres propose a l'invite en fin de pellicule. */
 export function buildRecoveryCode(): string {
   return String(Math.floor(Math.random() * 10_000)).padStart(4, '0');

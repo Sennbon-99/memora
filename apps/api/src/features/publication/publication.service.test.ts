@@ -232,6 +232,7 @@ describe('publishReviewed', () => {
       published: false,
     });
     expect(result.publishedNow).toBe(11);
+    expect(result.scope).toBe('EVERYONE');
   });
 
   it('exige une portee a la premiere publication', async () => {
@@ -251,6 +252,7 @@ describe('publishReviewed', () => {
 
     expect(eventUpdate.mock.calls.at(-1)![0].data).not.toHaveProperty('scope');
     expect(result.first).toBe(false);
+    expect(result.scope).toBe('EVERYONE');
   });
 
   it('signale un album complet quand plus aucune pellicule n attend', async () => {

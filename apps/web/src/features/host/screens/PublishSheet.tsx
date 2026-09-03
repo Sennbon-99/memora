@@ -10,7 +10,7 @@
 // gras d'une boite de dialogue systeme.
 
 import { useState } from 'react';
-import { PUBLICATION_SCOPES, type PublicationScope } from '@memora/types';
+import type { PublicationScope } from '@memora/types';
 import { Button } from '../../../ui/Button.js';
 
 const CHOICES: { value: PublicationScope; label: string; note: string }[] = [
@@ -23,11 +23,6 @@ const CHOICES: { value: PublicationScope; label: string; note: string }[] = [
     value: 'OWN_ONLY',
     label: 'Ses photos seulement',
     note: 'Chaque invité ne retrouve que les photographies qu’il a prises.',
-  },
-  {
-    value: 'SELECTED',
-    label: 'Par lien de partage',
-    note: 'Seules les personnes à qui vous donnez le lien y accèdent.',
   },
 ];
 
@@ -52,7 +47,7 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
         className="absolute inset-0 bg-black/60 animate-[fade_.2s_ease] motion-reduce:animate-none"
       />
 
-      <div className="relative m-3 rounded-carte border border-edge bg-well p-5
+      <div className="relative m-3 rounded-carte border border-edge bg-pap-2 p-5
         animate-[rise_.26s_cubic-bezier(.2,.8,.2,1)] motion-reduce:animate-none safe-bottom">
         <h2 className="decoupe text-titre leading-tight tracking-tight">
           Qui pourra voir l’album ?
@@ -105,6 +100,3 @@ export function PublishSheet({ count, busy, onCancel, onConfirm }: {
     </div>
   );
 }
-
-/** Les portees connues, pour les tests et la documentation. */
-export const KNOWN_SCOPES = PUBLICATION_SCOPES;

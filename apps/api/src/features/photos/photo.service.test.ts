@@ -241,7 +241,7 @@ describe('listOwnPhotos', () => {
       { id: 'p1', objectKey: 'e1/r1/a.jpg', takenAt: new Date(), width: 1, height: 1 },
     ]);
 
-    const photos = await listOwnPhotos(roll);
+    const { photos } = await listOwnPhotos(roll);
 
     expect(photos[0]).not.toHaveProperty('objectKey');
     expect(photos[0]!.url).toContain('sig=');
@@ -256,6 +256,19 @@ describe('listOwnPhotos', () => {
     expect(photoFindManyMock.mock.calls[0]![0].where).toMatchObject({
       rollId: 'r1', published: true, status: 'UPLOADED',
     });
+  });
+
+  it("ouvre toutes les pellicules de l evenement quand l organisateur choisit l album collectif", async () => {
+    eventFindUnique.mockResolvedValue({ state: 'PUBLISHED', scope: 'EVERYONE' });
+    photoFindManyMock.mockResolvedValue([]);
+
+    const result = await listOwnPhotos(roll);
+
+    expect(result.scope).toBe('EVERYONE');
+    expect(photoFindManyMock.mock.calls[0]![0].where).toMatchObject({
+      roll: { eventId: 'e1' }, published: true, status: 'UPLOADED',
+    });
+    expect(photoFindManyMock.mock.calls[0]![0].where).not.toHaveProperty('rollId');
   });
 });
 

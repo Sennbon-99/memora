@@ -15,8 +15,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  EVENT_TYPES, FREE_TIER, PREVIEW_MODES, QUOTA_DEFAULT, QUOTA_MAX, QUOTA_MIN,
-  type CreateEventInput, type EventType, type PreviewMode,
+  CARNETS, CARNET_PAR_TYPE, EVENT_TYPES, PREVIEW_MODES, QUOTA_DEFAULT, QUOTA_MAX, QUOTA_MIN,
+  type Carnet, type CreateEventInput, type EventType, type PreviewMode,
 } from '@memora/types';
 import { ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
@@ -24,7 +24,8 @@ import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Segmented } from '../../../ui/Segmented.js';
 import { defaultClosing, toDateInput, toDateTimeInput } from '../../../lib/datetime.js';
-import { useCreateEvent, useEvents } from '../useEvents.js';
+import { useCreateEvent } from '../useEvents.js';
+import { CARNET_LABEL, CARNET_NOTE } from '../../../carnets/labels.js';
 
 /** Ce que le nombre de vues veut dire, plutot que le nombre seul. */
 function quotaMeaning(shots: number): string {
@@ -71,13 +72,11 @@ export function CreateEventScreen() {
   const [closesAt, setClosesAt] = useState(dates.closesAt);
   const [quotaShots, setQuotaShots] = useState(QUOTA_DEFAULT);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('BLURRED');
+  const [carnet, setCarnet] = useState<Carnet>(CARNET_PAR_TYPE.MARIAGE);
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [useTableCodes, setUseTableCodes] = useState(true);
 
-  const { data: existing } = useEvents();
   const nameTooShort = name.trim().length < 3;
-  // La premiere soiree d'un compte est offerte, mais plafonnee en vues.
-  const isFirst = (existing?.events.length ?? 0) === 0;
 
   const submit = async () => {
     const input: CreateEventInput = {
@@ -87,6 +86,7 @@ export function CreateEventScreen() {
       closesAt: new Date(closesAt),
       quotaShots,
       previewMode,
+      carnet,
       useTableCodes,
       ...(welcomeMessage.trim() ? { welcomeMessage: welcomeMessage.trim() } : {}),
     };
@@ -108,7 +108,7 @@ export function CreateEventScreen() {
       subtitle={{
         1: 'Ce que vos invités verront en scannant.',
         2: 'Combien de photographies chacun peut prendre, et ce qu’il voit après.',
-        3: 'La couleur habille leur application. La nôtre disparaît.',
+        3: 'Choisissez le carnet que vos invités verront pendant la soirée.',
       }[step]}
       footer={
         <div className="flex flex-col gap-3">
@@ -161,7 +161,10 @@ export function CreateEventScreen() {
             <Segmented
               label="Type"
               value={type}
-              onChange={setType}
+              onChange={(next) => {
+                setType(next);
+                setCarnet(CARNET_PAR_TYPE[next]);
+              }}
               options={EVENT_TYPES.map((value) => ({ value, label: TYPE_LABEL[value] }))}
             />
             <Field
@@ -217,24 +220,45 @@ export function CreateEventScreen() {
               {PREVIEW_HINT[previewMode]}
             </p>
 
-            {/* Le palier gratuit plafonne la premiere soiree. Le dire ici
-                evite qu'un hote choisisse 24 vues et en obtienne 10 sans
-                comprendre pourquoi. */}
-            {isFirst && quotaShots > FREE_TIER.shots && (
-              <p className="rounded-champ border border-edge bg-pap-2 px-3.5 py-3
-                text-xs leading-relaxed text-ink-2">
-                Votre première soirée est offerte, et limitée à{' '}
-                <span className="font-mono tabular-nums text-a1">{FREE_TIER.shots}</span> vues
-                par invité. Vous en avez choisi{' '}
-                <span className="font-mono tabular-nums text-a1">{quotaShots}</span> : les
-                soirées suivantes les accepteront toutes.
-              </p>
-            )}
           </>
         )}
 
         {step === 3 && (
           <>
+            <fieldset>
+              <legend className="text-sm font-semibold text-ink-2">Le carnet</legend>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {CARNETS.map((value) => {
+                  const selected = carnet === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setCarnet(value)}
+                      aria-pressed={selected}
+                      className={`overflow-hidden rounded-carte border text-left transition
+                        ${selected ? 'border-a1 ring-1 ring-a1' : 'border-edge'}`}
+                    >
+                      <span
+                        data-carnet={value}
+                        className="block h-16 bg-pap p-2 text-ink"
+                      >
+                        <span className="block h-2 w-8 bg-a1" />
+                        <span className="mt-2 block font-mono text-etiquette uppercase tracking-wider">
+                          MEMORA
+                        </span>
+                      </span>
+                      <span className="block bg-pap-2 px-2 py-2 text-mini font-bold text-ink">
+                        {CARNET_LABEL[value]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2.5 text-xs leading-relaxed text-ink-3">
+                {CARNET_NOTE[carnet]}
+              </p>
+            </fieldset>
 
             <Field
               label="Mot d’accueil"

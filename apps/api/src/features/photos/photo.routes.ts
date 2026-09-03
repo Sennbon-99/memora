@@ -18,5 +18,8 @@ photoRouter.post('/confirm', requireConsent, photoController.confirm);
 // GET /api/photos/mine — consulter sa pellicule apres publication
 photoRouter.get('/mine', photoController.mine);
 
+// GET /api/photos/archive — archive filtree selon le partage choisi par l'hote
+photoRouter.get('/archive', photoController.archive);
+
 // POST /api/photos/removal — demander le retrait d'une photographie
 photoRouter.post('/removal', photoController.removal);

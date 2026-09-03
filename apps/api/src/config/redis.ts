@@ -83,3 +83,9 @@ export async function readQuota(rollId: string): Promise<number | null> {
   const value = await redis.get(quotaKey(rollId));
   return value === null ? null : Number(value);
 }
+
+/** Lecture des poses bonus encore actives pour restaurer fidèlement une pellicule. */
+export async function readBonusQuota(rollId: string): Promise<number> {
+  const value = await redis.get(bonusKey(rollId));
+  return value === null ? 0 : Number(value);
+}

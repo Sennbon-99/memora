@@ -145,14 +145,22 @@ export function DashboardScreen() {
       }}
       footer={
         <div className="flex flex-col gap-3">
-          {event.state === 'DRAFT' ? (
+          {event.state === 'DRAFT' && event.role === 'OWNER' ? (
             <Button full disabled={open.isPending} onClick={() => open.mutate()}>
               {open.isPending ? 'Ouverture…' : 'Ouvrir la pellicule'}
             </Button>
-          ) : live ? (
+          ) : event.state === 'DRAFT' ? (
+            <p className="rounded-carte bg-pap-2 px-4 py-3 text-center text-note text-ink-2">
+              L’organisateur ouvrira la pellicule quand la soirée commencera.
+            </p>
+          ) : live && event.role === 'OWNER' ? (
             <Button tone="ghost" full disabled={close.isPending} onClick={() => close.mutate()}>
               {close.isPending ? 'Fermeture…' : 'Fermer la pellicule maintenant'}
             </Button>
+          ) : live ? (
+            <p className="rounded-carte bg-pap-2 px-4 py-3 text-center text-note text-ink-2">
+              La pellicule est ouverte. Seul l’organisateur peut la fermer.
+            </p>
           ) : (
             <Button full onClick={() => navigate(`/hote/${eventId}/invites`)}>
               Trier les photographies
@@ -161,9 +169,7 @@ export function DashboardScreen() {
 
           {failure && (
             <p role="alert" className="rounded-carte bg-danger-doux p-3 text-sm leading-relaxed text-danger">
-              {failure.code === 'PAYMENT_REQUIRED'
-                ? 'Votre première soirée est offerte. Celle-ci doit être réglée avant d’ouvrir la pellicule.'
-                : failure.message}
+              {failure.message}
             </p>
           )}
         </div>

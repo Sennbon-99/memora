@@ -172,6 +172,65 @@
   --obturateur: #0b0810;
 }
 
+/*
+ * L'espace hote a son propre theme d'usage. Il ne porte jamais le carnet
+ * d'une soiree : changer d'evenement ne doit pas changer la lisibilite des
+ * reglages. Le premier affichage suit l'appareil, puis le bouton de l'en-tete
+ * memorise un choix explicite.
+ */
+[data-host-theme='light'] {
+  --color-pap: #f5f2ea;
+  --color-pap-2: #ffffff;
+  --color-tirage: #ffffff;
+  --color-ink-tirage: #3a3a34;
+  --color-ink: #1a1a18;
+  --color-ink-2: #4a4a42;
+  --color-ink-3: #69675e;
+  --color-edge: #c2beaf;
+  --color-edge-2: #e2dfd4;
+  --color-a1: #d92f52;
+  --color-on-a1: #ffffff;
+  --color-well: #22221f;
+  --color-ink-well: #f5f2ea;
+  --color-ink-well-2: #aaa79e;
+  --color-a-well: #f5c518;
+  --color-a-doux: rgb(217 47 82 / 0.1);
+  --color-appui: rgb(0 0 0 / 0.06);
+  --color-ok: #226b4c;
+  --color-warn: #8a5300;
+  --color-danger: #b92f26;
+  --color-danger-doux: rgb(185 47 38 / 0.12);
+  --color-ok-doux: rgb(34 107 76 / 0.12);
+  --ombre-tirage: 0 12px 26px -12px rgb(0 0 0 / 0.5), 0 1px 0 rgb(0 0 0 / 0.1);
+}
+
+[data-host-theme='dark'] {
+  --color-pap: #15161a;
+  --color-pap-2: #222329;
+  --color-tirage: #ffffff;
+  --color-ink-tirage: #34343a;
+  --color-ink: #f7f5ee;
+  --color-ink-2: #d1cdc3;
+  --color-ink-3: #aaa69d;
+  --color-edge: rgb(255 255 255 / 0.25);
+  --color-edge-2: rgb(255 255 255 / 0.12);
+  --color-a1: #ff718c;
+  --color-on-a1: #1a1115;
+  --color-well: #090a0d;
+  --color-ink-well: #f7f5ee;
+  --color-ink-well-2: #b7b2a8;
+  --color-a-well: #ff8fa4;
+  --color-a-doux: rgb(255 113 140 / 0.14);
+  --color-appui: rgb(255 255 255 / 0.09);
+  --color-ok: #79d2a2;
+  --color-warn: #f0c36e;
+  --color-danger: #ff8b7e;
+  --color-danger-doux: rgb(255 139 126 / 0.14);
+  --color-ok-doux: rgb(121 210 162 / 0.14);
+  --ombre-tirage: 0 18px 36px -14px rgb(0 0 0 / 0.92);
+  --rule: rgb(255 255 255 / 0.06);
+}
+
 html, body, #root {
   height: 100%;
 }

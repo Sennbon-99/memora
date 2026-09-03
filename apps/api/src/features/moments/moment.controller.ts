@@ -49,7 +49,7 @@ export const trigger: RequestHandler = async (req, res, next) => {
     void notifyEvent(routeParam(req, 'id'), {
       title: moment.label,
       body: `Vous avez ${moment.bonusShots} poses en plus pendant 10 minutes`,
-      url: `/e/${routeParam(req, 'id')}`,
+      url: `/e/${moment.eventSlug}`,
     });
 
     res.status(200).json({ moment });

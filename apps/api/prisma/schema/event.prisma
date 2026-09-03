@@ -6,6 +6,8 @@ model Event {
   name           String      @db.VarChar(120)
   /// Identifiant public, celui qui figure dans l'URL du QR code.
   slug           String      @unique @db.VarChar(64)
+  /// Code court imprime sous le QR, pour rejoindre la soiree sans scanner.
+  joinCode       String      @unique @db.VarChar(8)
   type           EventType
   eventDate      DateTime    @db.Timestamptz
   quotaShots     Int         @db.SmallInt

@@ -11,6 +11,11 @@ export const guestRouter: Router = Router();
 // GET /api/e/:slug — rejoindre l'evenement, ou restaurer sa pellicule
 guestRouter.get('/:slug', guestController.join);
 
+// Le lien personnel remplace le code a quatre chiffres : il fonctionne aussi
+// pour un invite reste anonyme et sur un autre appareil.
+guestRouter.get('/:slug/recovery-link', requireGuest, guestController.recoveryLink);
+guestRouter.post('/:slug/recovery-link', authLimiter, guestController.openRecoveryLink);
+
 // POST /api/e/:slug/consent — accepter le droit a l'image
 guestRouter.post('/:slug/consent', requireGuest, guestController.consent);
 

@@ -54,6 +54,7 @@ export interface Reservation {
   photoId: string;
   uploadUrl: string;
   shotsLeft: number;
+  bonusShots: number;
   fromBonus: boolean;
 }
 
@@ -106,6 +107,7 @@ export async function reserveShot(
       photoId: existing.id,
       uploadUrl: await signUpload(existing.objectKey),
       shotsLeft: roll.shotsLeft,
+      bonusShots: roll.bonusShots,
       fromBonus: false,
     };
   }
@@ -156,7 +158,8 @@ export async function reserveShot(
     return {
       photoId: photo.id,
       uploadUrl: await signUpload(objectKey),
-      shotsLeft: remaining,
+      shotsLeft: fromBonus ? roll.shotsLeft : remaining,
+      bonusShots: fromBonus ? remaining : 0,
       fromBonus,
     };
   } catch (err) {
@@ -191,8 +194,8 @@ export async function confirmUpload(roll: GuestRoll, idempotencyKey: string) {
 }
 
 /**
- * Les photographies de sa propre pellicule, une fois l'album publie.
- * Avant publication, l'invite ne voit rien : c'est le principe du produit.
+ * Les photographies visibles par l'invite, une fois l'album publie.
+ * L'organisateur choisit : album collectif, ou pellicule personnelle.
  */
 export async function listOwnPhotos(roll: GuestRoll) {
   const event = await prisma.event.findUnique({
@@ -203,24 +206,31 @@ export async function listOwnPhotos(roll: GuestRoll) {
   if (event.state !== 'PUBLISHED') {
     throw new AppError('NOT_PUBLISHED', 409, "L'album n'a pas encore été publié");
   }
-  if (event.scope === 'NONE') {
-    throw new AppError('NOT_SHARED', 403, "L'hôte n'a pas partagé cet album");
+  if (event.scope !== 'EVERYONE' && event.scope !== 'OWN_ONLY') {
+    throw new AppError('NOT_SHARED', 403, "L'organisateur n'a pas partagé cet album avec les invités");
   }
 
   const photos = await prisma.photo.findMany({
-    where: { rollId: roll.id, published: true, status: 'UPLOADED' },
+    where: {
+      ...(event.scope === 'OWN_ONLY'
+        ? { rollId: roll.id }
+        : { roll: { eventId: roll.eventId } }),
+      published: true,
+      status: 'UPLOADED',
+    },
     orderBy: { takenAt: 'asc' },
     select: { id: true, objectKey: true, takenAt: true, width: true, height: true },
   });
 
   // Chaque adresse est signee individuellement et expire au bout de quinze
   // minutes : une adresse partagee hors de l'application devient inutilisable.
-  return Promise.all(
+  const signed = await Promise.all(
     photos.map(async ({ objectKey, ...photo }) => ({
       ...photo,
       url: await signRead(objectKey),
     })),
   );
+  return { scope: event.scope, photos: signed };
 }
 
 /**

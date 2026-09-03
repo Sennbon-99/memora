@@ -10,7 +10,23 @@ import { Spinner } from '../../ui/Spinner.js';
 import { useEvent, useEvents } from './useEvents.js';
 import { useSession } from './useAuth.js';
 import { TabBar } from '../../ui/TabBar.js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+type HostTheme = 'light' | 'dark';
+const HOST_THEME_KEY = 'memora.host-theme';
+
+function storedHostTheme(): HostTheme | null {
+  try {
+    const value = localStorage.getItem(HOST_THEME_KEY);
+    return value === 'light' || value === 'dark' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function systemHostTheme(): HostTheme {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
 
 /** Protege toutes les routes de l'espace hote. */
 export function RequireHost() {
@@ -42,9 +58,32 @@ export function HostLayout() {
   const { data: list } = useEvents();
   const { data: current } = useEvent(eventId);
   const [open, setOpen] = useState(false);
+  const initialStored = storedHostTheme();
+  const [theme, setTheme] = useState<HostTheme>(() => initialStored ?? systemHostTheme());
+  const [manual, setManual] = useState(initialStored !== null);
+
+  useEffect(() => {
+    if (manual) return;
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const update = () => setTheme(media.matches ? 'dark' : 'light');
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, [manual]);
+
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    meta?.setAttribute('content', theme === 'dark' ? '#151412' : '#f5f0e8');
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    setManual(true);
+    try { localStorage.setItem(HOST_THEME_KEY, next); } catch { /* choix valable pour cette session */ }
+  };
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div data-host-theme={theme} className="flex min-h-full flex-col bg-pap text-ink">
       <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-edge
         bg-pap px-4 pb-3 pt-3 backdrop-blur safe-top">
         <button
@@ -67,7 +106,7 @@ export function HostLayout() {
 
             {open && (
               <ul className="absolute right-0 top-10 z-40 w-56 overflow-hidden rounded-champ
-                border border-edge bg-well py-1 shadow-2xl">
+                border border-edge bg-pap-2 py-1 shadow-2xl">
                 {(list?.events ?? []).map((event) => (
                   <li key={event.id}>
                     <button
@@ -91,6 +130,18 @@ export function HostLayout() {
             )}
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label={theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'}
+          title={theme === 'light' ? 'Mode sombre' : 'Mode clair'}
+          className={`${current ? '' : 'ml-auto'} grid h-9 w-9 shrink-0 place-items-center
+            rounded-full border border-edge bg-pap-2 text-base text-ink
+            active:bg-appui`}
+        >
+          <span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>
+        </button>
 
       </header>
 

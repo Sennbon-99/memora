@@ -43,8 +43,9 @@ const envSchema = z.object({
   APNS_TOPIC: z.string().optional(),
   APNS_SANDBOX: z.string().optional(),
 
-  STRIPE_SECRET_KEY: z.string().min(1),
-  STRIPE_WEBHOOK_SECRET: z.string().min(1),
+  // V2 seulement : le serveur V1 demarre sans configuration de paiement.
+  STRIPE_SECRET_KEY: z.string().min(1).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

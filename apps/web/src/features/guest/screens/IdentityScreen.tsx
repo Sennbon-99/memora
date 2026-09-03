@@ -18,11 +18,14 @@ interface IdentityScreenProps {
   useTableCodes: boolean;
   /** Les tables de la soiree, telles que l'hote les a creees. */
   tables: { id: string; label: string }[];
+  initialTableId?: string | null;
   onDone: () => void;
 }
 
-export function IdentityScreen({ slug, useTableCodes, tables, onDone }: IdentityScreenProps) {
-  const [selected, setSelected] = useState<string | null>(null);
+export function IdentityScreen({
+  slug, useTableCodes, tables, initialTableId = null, onDone,
+}: IdentityScreenProps) {
+  const [selected, setSelected] = useState<string | null>(initialTableId);
   const identity = useIdentity(slug);
   // Le meme schema Zod valide ici et sur le serveur : une regle changee
   // dans @memora/types se propage aux deux cotes a la compilation.

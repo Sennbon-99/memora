@@ -120,7 +120,7 @@ describe('la composition des affiches', () => {
         const pdf = await buildPiece(affiche!);
         const lignes = lignesDuPdf(pdf, hauteurDe(pdf));
         const consigne = lignes.find((l) => l.texte.startsWith('Scannez')) as Ligne;
-        const suite = lignes.find((l) => l.texte.startsWith('Vingt-quatre')) as Ligne;
+        const suite = lignes.find((l) => l.texte.startsWith('24 poses')) as Ligne;
         return (suite.base - consigne.base) / consigne.corps;
       }),
     );

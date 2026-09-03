@@ -12,6 +12,8 @@ export interface Card {
   title: string;
   subtitle: string;
   url: string;
+  joinCode: string;
+  quotaShots: number;
 }
 
 export const PIECES = KIT_PIECES;
@@ -42,7 +44,7 @@ export function buildJoinUrl(slug: string, tableToken?: string): string {
   return tableToken ? `${base}?t=${tableToken}` : base;
 }
 
-interface EventLike { name: string; slug: string }
+interface EventLike { name: string; slug: string; joinCode?: string; quotaShots?: number }
 type Table = { label: string; qrToken: string };
 
 /**
@@ -64,7 +66,11 @@ export function buildPieces(
   demandees: PieceId[] = PIECES_PAR_DEFAUT,
 ): Piece[] {
   const entree = buildJoinUrl(event.slug);
-  const bienvenue: Card[] = [{ title: event.name, subtitle: 'Bienvenue', url: entree }];
+  const commun = {
+    joinCode: event.joinCode ?? event.slug,
+    quotaShots: event.quotaShots ?? 24,
+  };
+  const bienvenue: Card[] = [{ title: event.name, subtitle: 'Bienvenue', url: entree, ...commun }];
 
   const catalogue: Record<PieceId, Piece> = {
     'affiche-a2': {
@@ -92,6 +98,7 @@ export function buildPieces(
             title: event.name,
             subtitle: table.label,
             url: buildJoinUrl(event.slug, table.qrToken),
+            ...commun,
           })),
     },
     chevalet: {

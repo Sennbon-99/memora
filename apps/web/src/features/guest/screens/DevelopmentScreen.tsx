@@ -11,29 +11,30 @@
 // l'invite a une raison de dire oui.
 
 import { useEffect, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
-import { fetchVapidKey, pushState, subscribeToPush, type PushState } from '../../../lib/push.js';
+import { fetchPushConfig, pushState, subscribeToPush, type PushState } from '../../../lib/push.js';
 
-export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }: {
-  hostLabel: string;
+export function DevelopmentScreen({ queued, albumReady, onSeeAlbum }: {
   queued: number;
   albumReady: boolean;
   onSeeAlbum: () => void;
 }) {
   const [state, setState] = useState<PushState>('unsupported');
-  const [vapid, setVapid] = useState<string | null>(null);
+  const [pushConfig, setPushConfig] = useState<{ key: string | null; native: boolean }>({
+    key: null, native: false,
+  });
   const [outcome, setOutcome] = useState<'idle' | 'busy' | 'done' | 'refused' | 'failed'>('idle');
 
   useEffect(() => {
     setState(pushState());
-    void fetchVapidKey().then(setVapid);
+    void fetchPushConfig().then(setPushConfig);
   }, []);
 
   const ask = async () => {
-    if (!vapid) return;
     setOutcome('busy');
-    const result = await subscribeToPush(vapid);
+    const result = await subscribeToPush(pushConfig.key);
     setOutcome(result.ok ? 'done' : result.reason === 'refused' ? 'refused' : 'failed');
     setState(pushState());
   };
@@ -41,18 +42,19 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
   // La notification n'est proposee que si elle peut reellement arriver.
   // On garde la carte visible pendant la demande, pour que le bouton puisse
   // afficher son attente ; elle disparait une fois l'abonnement obtenu.
-  const canAsk = vapid !== null && state === 'askable'
+  const serverReady = Capacitor.isNativePlatform() ? pushConfig.native : pushConfig.key !== null;
+  const canAsk = serverReady && state === 'askable'
     && outcome !== 'done' && outcome !== 'refused';
 
   // Le troisieme temps n'est pose que s'il porte quelque chose : un bloc vide
   // rouvrirait le trou que cette composition est censee fermer.
-  const hasAside = canAsk || state === 'needs-install' || outcome === 'done'
+  const hasAside = canAsk || outcome === 'done'
     || outcome === 'refused' || outcome === 'failed';
 
   return (
     <Screen
       title="Au développement"
-      subtitle={`${hostLabel} trient les photographies de la soirée. Cela prend souvent un jour ou deux.`}
+      subtitle="L’organisateur trie les photographies de la soirée. Cela prend souvent un jour ou deux."
       code={{
         hautGauche: 'MEMORA 400',
         basGauche: 'DÉVELOPPEMENT',
@@ -110,21 +112,13 @@ export function DevelopmentScreen({ hostLabel, queued, albumReady, onSeeAlbum }:
                 bg-a-doux p-5">
                 <h2 className="decoupe text-sous-titre leading-tight">Être prévenu ?</h2>
                 <p className="mt-2.5 text-corps leading-relaxed text-ink-2">
-                  Une seule notification, quand l’album sera en ligne. Rien d’autre.
+                  Les alertes utiles seulement : moments forts et mise en ligne de l’album.
+                  Aucune publicité.
                 </p>
                 <Button full className="mt-4" onClick={ask} disabled={outcome === 'busy'}>
                   {outcome === 'busy' ? 'Un instant…' : 'Me prévenir'}
                 </Button>
               </div>
-            )}
-
-            {state === 'needs-install' && (
-              <p className="text-center text-xs leading-relaxed text-ink-3">
-                Pour être prévenu sur iPhone, ajoutez d’abord Memora à votre écran
-                d’accueil&nbsp;: touchez <span className="text-a1">Partager</span>,
-                puis «&nbsp;<span className="text-a1">Sur l’écran d’accueil</span>&nbsp;».
-                La proposition apparaîtra ensuite.
-              </p>
             )}
 
             {outcome === 'done' && (

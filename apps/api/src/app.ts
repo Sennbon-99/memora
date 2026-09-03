@@ -16,7 +16,6 @@ import { redis } from './config/redis.js';
 import { globalLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { apiRouter } from './router.js';
-import { stripeWebhookRouter } from './features/payments/payment.routes.js';
 
 export function createApp(): Express {
   const app = express();
@@ -30,11 +29,6 @@ export function createApp(): Express {
   // laisserait un client forger l'en-tete et se donner une adresse neuve a
   // chaque requete, ce qui reviendrait a supprimer la limitation.
   app.set('trust proxy', 1);
-
-  // Le webhook Stripe recoit le corps BRUT. Il est monte ici, avant
-  // express.json(), qui transformerait le corps et rendrait la verification
-  // de signature impossible. L ordre de ces deux lignes n est pas negociable.
-  app.use('/api/stripe', stripeWebhookRouter);
 
   // Middlewares globaux
   app.use(helmet());

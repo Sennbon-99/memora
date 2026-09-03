@@ -23,7 +23,7 @@ vi.mock('../../config/prisma.js', () => ({
   },
 }));
 
-const { assertCanManage, createEvent, updateEvent, openEvent, closeEvent, listEvents, createTables } =
+const { assertCanManage, createEvent, updateEvent, openEvent, closeEvent, listEvents, getEvent, createTables } =
   await import('./event.service.js');
 
 const baseEvent = {
@@ -55,12 +55,12 @@ describe('assertCanManage', () => {
 });
 
 describe('createEvent', () => {
-  it('bride le premier evenement aux dix poses de l offre gratuite', async () => {
+  it('respecte le quota choisi des le premier evenement', async () => {
     count.mockResolvedValue(0);
     create.mockImplementation(({ data }: { data: { quotaShots: number } }) => data);
 
     const event = await createEvent('u1', { quotaShots: 24, name: 'Mariage' } as never);
-    expect(event.quotaShots).toBe(10);
+    expect(event.quotaShots).toBe(24);
   });
 
   it('respecte le quota demande a partir du deuxieme evenement', async () => {
@@ -92,31 +92,34 @@ describe('updateEvent', () => {
 });
 
 describe('openEvent', () => {
-  it('ouvre gratuitement le premier evenement', async () => {
+  it('ouvre un evenement sans consulter le paiement', async () => {
     findUnique.mockResolvedValue(baseEvent);
     count.mockResolvedValue(0);
     update.mockResolvedValue({ id: 'e1', state: 'OPEN' });
 
     await expect(openEvent('e1', 'u1')).resolves.toMatchObject({ state: 'OPEN' });
-    // Aucun paiement n'a ete recherche : l'offre gratuite suffit.
+    // En V1, toutes les fonctions sont ouvertes et le paiement est reporte.
     expect(findUniquePayment).not.toHaveBeenCalled();
   });
 
-  it('exige un paiement pour le deuxieme evenement', async () => {
+  it('ouvre aussi le deuxieme evenement sans paiement', async () => {
     findUnique.mockResolvedValue(baseEvent);
     count.mockResolvedValue(1);
     findUniquePayment.mockResolvedValue(null);
+    update.mockResolvedValue({ id: 'e1', state: 'OPEN' });
 
-    await expect(openEvent('e1', 'u1')).rejects.toMatchObject({ code: 'PAYMENT_REQUIRED' });
+    await expect(openEvent('e1', 'u1')).resolves.toMatchObject({ state: 'OPEN' });
+    expect(findUniquePayment).not.toHaveBeenCalled();
   });
 
-  it('ouvre le deuxieme evenement une fois le paiement confirme', async () => {
+  it('ignore un ancien paiement confirme devenu sans effet en V1', async () => {
     findUnique.mockResolvedValue(baseEvent);
     count.mockResolvedValue(1);
     findUniquePayment.mockResolvedValue({ state: 'PAID' });
     update.mockResolvedValue({ id: 'e1', state: 'OPEN' });
 
     await expect(openEvent('e1', 'u1')).resolves.toMatchObject({ state: 'OPEN' });
+    expect(findUniquePayment).not.toHaveBeenCalled();
   });
 
   it("interdit a un co-hote d'ouvrir l'evenement", async () => {
@@ -143,6 +146,26 @@ describe('listEvents', () => {
       { ownerId: 'u1' },
       { coHosts: { some: { userId: 'u1' } } },
     ]);
+  });
+});
+
+describe('getEvent', () => {
+  it('rend les tables utiles au kit sans exposer les secrets internes', async () => {
+    findUnique.mockResolvedValue({
+      ...baseEvent,
+      name: 'Soiree', slug: 'soiree-123456', joinCode: 'ABC234', type: 'MARIAGE',
+      eventDate: new Date(), quotaShots: 10, closesAt: new Date(), previewMode: 'NONE',
+      carnet: 'papier', color: '#c9a961', welcomeMessage: null, useTableCodes: true,
+      scope: 'NONE', accessCodeHash: 'secret', photographerToken: 'secret-2',
+      tables: [{ id: 't1', label: 'Table 1' }],
+    });
+
+    const event = await getEvent('e1', 'u1');
+
+    expect(event.tables).toEqual([{ id: 't1', label: 'Table 1' }]);
+    expect(event).not.toHaveProperty('accessCodeHash');
+    expect(event).not.toHaveProperty('photographerToken');
+    expect(event).not.toHaveProperty('ownerId');
   });
 });
 

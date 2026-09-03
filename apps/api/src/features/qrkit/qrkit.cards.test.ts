@@ -46,6 +46,21 @@ describe('buildPieces', () => {
     expect(cartes?.cards.map((c) => c.subtitle)).toEqual(['Table 1', 'Table 2']);
   });
 
+  it('imprime le code court et le vrai nombre de poses sur chaque support', () => {
+    const pieces = buildPieces(
+      { ...EVENEMENT, joinCode: 'LEA624', quotaShots: 10 },
+      TABLES,
+      [...PIECES],
+    );
+
+    for (const piece of pieces) {
+      for (const card of piece.cards) {
+        expect(card.joinCode).toBe('LEA624');
+        expect(card.quotaShots).toBe(10);
+      }
+    }
+  });
+
   it("retombe sur une carte d'accueil quand il n'y a pas de table", () => {
     const [cartes] = buildPieces(EVENEMENT, [], ['cartes']);
     expect(cartes?.cards).toHaveLength(1);

@@ -56,7 +56,7 @@ export function LoginScreen() {
       }
       code={{
         hautGauche: 'MEMORA 400',
-        basGauche: 'ESPACE HÔTE',
+        basGauche: 'ESPACE ORGANISATEUR',
         hautDroite: creating ? 'INSCRIPTION' : 'CONNEXION',
       }}
       footer={
