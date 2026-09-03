@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>Memora — A, M au carnet</title>
+<rect width="1024" height="1024" fill="#f5f2ea"/>
+<path d="M0 64H1024M64 0V1024M0 192H1024M192 0V1024M0 320H1024M320 0V1024M0 448H1024M448 0V1024M0 576H1024M576 0V1024M0 704H1024M704 0V1024M0 832H1024M832 0V1024M0 960H1024M960 0V1024" stroke="rgb(90 120 190 / 0.16)" stroke-width="5" fill="none"/>
+<rect x="0" y="0" width="168" height="1024" fill="#d92f52"/>
+<rect x="168" y="0" width="6" height="1024" fill="#c2beaf"/>
+<g transform="translate(362.122 776) scale(0.306122 -0.306122)"><path d="M78 0L78 1760L614 1760L762 687L909 1760L1450 1760L1450 0L1128 0L1128 1268L926 0L610 0L396 1268L396 0Z" fill="#1a1a18"/></g>
+</svg>
