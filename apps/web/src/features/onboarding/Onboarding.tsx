@@ -16,6 +16,7 @@ import { useCallback, useState } from 'react';
 import { Button } from '../../ui/Button.js';
 import { Icon, type NomIcone } from '../../ui/Icon.js';
 import { Screen } from '../../ui/Screen.js';
+import type { PreviewMode } from '@memora/types';
 
 export type Public = 'hote' | 'invite';
 
@@ -74,6 +75,25 @@ const ETAPES: Record<Public, Etape[]> = {
   ],
 };
 
+const APERCU_INVITE: Record<PreviewMode, Pick<Etape, 'titre' | 'texte'>> = {
+  NONE: {
+    titre: 'Aucun aperçu',
+    texte: 'Vous ne revoyez pas votre photographie après la prise. On cadre, on déclenche, on retourne à la fête.',
+  },
+  BLURRED: {
+    titre: 'Un aperçu flouté',
+    texte: 'Une vignette floutée confirme la prise, sans permettre de recommencer ni de composer la soirée.',
+  },
+  FLASH: {
+    titre: 'Un aperçu rapide',
+    texte: 'La photographie apparaît quelques secondes après la prise, puis vous retournez automatiquement au viseur.',
+  },
+  CONFIRM: {
+    titre: 'Vous choisissez',
+    texte: 'Après la prise, vous pourrez garder la photographie ou la reprendre avant qu’une vue soit utilisée.',
+  },
+};
+
 const CODES: Record<Public, string> = { hote: 'ORGANISATEUR', invite: 'INVITÉ' };
 
 /** Cle de memorisation. Le role est dans la cle : on peut etre les deux. */
@@ -101,12 +121,17 @@ export function marquerVue(role: Public): void {
 
 interface OnboardingProps {
   role: Public;
+  previewMode?: PreviewMode;
   /** Appele a la fin comme au saut : les deux mènent au meme endroit. */
   onDone: () => void;
 }
 
-export function Onboarding({ role, onDone }: OnboardingProps) {
-  const etapes = ETAPES[role];
+export function Onboarding({ role, previewMode = 'NONE', onDone }: OnboardingProps) {
+  const etapes = role === 'invite'
+    ? ETAPES.invite.map((etape, position) => position === 1
+        ? { ...etape, ...APERCU_INVITE[previewMode] }
+        : etape)
+    : ETAPES.hote;
   const [index, setIndex] = useState(0);
   const derniere = index === etapes.length - 1;
 

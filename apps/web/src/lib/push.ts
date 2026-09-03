@@ -106,8 +106,9 @@ async function subscribeNative(): Promise<SubscribeResult> {
   return response.ok ? { ok: true } : { ok: false, reason: 'failed' };
 }
 
-export async function subscribeToPush(vapidKey: string): Promise<SubscribeResult> {
+export async function subscribeToPush(vapidKey: string | null): Promise<SubscribeResult> {
   if (Capacitor.isNativePlatform()) return subscribeNative();
+  if (!vapidKey) return { ok: false, reason: 'unsupported' };
 
   const state = pushState();
   if (state !== 'askable' && state !== 'granted') return { ok: false, reason: state };
@@ -141,14 +142,14 @@ export async function subscribeToPush(vapidKey: string): Promise<SubscribeResult
   }
 }
 
-/** La cle publique du serveur, ou rien si les notifications sont desactivees. */
-export async function fetchVapidKey(): Promise<string | null> {
+/** Capacites de notification reellement configurees sur le serveur. */
+export async function fetchPushConfig(): Promise<{ key: string | null; native: boolean }> {
   try {
     const response = await fetch(apiUrl('/push/key'), { credentials: 'include' });
-    if (!response.ok) return null;
-    const { key } = (await response.json()) as { key: string | null };
-    return key;
+    if (!response.ok) return { key: null, native: false };
+    const { key, native } = (await response.json()) as { key: string | null; native?: boolean };
+    return { key, native: native === true };
   } catch {
-    return null;
+    return { key: null, native: false };
   }
 }

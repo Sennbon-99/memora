@@ -2,13 +2,11 @@
 // Regles metier de l'evenement : creation, configuration, ouverture, fermeture.
 
 import type { CreateEventInput, UpdateEventInput } from '@memora/types';
-import { MAX_GUESTS_PER_EVENT, FREE_TIER, CARNET_PAR_TYPE } from '@memora/types';
+import { MAX_GUESTS_PER_EVENT, CARNET_PAR_TYPE } from '@memora/types';
 import { prisma } from '../../config/prisma.js';
-import { buildEventSlug, buildToken } from '../../utils/slug.js';
+import { buildEventSlug, buildJoinCode, buildToken } from '../../utils/slug.js';
 import { compact } from '../../utils/object.js';
 import { AppError, ForbiddenError, NotFoundError } from '../../utils/errors.js';
-
-/** Limites de l'offre gratuite, appliquees au premier evenement d'un compte. */
 
 /**
  * Verifie que l'utilisateur a le droit d'agir sur cet evenement.
@@ -19,7 +17,10 @@ import { AppError, ForbiddenError, NotFoundError } from '../../utils/errors.js';
 export async function assertCanManage(eventId: string, userId: string) {
   const event = await prisma.event.findUnique({
     where: { id: eventId },
-    include: { coHosts: { where: { userId }, select: { userId: true } } },
+    include: {
+      coHosts: { where: { userId }, select: { userId: true } },
+      tables: { select: { id: true, label: true }, orderBy: { label: 'asc' } },
+    },
   });
   if (!event) throw new NotFoundError('Événement');
 
@@ -32,23 +33,19 @@ export async function assertCanManage(eventId: string, userId: string) {
 
 /** Cree un evenement a l'etat brouillon. Aucun invite ne peut le rejoindre. */
 export async function createEvent(userId: string, input: CreateEventInput) {
-  // Le premier evenement d'un compte est offert, mais bride : dix poses au lieu
-  // du quota demande. Au-dela, l'ouverture exigera un paiement (voir openEvent).
-  const alreadyCreated = await prisma.event.count({ where: { ownerId: userId } });
-  const isFirstEvent = alreadyCreated === 0;
-
-  return prisma.event.create({
+  const event = await prisma.event.create({
     data: {
       ...compact(input),
       slug: buildEventSlug(input.name),
+      joinCode: buildJoinCode(),
       ownerId: userId,
       // Le carnet du type de soiree, sauf si l'hote en a deja choisi un.
       // L'ecran de choix confirme un defaut, il ne le reclame jamais : une
       // soiree est habillee des sa creation.
       carnet: input.carnet ?? CARNET_PAR_TYPE[input.type],
-      quotaShots: isFirstEvent ? Math.min(input.quotaShots, FREE_TIER.shots) : input.quotaShots,
     },
   });
+  return { ...event, role: 'OWNER' as const };
 }
 
 /**
@@ -66,9 +63,10 @@ export async function listEvents(userId: string) {
     where: { OR: [{ ownerId: userId }, { coHosts: { some: { userId } } }] },
     orderBy: { eventDate: 'desc' },
     select: {
-      id: true, name: true, slug: true, type: true, eventDate: true,
+      id: true, name: true, slug: true, joinCode: true, type: true, eventDate: true,
       state: true, quotaShots: true, closesAt: true, color: true, carnet: true,
       previewMode: true, welcomeMessage: true, useTableCodes: true,
+      ownerId: true,
       _count: { select: { rolls: true } },
     },
   });
@@ -86,16 +84,35 @@ export async function listEvents(userId: string) {
     photosByEvent.set(roll.eventId, (photosByEvent.get(roll.eventId) ?? 0) + roll._count.photos);
   }
 
-  return events.map((event) => ({
+  return events.map(({ ownerId, ...event }) => ({
     ...event,
+    role: ownerId === userId ? 'OWNER' as const : 'CO_HOST' as const,
     _count: { ...event._count, photos: photosByEvent.get(event.id) ?? 0 },
   }));
 }
 
 /** Detail d'un evenement, pour l'espace de l'hote. */
 export async function getEvent(eventId: string, userId: string) {
-  const { event } = await assertCanManage(eventId, userId);
-  return event;
+  const { event, isOwner } = await assertCanManage(eventId, userId);
+  return {
+    id: event.id,
+    name: event.name,
+    slug: event.slug,
+    joinCode: event.joinCode,
+    type: event.type,
+    eventDate: event.eventDate,
+    quotaShots: event.quotaShots,
+    closesAt: event.closesAt,
+    previewMode: event.previewMode,
+    carnet: event.carnet,
+    color: event.color,
+    welcomeMessage: event.welcomeMessage,
+    useTableCodes: event.useTableCodes,
+    state: event.state,
+    scope: event.scope,
+    tables: event.tables ?? [],
+    role: isOwner ? 'OWNER' as const : 'CO_HOST' as const,
+  };
 }
 
 /**
@@ -123,24 +140,12 @@ export async function updateEvent(eventId: string, userId: string, input: Update
 
 /**
  * Ouvre l'evenement : les invites peuvent desormais scanner et photographier.
- * C'est ici que se joue le controle du paiement.
+ * La V1 ne porte aucun verrou de paiement : tous les evenements sont ouverts.
  */
 export async function openEvent(eventId: string, userId: string) {
   const { event, isOwner } = await assertCanManage(eventId, userId);
-  if (!isOwner) throw new ForbiddenError("Seul l'hôte peut ouvrir l'événement");
+  if (!isOwner) throw new ForbiddenError("Seul l'organisateur peut ouvrir l'événement");
   if (event.state !== 'DRAFT') throw new AppError('ALREADY_OPEN', 409, 'Cet événement est déjà ouvert');
-
-  // L'offre gratuite couvre un seul evenement par compte : on compte ceux
-  // qui ont deja quitte l'etat brouillon.
-  const openedBefore = await prisma.event.count({
-    where: { ownerId: userId, state: { not: 'DRAFT' } },
-  });
-  if (openedBefore >= FREE_TIER.events) {
-    const payment = await prisma.payment.findUnique({ where: { eventId } });
-    if (payment?.state !== 'PAID') {
-      throw new AppError('PAYMENT_REQUIRED', 402, 'Cet événement doit être réglé avant son ouverture');
-    }
-  }
 
   return prisma.event.update({ where: { id: eventId }, data: { state: 'OPEN' } });
 }
@@ -151,7 +156,8 @@ export async function openEvent(eventId: string, userId: string) {
  * avant suppression demarre.
  */
 export async function closeEvent(eventId: string, userId: string) {
-  const { event } = await assertCanManage(eventId, userId);
+  const { event, isOwner } = await assertCanManage(eventId, userId);
+  if (!isOwner) throw new ForbiddenError("Seul l'organisateur peut fermer l'événement");
   if (event.state !== 'OPEN') throw new AppError('NOT_OPEN', 409, "Cet événement n'est pas ouvert");
 
   return prisma.event.update({

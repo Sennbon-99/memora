@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../../lib/api.js';
-import { accessRefusal } from './GuestJourney.js';
+import { accessRefusal, canGuestOpenAlbum } from './GuestJourney.js';
 
 describe('accessRefusal', () => {
   it('ne presente pas une soiree fermee comme introuvable', () => {
@@ -25,5 +25,18 @@ describe('accessRefusal', () => {
   it('retombe sur introuvable pour une erreur qui ne vient pas de l API', () => {
     const { title } = accessRefusal(new Error('reseau coupe'));
     expect(title).toBe('Événement introuvable');
+  });
+});
+
+describe('canGuestOpenAlbum', () => {
+  it('ouvre le partage collectif et la pellicule personnelle', () => {
+    expect(canGuestOpenAlbum(true, 'EVERYONE')).toBe(true);
+    expect(canGuestOpenAlbum(true, 'OWN_ONLY')).toBe(true);
+  });
+
+  it('ne confond pas une publication privee avec un album visible aux invites', () => {
+    expect(canGuestOpenAlbum(true, 'NONE')).toBe(false);
+    expect(canGuestOpenAlbum(true, 'SELECTED')).toBe(false);
+    expect(canGuestOpenAlbum(false, 'EVERYONE')).toBe(false);
   });
 });

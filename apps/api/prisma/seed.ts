@@ -67,6 +67,7 @@ async function main() {
     data: {
       name: 'Mariage de Lea et Sam',
       slug: 'mariage-de-lea-et-sam-demo01',
+      joinCode: 'DEMO24',
       type: 'MARIAGE',
       eventDate: hours(-12),
       quotaShots: 24,

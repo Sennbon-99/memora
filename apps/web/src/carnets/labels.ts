@@ -20,5 +20,5 @@ export const CARNET_NOTE: Record<Carnet, string> = {
   'carnet-noir':
     'Pages noires, tirages a bord blanc. De loin le meilleur pour montrer des photographies.',
   bleu:
-    "Une seule encre, photographies desaturees. Sobre, pour une soiree d'entreprise.",
+    "Une encre bleue et un quadrillage net. Sobre, sans modifier les couleurs des photographies.",
 };

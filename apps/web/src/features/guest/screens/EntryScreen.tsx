@@ -24,7 +24,7 @@ export function EntryScreen() {
     <Screen
       title="Memora"
       hideTitle
-      code={{ hautGauche: 'MEMORA 400', basGauche: '24 VUES', hautDroite: 'SANS COMPTE' }}
+      code={{ hautGauche: 'MEMORA 400', basGauche: 'PELLICULE', hautDroite: 'SANS COMPTE' }}
       footer={
         <div className="flex flex-col gap-3">
           <Button full onClick={rejoindre}>

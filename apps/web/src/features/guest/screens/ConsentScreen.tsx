@@ -21,7 +21,7 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
   return (
     <Screen
       title={eventName}
-      subtitle={welcomeMessage ?? 'Vous etes le photographe de la soiree.'}
+      subtitle={welcomeMessage ?? 'Bienvenue dans la pellicule partagée de la soirée.'}
       footer={
         <div className="flex flex-col gap-3">
           <Button full onClick={() => consent.mutate()} disabled={consent.isPending}>

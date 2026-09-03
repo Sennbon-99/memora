@@ -12,7 +12,15 @@ import { prisma } from '../../config/prisma.js';
 import { assertCanManage } from '../events/event.service.js';
 import { AppError, ForbiddenError, NotFoundError } from '../../utils/errors.js';
 
-const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+let stripe: Stripe | null = null;
+
+function stripeClient(): Stripe {
+  if (!env.STRIPE_SECRET_KEY) {
+    throw new AppError('PAYMENT_DISABLED', 503, 'Le paiement sera disponible dans une prochaine version');
+  }
+  stripe ??= new Stripe(env.STRIPE_SECRET_KEY);
+  return stripe;
+}
 
 /** Prix unique par evenement, invites illimites dans la limite technique de 200. */
 export const EVENT_PRICE_CENTS = 2900;
@@ -35,7 +43,7 @@ export async function createCheckoutSession(eventId: string, userId: string) {
     throw new AppError('ALREADY_PAID', 409, 'Cet événement est déjà réglé');
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await stripeClient().checkout.sessions.create({
     mode: 'payment',
     line_items: [{
       quantity: 1,
@@ -75,9 +83,12 @@ export async function createCheckoutSession(eventId: string, userId: string) {
  * ne credite l'evenement qu'une seule fois.
  */
 export async function handleWebhook(rawBody: Buffer, signature: string) {
+  if (!env.STRIPE_WEBHOOK_SECRET) {
+    throw new AppError('PAYMENT_DISABLED', 503, 'Le paiement sera disponible dans une prochaine version');
+  }
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
+    event = stripeClient().webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
   } catch {
     // Signature invalide : la requete ne vient pas du prestataire.
     throw new AppError('INVALID_SIGNATURE', 400, 'Signature invalide');
@@ -122,7 +133,7 @@ export async function syncPayment(eventId: string, userId: string) {
   if (!payment) throw new NotFoundError('Paiement');
   if (payment.state === 'PAID') return { state: payment.state };
 
-  const session = await stripe.checkout.sessions.retrieve(payment.externalRef);
+  const session = await stripeClient().checkout.sessions.retrieve(payment.externalRef);
   if (session.payment_status === 'paid') {
     await prisma.payment.update({
       where: { eventId },

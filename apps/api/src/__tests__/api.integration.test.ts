@@ -36,7 +36,7 @@ const ping = vi.fn();
 vi.mock('../config/redis.js', () => ({
   redis: { ping, on: vi.fn() },
   consumeShot: vi.fn(), refundShot: vi.fn(), initQuota: vi.fn(),
-  readQuota: vi.fn(), grantBonusShots: vi.fn(),
+  readQuota: vi.fn(), readBonusQuota: vi.fn().mockResolvedValue(0), grantBonusShots: vi.fn(),
   quotaKey: (id: string) => `quota:${id}`, bonusKey: (id: string) => `bonus:${id}`,
 }));
 

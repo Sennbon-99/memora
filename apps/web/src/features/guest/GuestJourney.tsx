@@ -6,12 +6,13 @@
 // ou il en etait, sans qu'on ait rien a memoriser. C'est aussi ce qui rend
 // impossible de sauter le consentement en manipulant l'adresse.
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ApiError } from '../../lib/api.js';
+import { useQueryClient } from '@tanstack/react-query';
+import { ApiError, guestApi } from '../../lib/api.js';
 import { Screen } from '../../ui/Screen.js';
 import { Spinner } from '../../ui/Spinner.js';
-import { useGuestSession } from './useGuestSession.js';
+import { sessionKey, useGuestSession } from './useGuestSession.js';
 import { useMoment } from './useMoment.js';
 import { Onboarding, presentationVue } from '../onboarding/Onboarding.js';
 import { useOnline } from './useOnline.js';
@@ -21,12 +22,56 @@ import { DevelopmentScreen } from './screens/DevelopmentScreen.js';
 import { EndOfRollScreen } from './screens/EndOfRollScreen.js';
 import { IdentityScreen } from './screens/IdentityScreen.js';
 import { ViewfinderScreen } from './screens/ViewfinderScreen.js';
+import type { PublicationScope } from '@memora/types';
+
+export function canGuestOpenAlbum(published: boolean, scope: PublicationScope): boolean {
+  return published && (scope === 'EVERYONE' || scope === 'OWN_ONLY');
+}
 
 export function GuestJourney() {
   const { slug = '' } = useParams();
-  const { data, isPending, isError, error } = useGuestSession(slug);
+  const recoveryToken = new URLSearchParams(window.location.search).get('r');
+  const queryClient = useQueryClient();
+  const tableToken = new URLSearchParams(window.location.search).get('t') ?? undefined;
+  const [recovery, setRecovery] = useState<'loading' | 'done' | 'error'>(
+    recoveryToken ? 'loading' : 'done',
+  );
+  const recoveryStarted = useRef(false);
+  const { data, isPending, isError, error } = useGuestSession(slug, tableToken, recovery === 'done');
   const { online, queued, refreshQueued } = useOnline();
-  const { moment, published } = useMoment(slug, undefined);
+  const { moment, publishedScope, eventClosed } = useMoment(slug, data?.event.id);
+  const [timeClosed, setTimeClosed] = useState(false);
+
+  useEffect(() => {
+    const closesAt = data?.event.closesAt;
+    if (!closesAt) return;
+    let timer: number | undefined;
+    const check = () => {
+      const remaining = new Date(closesAt).getTime() - Date.now();
+      if (!Number.isFinite(remaining) || remaining <= 0) {
+        setTimeClosed(true);
+        return;
+      }
+      setTimeClosed(false);
+      timer = window.setTimeout(check, Math.min(remaining, 2_147_483_647));
+    };
+    check();
+    return () => window.clearTimeout(timer);
+  }, [data?.event.closesAt]);
+
+  useEffect(() => {
+    if (!recoveryToken || recoveryStarted.current) return;
+    recoveryStarted.current = true;
+    void guestApi.openRecoveryLink(slug, recoveryToken)
+      .then(() => {
+        const clean = new URL(window.location.href);
+        clean.searchParams.delete('r');
+        window.history.replaceState(null, '', `${clean.pathname}${clean.search}${clean.hash}`);
+        queryClient.removeQueries({ queryKey: sessionKey(slug) });
+        setRecovery('done');
+      })
+      .catch(() => setRecovery('error'));
+  }, [queryClient, recoveryToken, slug]);
 
   // Les deux seules etapes qui ne se deduisent pas du serveur : l'identite,
   // que l'invite peut passer, et l'album, qu'il choisit d'ouvrir.
@@ -34,10 +79,23 @@ export function GuestJourney() {
   // Lue une fois pour toutes au montage : marquer la presentation vue ne doit
   // pas la faire disparaitre sous les doigts de l'invite en plein milieu.
   const [presentationFaite, setPresentationFaite] = useState(() => presentationVue('invite'));
-  const [showAlbum, setShowAlbum] = useState(false);
+  const [showAlbum, setShowAlbum] = useState(Boolean(recoveryToken));
   const [seenEnd, setSeenEnd] = useState(false);
 
-  if (isPending) return <Spinner label="Ouverture de votre pellicule" />;
+  if (recovery === 'loading' || isPending) return <Spinner label="Ouverture de votre pellicule" />;
+
+  if (recovery === 'error') {
+    return (
+      <Screen
+        title="Lien personnel invalide"
+        subtitle="Demandez à l’organisateur de vous renvoyer le lien de la soirée."
+      >
+        <p className="mt-8 text-sm text-ink-3">
+          Ce lien est incomplet ou ne correspond pas à cette soirée.
+        </p>
+      </Screen>
+    );
+  }
 
   if (isError) {
     // Une soiree fermee ou complete n'est pas une soiree introuvable :
@@ -65,7 +123,13 @@ export function GuestJourney() {
   // arrivent juste avant qu'il les rencontre. Avant le consentement, ils
   // repousseraient l'entree ; apres la premiere photographie, trop tard.
   if (!presentationFaite && roll.shotsLeft === event.quotaShots) {
-    return <Onboarding role="invite" onDone={() => setPresentationFaite(true)} />;
+    return (
+      <Onboarding
+        role="invite"
+        previewMode={event.previewMode}
+        onDone={() => setPresentationFaite(true)}
+      />
+    );
   }
 
   if (!identityDone && roll.firstName === null && roll.shotsLeft === event.quotaShots) {
@@ -74,6 +138,7 @@ export function GuestJourney() {
         slug={slug}
         useTableCodes={event.useTableCodes}
         tables={event.tables}
+        initialTableId={roll.tableId}
         onDone={() => setIdentityDone(true)}
       />
     );
@@ -81,19 +146,27 @@ export function GuestJourney() {
 
   // L'album est ouvert soit parce que l'hote vient de publier — message
   // temps reel —, soit parce qu'il avait publie avant que l'invite revienne.
-  const albumReady = published || event.albumPublished;
+  const effectiveScope = publishedScope ?? event.scope;
+  const albumReady = canGuestOpenAlbum(
+    publishedScope !== null || event.albumPublished,
+    effectiveScope,
+  );
 
-  if (showAlbum) return <AlbumScreen firstName={roll.firstName} />;
+  // La publication ne doit pas laisser un invite bloque dans un viseur dont
+  // l'evenement vient d'etre ferme. Elle ouvre l'album uniquement lorsque la
+  // regle choisie par l'organisateur donne effectivement acces aux invites.
+  if ((showAlbum && albumReady) || (publishedScope !== null && albumReady)) {
+    return <AlbumScreen slug={event.slug} firstName={roll.firstName} />;
+  }
 
   // La soiree est finie : l'invite ne photographie plus, il attend.
-  if (event.state !== 'OPEN' || roll.shotsLeft + roll.bonusShots === 0) {
+  if (event.state !== 'OPEN' || eventClosed || timeClosed || roll.shotsLeft + roll.bonusShots === 0) {
     // Un premier passage propose le code de recuperation ; les suivants
     // montrent directement l'attente, sans reposer la meme question.
-    if (!seenEnd && roll.shotsLeft + roll.bonusShots === 0 && event.state === 'OPEN') {
+    if (!seenEnd) {
       return (
         <EndOfRollScreen
-          slug={slug}
-          firstName={roll.firstName}
+          slug={event.slug}
           queued={queued}
           albumReady={albumReady}
           onSeeAlbum={() => (albumReady ? setShowAlbum(true) : setSeenEnd(true))}
@@ -103,7 +176,6 @@ export function GuestJourney() {
 
     return (
       <DevelopmentScreen
-        hostLabel="Les mariés"
         queued={queued}
         albumReady={albumReady}
         onSeeAlbum={() => setShowAlbum(true)}
@@ -115,6 +187,9 @@ export function GuestJourney() {
     <ViewfinderScreen
       slug={slug}
       eventName={event.name}
+      quotaShots={event.quotaShots}
+      joinCode={event.joinCode}
+      previewMode={event.previewMode}
       shotsLeft={roll.shotsLeft}
       bonusShots={roll.bonusShots}
       queued={queued}
@@ -131,13 +206,13 @@ export function accessRefusal(error: Error): { title: string; subtitle: string }
   if (code === 'EVENT_CLOSED') {
     return {
       title: 'Soirée terminée',
-      subtitle: "La prise de vue est close. L'album vous sera ouvert dès que l'hôte l'aura publié.",
+      subtitle: "La prise de vue est close. L'album vous sera ouvert dès que l'organisateur l'aura publié.",
     };
   }
   if (code === 'EVENT_FULL') {
     return {
       title: 'Soirée complète',
-      subtitle: "Cette soirée a atteint son nombre maximal de participants. Demandez à l'hôte d'agrandir la liste.",
+      subtitle: "Cette soirée a atteint son nombre maximal de participants. Demandez à l'organisateur d'agrandir la liste.",
     };
   }
   return {

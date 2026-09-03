@@ -1,13 +1,11 @@
 // apps/web/src/features/host/screens/TeamScreen.tsx
-// Co-hotes et photographe officiel.
+// Co-hotes de la soiree.
 //
 // Deux notions differentes, reunies ici parce qu'elles repondent a la meme
 // question : qui d'autre que moi agit sur cette soiree.
 //
-// Un co-hote a un compte et les memes droits que l'hote : il trie, il
-// publie. Le photographe, lui, n'a pas de compte du tout — il recoit un
-// lien qui lui ouvre une pellicule sans limite de vues. C'est un invite
-// particulier, pas un administrateur.
+// Un co-hote a un compte : il aide a trier, publier et moderer. Les actions
+// sensibles restent reservees a l'organisateur.
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -28,8 +26,6 @@ export function TeamScreen() {
   const { data: session } = useSession();
 
   const [email, setEmail] = useState('');
-  const [link, setLink] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const { data, isPending } = useQuery({
     queryKey: teamKey(eventId),
@@ -47,29 +43,12 @@ export function TeamScreen() {
     mutationFn: (userId: string) => teamApi.remove(eventId, userId),
     onSuccess: refresh,
   });
-  const photographer = useMutation({
-    mutationFn: () => teamApi.photographerLink(eventId),
-    // Le serveur rend un jeton, pas une adresse : il ignore sous quel nom
-    // de domaine le client est servi. On l'assemble ici.
-    onSuccess: ({ token }) => setLink(`${window.location.origin}/p/${token}`),
-  });
-
   if (isPending || !data) return <Spinner label="Chargement de l’équipe" />;
-
-  const copy = async (value: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2500);
-    } catch {
-      // Presse-papiers refuse : le lien reste selectionnable a la main.
-    }
-  };
 
   return (
     <Screen
       title="Qui agit sur la soirée"
-      subtitle="Les co-hôtes trient et publient comme vous. Le photographe, lui, photographie sans limite."
+      subtitle="Les co-hôtes vous aident à trier, publier et traiter les demandes de retrait."
       code={{
         hautGauche: 'MEMORA 400',
         basGauche: `${data.coHosts.length + 1} PERSONNES`,
@@ -135,41 +114,6 @@ export function TeamScreen() {
             {invite.isPending ? 'Invitation…' : 'Ajouter ce co-hôte'}
           </Button>
         </div>
-      </section>
-
-      <section className="mt-9 pb-6">
-        <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
-          Photographe officiel
-        </h2>
-        <p className="mt-2 px-1 text-xs leading-relaxed text-ink-3">
-          Un lien à lui transmettre. Il ouvre une pellicule sans limite de
-          vues, sans compte et sans passer par le QR code des invités.
-        </p>
-
-        {link ? (
-          <div className="mt-3 rounded-carte border border-a1 bg-a-doux p-4">
-            <p className="break-all font-mono text-mini leading-relaxed text-a1">
-              {link}
-            </p>
-            <Button full className="mt-3" onClick={() => copy(link)}>
-              {copied ? 'Lien copié' : 'Copier le lien'}
-            </Button>
-            <p className="mt-2.5 text-mini leading-relaxed text-ink-3">
-              Ce lien vaut accès : ne le publiez pas, transmettez-le à une
-              seule personne.
-            </p>
-          </div>
-        ) : (
-          <Button
-            tone="ghost"
-            full
-            className="mt-3"
-            disabled={photographer.isPending}
-            onClick={() => photographer.mutate()}
-          >
-            {photographer.isPending ? 'Génération…' : 'Générer le lien du photographe'}
-          </Button>
-        )}
       </section>
 
       <button

@@ -8,6 +8,7 @@
 
 import { Capacitor } from '@capacitor/core';
 import { io, type Socket } from 'socket.io-client';
+import type { PublicationScope } from '@memora/types';
 
 export interface MomentStarted {
   momentId: string;
@@ -21,7 +22,8 @@ export interface ServerEvents {
   'event:join:error': (payload: { reason: string }) => void;
   'moment:started': (payload: MomentStarted) => void;
   'moment:ended': (payload: { momentId: string }) => void;
-  'album:published': (payload: { scope: string }) => void;
+  'event:closed': (payload: { eventId: string }) => void;
+  'album:published': (payload: { scope: PublicationScope }) => void;
 }
 
 let socket: Socket | null = null;

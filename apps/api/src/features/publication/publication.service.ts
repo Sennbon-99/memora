@@ -7,7 +7,7 @@ import { signRead } from '../../config/storage.js';
 import { buildToken } from '../../utils/slug.js';
 import { hashRecoveryCode, verifyRecoveryCode } from '../../utils/hash.js';
 import { assertCanManage } from '../events/event.service.js';
-import { AppError, ForbiddenError, NotFoundError } from '../../utils/errors.js';
+import { AppError, NotFoundError } from '../../utils/errors.js';
 import { filterVisible, type Viewer } from './visibility.js';
 
 /**
@@ -122,7 +122,7 @@ export async function getPublicAlbum(
   if (event.accessCodeHash) {
     if (!accessCode) throw new AppError('ACCESS_CODE_REQUIRED', 401, "Cet album est protégé par un code");
     if (!(await verifyRecoveryCode(accessCode, event.accessCodeHash))) {
-      throw new ForbiddenError('Code incorrect');
+      throw new AppError('WRONG_CODE', 403, 'Code incorrect');
     }
   }
 
@@ -249,6 +249,7 @@ export async function publishReviewed(eventId: string, userId: string, scope?: P
     throw new AppError('SCOPE_REQUIRED', 400, "Choisissez qui pourra voir l'album");
   }
 
+  const albumToken = event.albumToken ?? buildToken(16);
   const [published] = await prisma.$transaction([
     prisma.photo.updateMany({
       where: {
@@ -263,7 +264,7 @@ export async function publishReviewed(eventId: string, userId: string, scope?: P
       data: {
         state: 'PUBLISHED',
         ...(first && scope ? { scope } : {}),
-        albumToken: event.albumToken ?? buildToken(16),
+        albumToken,
       },
     }),
   ]);
@@ -278,5 +279,13 @@ export async function publishReviewed(eventId: string, userId: string, scope?: P
     },
   });
 
-  return { publishedNow: published.count, first, complete: pending === 0, pending };
+  return {
+    publishedNow: published.count,
+    first,
+    complete: pending === 0,
+    pending,
+    scope: first ? scope! : event.scope,
+    slug: event.slug,
+    albumToken,
+  };
 }

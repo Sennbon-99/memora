@@ -6,7 +6,7 @@
 // permet a l'invite de fermer son navigateur et de revenir sans rien ressaisir.
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import type { JoinEventInput } from '@memora/types';
 import { guestApi, type GuestSession } from '../../lib/api.js';
 import { applyCarnet } from '../../lib/theme.js';
@@ -20,10 +20,11 @@ export const sessionKey = (slug: string) => ['guest-session', slug] as const;
  * fond, il est mis a jour par les reponses de reservation. Un rafraichissement
  * automatique pourrait ecraser un decompte local pris hors ligne.
  */
-export function useGuestSession(slug: string) {
+export function useGuestSession(slug: string, tableToken?: string, enabled = true) {
   const query = useQuery({
     queryKey: sessionKey(slug),
-    queryFn: () => guestApi.join(slug),
+    queryFn: () => guestApi.join(slug, tableToken),
+    enabled,
     staleTime: Infinity,
     retry: 1,
   });
@@ -33,6 +34,7 @@ export function useGuestSession(slug: string) {
   const carnet = query.data?.event.carnet;
   useEffect(() => {
     applyCarnet(carnet);
+    return () => { applyCarnet('papier'); };
   }, [carnet]);
 
   return query;
@@ -42,11 +44,11 @@ export function useGuestSession(slug: string) {
 export function useUpdateSession(slug: string) {
   const client = useQueryClient();
 
-  return (patch: (previous: GuestSession) => GuestSession) => {
+  return useCallback((patch: (previous: GuestSession) => GuestSession) => {
     client.setQueryData<GuestSession>(sessionKey(slug), (previous) =>
       previous ? patch(previous) : previous,
     );
-  };
+  }, [client, slug]);
 }
 
 /** Acceptation du droit a l'image. Sans elle, aucune pose n'est possible. */

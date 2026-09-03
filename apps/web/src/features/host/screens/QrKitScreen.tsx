@@ -53,11 +53,15 @@ export function QrKitScreen() {
 
   if (isPending || !data) return <Spinner label="Préparation du kit" />;
   const { event } = data;
+  const tableTotal = tables.data?.tables.length ?? event.tables?.length ?? 0;
+  const needsTables = event.useTableCodes && choisies.includes('cartes') && tableTotal === 0;
 
   return (
     <Screen
       title="Votre kit est prêt"
-      subtitle={`Un QR code par table pour ${event.name}, plus une affiche pour l’entrée.`}
+      subtitle={event.useTableCodes
+        ? `Un QR code par table pour ${event.name}, plus une affiche pour l’entrée.`
+        : `Un QR code commun pour ${event.name}, décliné sur les supports à imprimer.`}
       code={{
         hautGauche: 'MEMORA 400',
         basGauche: 'À IMPRIMER',
@@ -72,7 +76,7 @@ export function QrKitScreen() {
               sélection au lieu de la faire oublier. */}
           <Button
             full
-            disabled={choisies.length === 0 || kit.isPending}
+            disabled={choisies.length === 0 || kit.isPending || needsTables}
             onClick={() => kit.mutate()}
           >
             {kit.isPending
@@ -92,7 +96,13 @@ export function QrKitScreen() {
             </div>
           )}
 
-          {event.state === 'DRAFT' ? (
+          {needsTables && (
+            <p className="text-center text-xs leading-relaxed text-warn">
+              Créez vos tables plus bas avant de télécharger les cartes de table.
+            </p>
+          )}
+
+          {event.state === 'DRAFT' && event.role === 'OWNER' ? (
             <Button
               tone="ghost"
               full
@@ -109,30 +119,37 @@ export function QrKitScreen() {
             </Button>
           )}
 
+          {event.state === 'DRAFT' && event.role === 'CO_HOST' && (
+            <p className="text-center text-xs leading-relaxed text-ink-3">
+              Le kit peut déjà être imprimé. L’organisateur ouvrira ensuite la pellicule.
+            </p>
+          )}
+
           {/* Un refus du serveur doit se voir. Sans ce message, le bouton
-              paraissait simplement ne rien faire — c'est le cas d'une soiree
-              au-dela du palier gratuit, refusee avec un 402. */}
+              parait simplement ne rien faire. */}
           {open.error && (
             <div role="alert" className="rounded-carte bg-danger-doux p-3 text-sm leading-relaxed
               text-danger">
-              {(open.error as ApiError).code === 'PAYMENT_REQUIRED' ? (
-                <>
-                  Votre première soirée est offerte. Celle-ci doit être réglée
-                  avant d’ouvrir la pellicule.
-                  <button
-                    onClick={() => navigate(`/hote/${eventId}/facturation`)}
-                    className="mt-2 block font-bold underline"
-                  >
-                    Régler cette soirée
-                  </button>
-                </>
-              ) : (open.error as ApiError).message}
+              {(open.error as ApiError).message}
             </div>
           )}
         </div>
       }
     >
       <div className="mt-2">
+
+      <section className="mt-6 rounded-carte bg-pap-2 p-5 shadow-[var(--ombre-tirage)]">
+        <p className="font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
+          Accès sans QR
+        </p>
+        <p className="mt-2 font-mono text-grand font-semibold tracking-[0.18em] text-a1">
+          {event.joinCode}
+        </p>
+        <p className="mt-2 text-note leading-relaxed text-ink-2">
+          Ce code est imprimé sous chaque QR. Un invité peut le saisir depuis
+          « Rejoindre une soirée » si son appareil ne parvient pas à scanner.
+        </p>
+      </section>
 
       <section className="mt-6 w-full">
         <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
@@ -148,7 +165,7 @@ export function QrKitScreen() {
             const info = KIT_PIECE_INFO[piece];
             const cochee = choisies.includes(piece);
             const pages = piece === 'cartes' && event.useTableCodes
-              ? `${tables.data?.tables.length ?? count} pages`
+              ? (tableTotal > 0 ? `${tableTotal} pages` : 'tables à créer')
               : '1 page';
             return (
               <li key={piece}>
@@ -201,10 +218,10 @@ export function QrKitScreen() {
               chacune reçoit son propre QR code dans le kit.
             </p>
 
-            {tables.isSuccess ? (
+            {tableTotal > 0 ? (
               <p role="status" className="mt-4 rounded-champ border border-ok
                 bg-ok-doux px-4 py-3 text-sm text-ok">
-                <span className="font-mono tabular-nums">{tables.data.tables.length}</span> tables
+                <span className="font-mono tabular-nums">{tableTotal}</span> tables
                 {' '}créées.
               </p>
             ) : (

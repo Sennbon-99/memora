@@ -14,9 +14,8 @@ import {
   removalRouter,
 } from './features/publication/publication.routes.js';
 import { momentRouter } from './features/moments/moment.routes.js';
-import { paymentRouter } from './features/payments/payment.routes.js';
 import { qrkitRouter } from './features/qrkit/qrkit.routes.js';
-import { teamRouter, photographerRouter } from './features/team/team.routes.js';
+import { teamRouter } from './features/team/team.routes.js';
 import { dashboardRouter } from './features/dashboard/dashboard.routes.js';
 import { rollRouter } from './features/guests/roll.routes.js';
 import { downloadRouter } from './features/download/download.routes.js';
@@ -33,14 +32,11 @@ apiRouter.use('/photos', photoRouter);
 // Actions de l'hote sur l'album de son evenement.
 apiRouter.use('/events/:id', hostAlbumRouter);
 apiRouter.use('/events/:id/moments', momentRouter);
-apiRouter.use('/events/:id', paymentRouter);
 apiRouter.use('/events/:id', qrkitRouter);
 apiRouter.use('/events/:id', teamRouter);
 apiRouter.use('/events/:id', dashboardRouter);
 apiRouter.use('/events/:id', rollRouter);
 apiRouter.use('/events/:id', downloadRouter);
-// Acces du photographe officiel par son lien dedie, sans compte.
-apiRouter.use('/p', photographerRouter);
 apiRouter.use('/push', pushRouter);
 // Documentation derivee des schemas Zod.
 apiRouter.use('/', openapiRouter);

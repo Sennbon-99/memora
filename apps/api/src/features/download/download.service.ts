@@ -17,6 +17,7 @@ import { env } from '../../config/env.js';
 import { prisma } from '../../config/prisma.js';
 import { assertCanManage } from '../events/event.service.js';
 import { AppError } from '../../utils/errors.js';
+import type { GuestRoll } from '../../middlewares/requireGuest.js';
 
 /** Nom de fichier lisible : pellicule, horodatage, rang. */
 export function buildEntryName(
@@ -79,6 +80,64 @@ export async function streamAlbumArchive(
       );
       if (!object.Body) continue;
 
+      archive.append(object.Body as Readable, {
+        name: buildEntryName(photo, label, index),
+        date: photo.takenAt,
+      });
+    }
+  }
+
+  await archive.finalize();
+}
+
+/**
+ * Diffuse l'archive qu'un invite a le droit de voir.
+ *
+ * En album collectif, elle contient toutes les photographies publiees. En
+ * album personnel, elle ne contient que sa pellicule. Les deux autres
+ * portees ne donnent aucun acces depuis le parcours invite.
+ */
+export async function streamGuestAlbumArchive(
+  viewer: GuestRoll,
+  output: Writable,
+): Promise<void> {
+  const event = await prisma.event.findUnique({
+    where: { id: viewer.eventId },
+    select: { state: true, scope: true },
+  });
+  if (!event || event.state !== 'PUBLISHED') {
+    throw new AppError('NOT_PUBLISHED', 409, "L'album n'a pas encore été publié");
+  }
+  if (event.scope !== 'EVERYONE' && event.scope !== 'OWN_ONLY') {
+    throw new AppError('NOT_SHARED', 403, "L'organisateur n'a pas partagé cet album avec les invités");
+  }
+
+  const rolls = await prisma.roll.findMany({
+    where: event.scope === 'OWN_ONLY'
+      ? { id: viewer.id, eventId: viewer.eventId }
+      : { eventId: viewer.eventId },
+    orderBy: { createdAt: 'asc' },
+    select: {
+      id: true,
+      firstName: true,
+      photos: {
+        where: { status: 'UPLOADED', published: true },
+        orderBy: { takenAt: 'asc' },
+        select: { id: true, objectKey: true, takenAt: true },
+      },
+    },
+  });
+
+  const archive = new ZipArchive({ zlib: { level: 0 } });
+  archive.pipe(output);
+
+  for (const [rank, roll] of rolls.entries()) {
+    const label = buildRollLabel(roll, rank);
+    for (const [index, photo] of roll.photos.entries()) {
+      const object = await s3.send(
+        new GetObjectCommand({ Bucket: env.S3_BUCKET, Key: photo.objectKey }),
+      );
+      if (!object.Body) continue;
       archive.append(object.Body as Readable, {
         name: buildEntryName(photo, label, index),
         date: photo.takenAt,

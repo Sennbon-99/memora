@@ -115,6 +115,7 @@ export async function triggerMoment(momentId: string, userId: string) {
     endsAt: new Date(startedAt.getTime() + ttlSeconds * 1000),
     bonusShots: moment.bonusShots,
     guestsNotified: rolls.length,
+    eventSlug: event.slug,
   };
 }
 

@@ -23,7 +23,7 @@ const PHOTOGRAPHER_QUOTA = 2000;
  */
 export async function inviteCoHost(eventId: string, userId: string, email: string) {
   const { isOwner } = await assertCanManage(eventId, userId);
-  if (!isOwner) throw new ForbiddenError("Seul l'hôte peut inviter un co-hôte");
+  if (!isOwner) throw new ForbiddenError("Seul l'organisateur peut inviter un co-hôte");
 
   const invited = await prisma.user.findUnique({
     where: { email },
@@ -33,7 +33,7 @@ export async function inviteCoHost(eventId: string, userId: string, email: strin
     throw new AppError('USER_NOT_FOUND', 404, "Cette personne n'a pas encore de compte Memora");
   }
   if (invited.id === userId) {
-    throw new AppError('ALREADY_OWNER', 409, "Vous êtes déjà l'hôte de cet événement");
+    throw new AppError('ALREADY_OWNER', 409, "Cette personne organise déjà cet événement");
   }
 
   const existing = await prisma.coHost.findUnique({
@@ -48,7 +48,7 @@ export async function inviteCoHost(eventId: string, userId: string, email: strin
 /** Retire un co-hote. Ses actions passees restent, seul l'acces cesse. */
 export async function removeCoHost(eventId: string, userId: string, coHostId: string) {
   const { isOwner } = await assertCanManage(eventId, userId);
-  if (!isOwner) throw new ForbiddenError("Seul l'hôte peut retirer un co-hôte");
+  if (!isOwner) throw new ForbiddenError("Seul l'organisateur peut retirer un co-hôte");
 
   const deleted = await prisma.coHost.deleteMany({
     where: { eventId, userId: coHostId },

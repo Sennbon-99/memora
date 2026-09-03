@@ -13,10 +13,16 @@ import { QrCode } from '../../../ui/QrCode.js';
 import { useCamera } from '../useCamera.js';
 import { useShot } from '../useShot.js';
 import { CameraDeniedScreen } from './CameraDeniedScreen.js';
+import { prepare, previewUrl, type PreparedImage } from '../../../lib/image.js';
+import { publicAppOrigin } from '../../../lib/api.js';
+import type { PreviewMode } from '@memora/types';
 
 interface ViewfinderScreenProps {
   slug: string;
   eventName: string;
+  quotaShots: number;
+  joinCode: string;
+  previewMode: PreviewMode;
   shotsLeft: number;
   bonusShots: number;
   queued: number;
@@ -27,13 +33,17 @@ interface ViewfinderScreenProps {
 }
 
 export function ViewfinderScreen({
-  slug, eventName, shotsLeft, bonusShots, queued, online, moment, onEmpty,
+  slug, eventName, quotaShots, joinCode, previewMode,
+  shotsLeft, bonusShots, queued, online, moment, onEmpty,
 }: ViewfinderScreenProps) {
   const { videoRef, state, start, capture } = useCamera();
   const shot = useShot(slug);
   // Zero : obturateur au repos. Sinon, le numero du declenchement en cours.
   const [flashing, setFlashing] = useState(0);
   const minuteur = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const previewTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [preview, setPreview] = useState<(PreparedImage & { url: string }) | null>(null);
+  const [captureError, setCaptureError] = useState<string | null>(null);
 
   // « Le carton a disparu sous les verres » est le cas le plus frequent :
   // un invite deja entre depanne son voisin en lui montrant son ecran.
@@ -41,7 +51,14 @@ export function ViewfinderScreen({
 
   // La camera est liberee au demontage par useCamera ; le minuteur, lui,
   // survivrait et appellerait setFlashing sur un composant demonte.
-  useEffect(() => () => clearTimeout(minuteur.current), []);
+  useEffect(() => () => {
+    clearTimeout(minuteur.current);
+    clearTimeout(previewTimer.current);
+  }, []);
+
+  useEffect(() => () => {
+    if (preview) URL.revokeObjectURL(preview.url);
+  }, [preview]);
 
   useEffect(() => { void start(); }, [start]);
 
@@ -49,7 +66,8 @@ export function ViewfinderScreen({
   useEffect(() => { if (total === 0) onEmpty(); }, [total, onEmpty]);
 
   const takeShot = async () => {
-    if (shot.isPending || total === 0 || state !== 'ready') return;
+    if (shot.isPending || preview || total === 0 || state !== 'ready') return;
+    setCaptureError(null);
 
     // L'obturateur part avant l'attente reseau : le retour doit etre
     // immediat, sinon l'invite appuie deux fois. La cle change a chaque
@@ -63,12 +81,32 @@ export function ViewfinderScreen({
     minuteur.current = setTimeout(() => setFlashing(0), 340);
 
     try {
-      shot.mutate(await capture());
-    } catch {
-      // Camera devenue indisponible entre-temps : l'ecran de secours prend
-      // le relais au prochain rendu.
+      const frame = await capture();
+      if (previewMode === 'NONE') {
+        shot.mutate(frame);
+        return;
+      }
+
+      const prepared = await prepare(frame);
+      const next = { ...prepared, url: previewUrl(prepared.blob) };
+      setPreview(next);
+
+      if (previewMode !== 'CONFIRM') {
+        shot.mutate(prepared);
+        previewTimer.current = setTimeout(() => setPreview(null), previewMode === 'FLASH' ? 2500 : 1200);
+      }
+    } catch (error) {
+      setCaptureError(error instanceof Error ? error.message : 'La prise de vue a échoué.');
     }
   };
+
+  const keepPreview = () => {
+    if (!preview) return;
+    shot.mutate({ blob: preview.blob, width: preview.width, height: preview.height });
+    setPreview(null);
+  };
+
+  const retake = () => setPreview(null);
 
   if (state === 'denied' || state === 'unavailable') {
     return (
@@ -120,6 +158,34 @@ export function ViewfinderScreen({
         </div>
       )}
 
+      {preview && (
+        <div className="absolute inset-0 z-30 flex flex-col bg-black">
+          <img
+            src={preview.url}
+            alt="Aperçu de la photographie"
+            className={`min-h-0 flex-1 object-contain ${previewMode === 'BLURRED' ? 'scale-105 blur-xl' : ''}`}
+          />
+          {previewMode === 'CONFIRM' && (
+            <div className="flex gap-3 bg-black px-5 pb-7 pt-4 safe-bottom">
+              <button
+                type="button"
+                onClick={retake}
+                className="min-h-12 flex-1 rounded-champ border border-white/35 text-sm font-semibold text-white"
+              >
+                Reprendre
+              </button>
+              <button
+                type="button"
+                onClick={keepPreview}
+                className="min-h-12 flex-1 rounded-champ bg-white text-sm font-semibold text-black"
+              >
+                Garder
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <header className="relative z-20 flex items-start justify-between gap-4 px-5 pt-4 safe-top">
         <div className="rounded-champ bg-black/50 px-4 py-2 backdrop-blur">
           <ShotCounter shotsLeft={shotsLeft} bonusShots={bonusShots} queued={queued} />
@@ -155,7 +221,7 @@ export function ViewfinderScreen({
         >
           <p className="text-center text-lecture leading-relaxed text-ink-2">
             Faites scanner cet écran. Votre voisin rejoint la même soirée,
-            avec ses propres vingt-quatre poses.
+            avec ses propres {quotaShots} poses.
           </p>
           {/* Le code est presente comme un tirage : bord blanc epais, comme
               sur le carton imprime. Le cadre porte l'identite, jamais le
@@ -165,10 +231,13 @@ export function ViewfinderScreen({
                   soit le carnet — meme raison qu'au sommet de QrCode.tsx. */}
               <div className="bg-white p-3 shadow-2xl">
             <QrCode
-              value={`${window.location.origin}/e/${slug}`}
+              value={`${publicAppOrigin()}/e/${slug}`}
               size={216}
               label={`Code de la soirée ${eventName}`}
             />
+            <p className="mt-2 text-center font-mono text-sm font-bold tracking-[0.2em] text-black">
+              {joinCode}
+            </p>
           </div>
           <button
             type="button"
@@ -204,15 +273,15 @@ export function ViewfinderScreen({
       <div className="flex-1" />
 
       <footer className="relative z-20 flex flex-col items-center gap-4 pb-10 safe-bottom">
-        {shot.isError && (
+        {(shot.isError || captureError) && (
           <p role="alert" className="mx-6 rounded-carte bg-danger-doux px-4 py-2 text-sm text-danger">
-            {shot.error.message}
+            {captureError ?? shot.error?.message}
           </p>
         )}
 
         <button
           onClick={takeShot}
-          disabled={shot.isPending || total === 0}
+          disabled={shot.isPending || preview !== null || total === 0}
           aria-label={`Prendre une photo, ${total} restantes`}
           className="h-20 w-20 rounded-full bg-ink-well ring-4 ring-edge
             transition active:scale-95 disabled:opacity-40

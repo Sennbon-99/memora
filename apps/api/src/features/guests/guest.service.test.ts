@@ -1,6 +1,6 @@
 // apps/api/src/features/guests/guest.service.test.ts
 // Tests du parcours invite : ouverture de pellicule, plafond, consentement,
-// recuperation par code.
+// recuperation par lien personnel (et compatibilite de l'ancien code).
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
@@ -10,7 +10,9 @@ const rollFindUnique = vi.fn();
 const rollFindMany = vi.fn();
 const rollCreate = vi.fn();
 const rollUpdate = vi.fn();
+const eventTableFindFirst = vi.fn();
 const readQuota = vi.fn();
+const readBonusQuota = vi.fn();
 const initQuota = vi.fn();
 
 vi.mock('../../config/prisma.js', () => ({
@@ -20,25 +22,30 @@ vi.mock('../../config/prisma.js', () => ({
       findFirst: rollFindFirst, findUnique: rollFindUnique,
       findMany: rollFindMany, create: rollCreate, update: rollUpdate,
     },
+    eventTable: { findFirst: eventTableFindFirst },
   },
 }));
 
-vi.mock('../../config/redis.js', () => ({ readQuota, initQuota }));
+vi.mock('../../config/redis.js', () => ({ readQuota, readBonusQuota, initQuota }));
 
-const { joinEvent, giveConsent, recoverRoll } = await import('./guest.service.js');
+const { joinEvent, giveConsent, recoverFromLink, recoverRoll, setIdentity } = await import('./guest.service.js');
 const { hashRecoveryCode } = await import('../../utils/hash.js');
 const { signDeviceToken } = await import('../../utils/jwt.js');
 
 const openEvent = {
-  id: 'e1', name: 'Mariage de Lea et Sam', state: 'OPEN', quotaShots: 24,
+  id: 'e1', slug: 'mariage-x', joinCode: 'LEA624', name: 'Mariage de Lea et Sam',
+  state: 'OPEN', scope: 'NONE', quotaShots: 24,
   previewMode: 'NONE', color: '#B0741C', welcomeMessage: null,
-  closesAt: new Date('2026-09-01'), useTableCodes: false,
+  carnet: 'papier', closesAt: new Date('2026-09-01'), useTableCodes: false,
+  tables: [],
   _count: { rolls: 12 },
 };
 
 beforeEach(() => {
-  [eventFindUnique, rollFindFirst, rollFindUnique, rollFindMany, rollCreate, rollUpdate, readQuota, initQuota]
+  [eventFindUnique, rollFindFirst, rollFindUnique, rollFindMany, rollCreate, rollUpdate,
+   eventTableFindFirst, readQuota, readBonusQuota, initQuota]
     .forEach((m) => m.mockReset());
+  readBonusQuota.mockResolvedValue(0);
 });
 
 describe('joinEvent', () => {
@@ -55,6 +62,35 @@ describe('joinEvent', () => {
     expect(initQuota).toHaveBeenCalledWith('r1', 24);
   });
 
+  it('retrouve la soiree avec le code court, sans tenir compte des minuscules', async () => {
+    eventFindUnique.mockResolvedValue(openEvent);
+    rollCreate.mockResolvedValue({
+      id: 'r1', firstName: null, tableId: null,
+      shotsLeft: 24, bonusShots: 0, consentedAt: null,
+    });
+
+    await joinEvent('lea624', undefined);
+
+    expect(eventFindUnique.mock.calls[0]![0].where).toEqual({ joinCode: 'LEA624' });
+  });
+
+  it('associe la table du QR a la nouvelle pellicule sans exposer son jeton', async () => {
+    eventFindUnique.mockResolvedValue({
+      ...openEvent,
+      useTableCodes: true,
+      tables: [{ id: 'table-1', label: 'Table 1', qrToken: 'secret-table' }],
+    });
+    rollCreate.mockResolvedValue({
+      id: 'r1', firstName: null, tableId: 'table-1',
+      shotsLeft: 24, bonusShots: 0, consentedAt: null,
+    });
+
+    const session = await joinEvent('mariage-x', undefined, 'secret-table');
+
+    expect(rollCreate.mock.calls[0]![0].data).toMatchObject({ tableId: 'table-1' });
+    expect(session.event.tables).toEqual([{ id: 'table-1', label: 'Table 1' }]);
+  });
+
   it('restaure la pellicule existante sans en creer une seconde', async () => {
     eventFindUnique.mockResolvedValue(openEvent);
     rollFindFirst.mockResolvedValue({
@@ -67,6 +103,19 @@ describe('joinEvent', () => {
     expect(session.roll.shotsLeft).toBe(17);
     expect(session.roll.hasConsented).toBe(true);
     expect(rollCreate).not.toHaveBeenCalled();
+  });
+
+  it('restaure aussi les poses bonus encore actives', async () => {
+    eventFindUnique.mockResolvedValue(openEvent);
+    rollFindFirst.mockResolvedValue({
+      id: 'r1', firstName: 'Camille', shotsLeft: 0, bonusShots: 0, consentedAt: new Date(),
+    });
+    readQuota.mockResolvedValue(0);
+    readBonusQuota.mockResolvedValue(3);
+
+    const session = await joinEvent('mariage-x', signDeviceToken('r1'));
+
+    expect(session.roll.bonusShots).toBe(3);
   });
 
   it('traite un cookie falsifie comme un appareil inconnu', async () => {
@@ -119,6 +168,27 @@ describe('joinEvent', () => {
   });
 });
 
+describe('recoverFromLink', () => {
+  it('restaure uniquement une pellicule appartenant a la soiree du lien', async () => {
+    eventFindUnique.mockResolvedValue({ id: 'e1' });
+    rollFindFirst.mockResolvedValue({ id: 'r1' });
+
+    const restored = await recoverFromLink('mariage-x', signDeviceToken('r1'));
+
+    expect(rollFindFirst).toHaveBeenCalledWith({
+      where: { id: 'r1', eventId: 'e1' },
+      select: { id: true },
+    });
+    expect(restored.rollId).toBe('r1');
+  });
+
+  it('refuse un jeton personnel invalide sans consulter la base', async () => {
+    await expect(recoverFromLink('mariage-x', 'jeton-invalide'))
+      .rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+    expect(eventFindUnique).not.toHaveBeenCalled();
+  });
+});
+
 describe('giveConsent', () => {
   it('horodate le consentement', async () => {
     rollFindUnique.mockResolvedValue({ id: 'r1', consentedAt: null });
@@ -136,6 +206,26 @@ describe('giveConsent', () => {
 
     // C'est la date du premier accord qui fait foi, pas celle du dernier clic.
     expect(consentedAt).toEqual(premiere);
+    expect(rollUpdate).not.toHaveBeenCalled();
+  });
+});
+
+describe('setIdentity', () => {
+  it('accepte une table de la meme soiree', async () => {
+    rollFindUnique.mockResolvedValue({ eventId: 'e1' });
+    eventTableFindFirst.mockResolvedValue({ id: 'table-1' });
+    rollUpdate.mockResolvedValue({ id: 'r1', firstName: 'Camille', tableId: 'table-1' });
+
+    await expect(setIdentity('r1', { firstName: 'Camille', tableId: 'table-1' }))
+      .resolves.toMatchObject({ tableId: 'table-1' });
+  });
+
+  it("refuse la table d'un autre evenement", async () => {
+    rollFindUnique.mockResolvedValue({ eventId: 'e1' });
+    eventTableFindFirst.mockResolvedValue(null);
+
+    await expect(setIdentity('r1', { tableId: 'table-autre' }))
+      .rejects.toMatchObject({ code: 'INVALID_TABLE' });
     expect(rollUpdate).not.toHaveBeenCalled();
   });
 });

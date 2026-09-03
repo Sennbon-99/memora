@@ -34,7 +34,8 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-8">
       <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">{title}</h2>
-      <div className="mt-1 flex flex-col">{children}</div>
+      <div className="mt-2 flex flex-col overflow-hidden rounded-carte bg-pap-2
+        shadow-[var(--ombre-tirage)]">{children}</div>
     </section>
   );
 }
@@ -56,7 +57,7 @@ function Line({ label, value, mono, onClick, danger }: {
     <button
       onClick={onClick}
       disabled={!onClick}
-      className={`flex w-full items-center gap-3 border-b border-edge-2 px-1 py-3.5 text-left
+      className={`flex w-full items-center gap-3 border-b border-edge-2 px-4 py-3.5 text-left
         text-note transition last:border-b-0 active:bg-appui disabled:active:bg-transparent
         ${danger ? 'text-danger' : ''}`}
     >
@@ -134,7 +135,9 @@ export function SettingsScreen() {
           mono
           onClick={() => navigate(`/hote/${eventId}/retraits`)}
         />
-        <Line label="Co-hôtes et photographe" onClick={() => navigate(`/hote/${eventId}/equipe`)} />
+        {event.role === 'OWNER' && (
+          <Line label="Co-hôtes" onClick={() => navigate(`/hote/${eventId}/equipe`)} />
+        )}
         {/* L'archive est construite au fil de l'eau par le serveur, elle ne
             passe pas par le client — mais elle est derriere requireAuth, donc
             elle se recupere avec l'en-tete, pas en ouvrant une adresse. */}
@@ -147,7 +150,6 @@ export function SettingsScreen() {
 
       <Group title="Mon compte">
         <Line label={session?.name ?? '—'} value={session?.email} />
-        <Line label="Facturation" onClick={() => navigate(`/hote/${eventId}/facturation`)} />
         <Line
           label="Se déconnecter"
           danger

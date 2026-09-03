@@ -16,7 +16,6 @@ import {
   joinEventSchema,
   loginSchema,
   publishEventSchema,
-  recoveryCodeSchema,
   registerSchema,
   removalRequestSchema,
   reservePhotoSchema,
@@ -60,15 +59,16 @@ const routes: RouteDoc[] = [
   { method: 'get', path: '/events/{id}/qr-kit', summary: 'Telecharger le kit de QR codes', tag: 'Evenements', auth: 'host' },
   { method: 'get', path: '/events/{id}/stats', summary: 'Participation en direct', tag: 'Evenements', auth: 'host' },
 
-  { method: 'get', path: '/e/{slug}', summary: 'Rejoindre un evenement par QR code', tag: 'Invites', auth: 'public' },
+  { method: 'get', path: '/e/{slug}', summary: 'Rejoindre un evenement par QR code ou code court', tag: 'Invites', auth: 'public' },
   { method: 'post', path: '/e/{slug}/consent', summary: 'Accepter le droit a l image', tag: 'Invites', auth: 'guest' },
   { method: 'post', path: '/e/{slug}/identity', summary: 'Renseigner prenom et table', tag: 'Invites', auth: 'guest', body: joinEventSchema },
-  { method: 'post', path: '/e/{slug}/recovery-code', summary: 'Enregistrer son code de recuperation', tag: 'Invites', auth: 'guest' },
-  { method: 'post', path: '/e/{slug}/recover', summary: 'Retrouver sa pellicule', tag: 'Invites', auth: 'public', body: recoveryCodeSchema },
+  { method: 'get', path: '/e/{slug}/recovery-link', summary: 'Creer son lien personnel de recuperation', tag: 'Invites', auth: 'guest' },
+  { method: 'post', path: '/e/{slug}/recovery-link', summary: 'Retrouver sa pellicule par son lien personnel', tag: 'Invites', auth: 'public' },
 
   { method: 'post', path: '/photos/reserve', summary: 'Reserver une pose', tag: 'Photographies', auth: 'guest', body: reservePhotoSchema },
   { method: 'post', path: '/photos/confirm', summary: 'Confirmer le depot du fichier', tag: 'Photographies', auth: 'guest', body: confirmPhotoSchema },
   { method: 'get', path: '/photos/mine', summary: 'Consulter sa pellicule', tag: 'Photographies', auth: 'guest' },
+  { method: 'get', path: '/photos/archive', summary: 'Telecharger les photographies partagees', tag: 'Photographies', auth: 'guest' },
   { method: 'post', path: '/photos/removal', summary: 'Demander le retrait d une photographie', tag: 'Photographies', auth: 'guest', body: removalRequestSchema },
 
   { method: 'get', path: '/events/{id}/album', summary: 'Album complet pour le tri', tag: 'Publication', auth: 'host' },
@@ -85,12 +85,6 @@ const routes: RouteDoc[] = [
   { method: 'post', path: '/events/{id}/co-hosts', summary: 'Inviter un co-hote', tag: 'Equipe', auth: 'host' },
   { method: 'get', path: '/events/{id}/co-hosts', summary: 'Lister les co-hotes', tag: 'Equipe', auth: 'host' },
   { method: 'delete', path: '/events/{id}/co-hosts/{userId}', summary: 'Retirer un co-hote', tag: 'Equipe', auth: 'host' },
-  { method: 'post', path: '/events/{id}/photographer', summary: 'Produire le lien du photographe', tag: 'Equipe', auth: 'host' },
-  { method: 'get', path: '/p/{token}', summary: 'Ouvrir la pellicule du photographe', tag: 'Equipe', auth: 'public' },
-
-  { method: 'post', path: '/events/{id}/checkout', summary: 'Creer la session de paiement', tag: 'Paiement', auth: 'host' },
-  { method: 'get', path: '/events/{id}/payment', summary: 'Verifier l etat du paiement', tag: 'Paiement', auth: 'host' },
-  { method: 'post', path: '/stripe/webhook', summary: 'Notification du prestataire', tag: 'Paiement', auth: 'public' },
 
   { method: 'post', path: '/push/subscribe', summary: 'S abonner aux notifications', tag: 'Notifications', auth: 'guest' },
 ];

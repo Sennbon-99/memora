@@ -18,7 +18,7 @@ describe('specification OpenAPI', () => {
     expect(spec.tags.map((t) => t.name)).toEqual(
       expect.arrayContaining([
         'Authentification', 'Evenements', 'Invites', 'Photographies',
-        'Publication', 'Moments', 'Equipe', 'Paiement', 'Notifications',
+        'Publication', 'Moments', 'Equipe', 'Notifications',
       ]),
     );
   });

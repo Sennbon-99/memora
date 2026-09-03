@@ -14,6 +14,7 @@ import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Icon } from '../../../ui/Icon.js';
 import { Screen } from '../../../ui/Screen.js';
+import { publicAppOrigin } from '../../../lib/api.js';
 import { useCamera } from '../useCamera.js';
 
 /** Cote de l'image analysee. Au-dela, jsQR coute plus qu'il ne rapporte. */
@@ -123,7 +124,7 @@ export function ScanScreen() {
       );
       if (!trouve) return;
 
-      const chemin = cheminInvite(trouve.data, window.location.origin);
+      const chemin = cheminInvite(trouve.data, publicAppOrigin());
       if (chemin) {
         vivant = false;
         rejoindre(chemin);
@@ -138,9 +139,10 @@ export function ScanScreen() {
 
   const valider = () => {
     // L'invite tape le code seul, sans l'adresse qui l'entoure.
-    const propre = code.trim().replace(/^.*\/e\//, '').replace(/[^A-Za-z0-9_-]/g, '');
-    if (propre) rejoindre(`/e/${propre}`);
+    const propre = code.trim().replace(/[^A-Z0-9]/g, '');
+    if (/^[A-Z0-9]{6,8}$/.test(propre)) rejoindre(`/e/${propre}`);
   };
+  const codeValide = /^[A-Z0-9]{6,8}$/.test(code.trim());
 
   return (
     <Screen
@@ -154,7 +156,7 @@ export function ScanScreen() {
       footer={
         <div className="flex flex-col gap-3">
           {saisie ? (
-            <Button full onClick={valider} disabled={!code.trim()}>
+            <Button full onClick={valider} disabled={!codeValide}>
               Rejoindre
             </Button>
           ) : (
@@ -172,12 +174,15 @@ export function ScanScreen() {
         {saisie ? (
           <Field
             label="Code de la soirée"
-            placeholder="mariage-lea-2026"
+            placeholder="ABC234"
+            maxLength={8}
+            inputMode="text"
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
             value={code}
-            onChange={(event) => setCode(event.target.value)}
+            onChange={(event) => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+            hint="Six à huit caractères, sans espace."
           />
         ) : (
           <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-carte bg-well">

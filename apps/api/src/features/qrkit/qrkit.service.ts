@@ -112,14 +112,14 @@ function drawAffiche(doc: PDFKit.PDFDocument, card: Card, piece: Piece, qr: Buff
   const ecart = (valeurMm: number) => mm(valeurMm) * echelle;
 
   doc.fillColor(ACCENT).font('Helvetica-Bold').fontSize(11 * echelle)
-    .text('MEMORA · 24 POSES · SANS COMPTE', 0, height * 0.1, {
+    .text(`MEMORA · ${card.quotaShots} POSES · SANS COMPTE`, 0, height * 0.1, {
       align: 'center', width, characterSpacing: 2 * echelle,
     });
 
   doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(30 * echelle)
     .text(card.title, mm(15), height * 0.16, { align: 'center', width: width - mm(30) });
 
-  drawTirage(doc, qr, (width - cote) / 2, height * 0.34, cote);
+  drawTirage(doc, qr, (width - cote) / 2, height * 0.34, cote, `CODE ${card.joinCode}`);
 
   const corpsConsigne = 19 * echelle;
   doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(corpsConsigne)
@@ -135,7 +135,7 @@ function drawAffiche(doc: PDFKit.PDFDocument, card: Card, piece: Piece, qr: Buff
   // deux autres heritent maintenant de son reglage au lieu d'en subir un
   // millimetrage pense pour elle.
   doc.fillColor(ENCRE_2).font('Helvetica').fontSize(12 * echelle)
-    .text('Vingt-quatre poses chacun. Aucune application à installer.', mm(20), doc.y + corpsConsigne * 0.57, {
+    .text(`${card.quotaShots} poses chacun. Aucune application à installer.`, mm(20), doc.y + corpsConsigne * 0.57, {
       align: 'center', width: width - mm(40),
     });
 
@@ -159,7 +159,7 @@ function drawCarte(doc: PDFKit.PDFDocument, card: Card, piece: Piece, qr: Buffer
   doc.fillColor(ENCRE_2).font('Helvetica').fontSize(10)
     .text(card.subtitle, mm(8), mm(19), { align: 'center', width: width - mm(16) });
 
-  drawTirage(doc, qr, (width - cote) / 2, mm(27), cote);
+  drawTirage(doc, qr, (width - cote) / 2, mm(27), cote, `CODE ${card.joinCode}`);
 
   doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(11)
     .text('Scannez, photographiez', 0, height - mm(18), { align: 'center', width });
@@ -190,7 +190,7 @@ export const PLANCHE = {
 } as const;
 
 /** Une planche d'autocollants ronds, a coller la ou l'on sort son telephone. */
-function drawPlanche(doc: PDFKit.PDFDocument, piece: Piece, qr: Buffer): void {
+function drawPlanche(doc: PDFKit.PDFDocument, piece: Piece, qr: Buffer, joinCode: string): void {
   const { width } = doc.page;
   const cote = mm(piece.qrMm);
   const pas = mm(PLANCHE.pasMm);
@@ -210,6 +210,8 @@ function drawPlanche(doc: PDFKit.PDFDocument, piece: Piece, qr: Buffer): void {
       drawObturateur(doc, cx, cy - mm(PLANCHE.decalageMm), cote);
       doc.fillColor(ENCRE).font('Helvetica-Bold').fontSize(5.5)
         .text('SCANNEZ', cx - pas / 2, cy + cote / 2 - mm(1), { align: 'center', width: pas });
+      doc.fillColor(ENCRE_3).font('Helvetica').fontSize(4.6)
+        .text(`CODE ${joinCode}`, cx - pas / 2, cy + cote / 2 + mm(2), { align: 'center', width: pas });
     }
   }
 }
@@ -233,7 +235,12 @@ export async function buildPiece(piece: Piece): Promise<Buffer> {
 
   if (piece.id === 'autocollants') {
     doc.addPage();
-    drawPlanche(doc, piece, await renderQr(piece.cards[0]!.url, piece.qrMm));
+    drawPlanche(
+      doc,
+      piece,
+      await renderQr(piece.cards[0]!.url, piece.qrMm),
+      piece.cards[0]!.joinCode,
+    );
   } else {
     for (const card of piece.cards) {
       doc.addPage();

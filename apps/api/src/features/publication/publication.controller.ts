@@ -54,23 +54,27 @@ export const publishReviewed: RequestHandler = async (req, res, next) => {
     const eventId = routeParam(req, 'id');
     const result = await publicationService.publishReviewed(eventId, currentUserId(req), scope);
 
-    emitToEvent(req, eventId, 'album:published', { publishedNow: result.publishedNow });
+    emitToEvent(req, eventId, 'album:published', {
+      publishedNow: result.publishedNow,
+      scope: result.scope,
+    });
 
     // Deux notifications au total, et pas une par publication : une
     // application qui previent douze fois finit coupee. La premiere dit que
     // l'album existe, la seconde qu'il est complet. Les publications
     // intermediaires enrichissent l'album en silence.
-    if (result.first) {
+    const visibleToGuests = result.scope === 'EVERYONE' || result.scope === 'OWN_ONLY';
+    if (result.first && visibleToGuests) {
       void notifyEvent(eventId, {
         title: "L'album est en ligne",
         body: 'Vos photographies sont disponibles',
-        url: `/hote/album`,
+        url: `/e/${result.slug}`,
       });
-    } else if (result.complete) {
+    } else if (result.complete && visibleToGuests) {
       void notifyEvent(eventId, {
         title: "L'album est complet",
         body: 'Toutes les photographies de la soirée ont été publiées',
-        url: `/hote/album`,
+        url: `/e/${result.slug}`,
       });
     }
 

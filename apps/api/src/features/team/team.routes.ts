@@ -17,11 +17,5 @@ teamRouter.get('/co-hosts', teamController.list);
 // DELETE /api/events/:id/co-hosts/:userId — retirer un co-hote
 teamRouter.delete('/co-hosts/:userId', teamController.remove);
 
-// POST /api/events/:id/photographer — produire le lien du photographe
-teamRouter.post('/photographer', teamController.photographerLink);
-
-/** Monte sous /api/p — acces du photographe par son lien, sans compte. */
-export const photographerRouter: Router = Router();
-
-// GET /api/p/:token — ouvrir la pellicule du photographe
-photographerRouter.get('/:token', teamController.joinAsPhotographer);
+// Le photographe officiel est conserve dans le code pour une V2, mais aucune
+// route ne l'expose dans la V1 : seule la delegation a un co-hote est active.

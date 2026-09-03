@@ -8,7 +8,7 @@
 import type { JoinEventInput, RecoveryCodeInput } from '@memora/types';
 import { MAX_GUESTS_PER_EVENT } from '@memora/types';
 import { prisma } from '../../config/prisma.js';
-import { initQuota, readQuota } from '../../config/redis.js';
+import { initQuota, readBonusQuota, readQuota } from '../../config/redis.js';
 import { signDeviceToken, verifyDeviceToken } from '../../utils/jwt.js';
 import { hashRecoveryCode, verifyRecoveryCode } from '../../utils/hash.js';
 import { buildToken } from '../../utils/slug.js';
@@ -26,11 +26,15 @@ export interface GuestSession {
   roll: {
     id: string;
     firstName: string | null;
+    tableId: string | null;
     shotsLeft: number;
     bonusShots: number;
     hasConsented: boolean;
   };
   event: {
+    id: string;
+    slug: string;
+    joinCode: string;
     name: string;
     quotaShots: number;
     previewMode: string;
@@ -49,6 +53,8 @@ export interface GuestSession {
     tables: { id: string; label: string }[];
     /** Etat de la soiree : le client en deduit l'ecran a montrer. */
     state: string;
+    /** Regle choisie par l'organisateur pour l'album publie. */
+    scope: string;
     /** Vrai des que l'hote a publie : c'est ce qui ouvre l'album. */
     albumPublished: boolean;
   };
@@ -62,15 +68,19 @@ export interface GuestSession {
  * un appareil qui arrive pour la premiere fois.
  */
 export async function joinEvent(
-  slug: string,
+  identifier: string,
   existingToken: string | undefined,
+  tableToken?: string,
 ): Promise<GuestSession> {
+  const shortCode = /^[A-Za-z0-9]{6,8}$/.test(identifier);
   const event = await prisma.event.findUnique({
-    where: { slug },
+    where: shortCode
+      ? { joinCode: identifier.toUpperCase() }
+      : { slug: identifier },
     select: {
-      id: true, name: true, state: true, quotaShots: true, previewMode: true,
-      color: true, carnet: true, welcomeMessage: true, closesAt: true, useTableCodes: true,
-      tables: { select: { id: true, label: true }, orderBy: { label: 'asc' } },
+      id: true, name: true, slug: true, joinCode: true, state: true, quotaShots: true, previewMode: true,
+      color: true, carnet: true, welcomeMessage: true, closesAt: true, useTableCodes: true, scope: true,
+      tables: { select: { id: true, label: true, qrToken: true }, orderBy: { label: 'asc' } },
       _count: { select: { rolls: true } },
     },
   });
@@ -81,6 +91,10 @@ export async function joinEvent(
   // Une soiree purgee n'a plus rien a montrer : ses photographies sont
   // effacees, et son lien doit se comporter comme un lien mort.
   if (event.state === 'PURGED') throw new EventClosedError();
+
+  const scannedTable = tableToken
+    ? (event.tables ?? []).find((table) => table.qrToken === tableToken)
+    : undefined;
 
   // 1. Cet appareil a-t-il deja une pellicule sur cet evenement ?
   //
@@ -94,11 +108,21 @@ export async function joinEvent(
       where: { id: decoded.rollId, eventId: event.id },
     });
     if (existing) {
+      const restored = existing.tableId === null && scannedTable
+        ? await prisma.roll.update({
+            where: { id: existing.id },
+            data: { tableId: scannedTable.id },
+          })
+        : existing;
       // On lit le quota dans Redis, qui fait foi pendant l'evenement.
-      const live = await readQuota(existing.id);
+      const [live, liveBonus] = await Promise.all([
+        readQuota(existing.id),
+        readBonusQuota(existing.id),
+      ]);
       return buildSession(existingToken!, {
-        ...existing,
+        ...restored,
         shotsLeft: live ?? existing.shotsLeft,
+        bonusShots: liveBonus,
       }, event);
     }
   }
@@ -113,6 +137,7 @@ export async function joinEvent(
       eventId: event.id,
       deviceToken: buildToken(12),
       shotsLeft: event.quotaShots,
+      ...(scannedTable ? { tableId: scannedTable.id } : {}),
     },
   });
   await initQuota(roll.id, event.quotaShots);
@@ -123,7 +148,10 @@ export async function joinEvent(
 /** Assemble la reponse envoyee au client. */
 function buildSession(
   deviceToken: string,
-  roll: { id: string; firstName: string | null; shotsLeft: number; bonusShots: number; consentedAt: Date | null },
+  roll: {
+    id: string; firstName: string | null; tableId?: string | null;
+    shotsLeft: number; bonusShots: number; consentedAt: Date | null;
+  },
   event: Omit<GuestSession['event'], 'albumPublished'>,
 ): GuestSession {
   return {
@@ -131,19 +159,54 @@ function buildSession(
     roll: {
       id: roll.id,
       firstName: roll.firstName,
+      tableId: roll.tableId ?? null,
       shotsLeft: roll.shotsLeft,
       bonusShots: roll.bonusShots,
       hasConsented: roll.consentedAt !== null,
     },
     event: {
+      id: event.id, slug: event.slug, joinCode: event.joinCode,
       name: event.name, quotaShots: event.quotaShots, previewMode: event.previewMode,
       color: event.color, carnet: event.carnet, welcomeMessage: event.welcomeMessage,
       closesAt: event.closesAt, useTableCodes: event.useTableCodes,
-      tables: event.tables,
+      tables: (event.tables ?? []).map(({ id, label }) => ({ id, label })),
       state: event.state,
+      scope: event.scope,
       albumPublished: event.state === 'PUBLISHED',
     },
   };
+}
+
+/** Le jeton signe place dans le lien personnel de la pellicule. */
+export function createRecoveryLinkToken(rollId: string) {
+  return { token: signDeviceToken(rollId) };
+}
+
+/**
+ * Restaure une pellicule depuis son lien personnel. Le jeton est un secret
+ * porteur : il est valide seulement si la pellicule appartient bien a la
+ * soiree indiquee dans l'adresse.
+ */
+export async function recoverFromLink(identifier: string, token: string) {
+  const decoded = verifyDeviceToken(token);
+  if (!decoded) throw new UnauthorizedError('Lien personnel invalide');
+
+  const shortCode = /^[A-Za-z0-9]{6,8}$/.test(identifier);
+  const event = await prisma.event.findUnique({
+    where: shortCode
+      ? { joinCode: identifier.toUpperCase() }
+      : { slug: identifier },
+    select: { id: true },
+  });
+  if (!event) throw new NotFoundError('Événement');
+
+  const roll = await prisma.roll.findFirst({
+    where: { id: decoded.rollId, eventId: event.id },
+    select: { id: true },
+  });
+  if (!roll) throw new UnauthorizedError('Lien personnel invalide');
+
+  return { deviceToken: signDeviceToken(roll.id), rollId: roll.id };
 }
 
 /**
@@ -169,6 +232,20 @@ export async function giveConsent(rollId: string) {
 
 /** Prenom et table, tous deux facultatifs. */
 export async function setIdentity(rollId: string, input: JoinEventInput) {
+  if (input.tableId) {
+    const roll = await prisma.roll.findUnique({
+      where: { id: rollId },
+      select: { eventId: true },
+    });
+    if (!roll) throw new UnauthorizedError('Pellicule introuvable');
+
+    const table = await prisma.eventTable.findFirst({
+      where: { id: input.tableId, eventId: roll.eventId },
+      select: { id: true },
+    });
+    if (!table) throw new AppError('INVALID_TABLE', 422, 'Cette table ne fait pas partie de la soirée');
+  }
+
   return prisma.roll.update({
     where: { id: rollId },
     data: { firstName: input.firstName ?? null, tableId: input.tableId ?? null },

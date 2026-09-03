@@ -1,59 +1,73 @@
 // apps/web/src/features/guest/screens/EndOfRollScreen.tsx
 // Fin de pellicule. Trois choses se jouent ici, et une seule fois.
 //
-//   - le code a quatre chiffres, qui permet de retrouver l'album depuis un
-//     autre appareil si le cookie est perdu
-//   - la proposition d'installation, placee ici et pas a l'arrivee : demander
-//     d'installer une application avant d'avoir rien vu fait fuir
+//   - le lien personnel, qui permet de retrouver l'album depuis un autre
+//     appareil si le cookie est perdu, y compris sans prenom
 //   - l'attente de la publication, decidee par l'hote et non par une minuterie
 
 import { useState } from 'react';
-import { guestApi } from '../../../lib/api.js';
+import { guestApi, publicAppOrigin } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
-import { InstallPrompt } from './InstallPrompt.js';
 
 interface EndOfRollScreenProps {
   slug: string;
-  firstName: string | null;
   queued: number;
   onSeeAlbum: () => void;
   albumReady: boolean;
 }
 
 export function EndOfRollScreen({
-  slug, firstName, queued, onSeeAlbum, albumReady,
+  slug, queued, onSeeAlbum, albumReady,
 }: EndOfRollScreenProps) {
-  const [code, setCode] = useState('');
-  const [saved, setSaved] = useState(false);
+  const [link, setLink] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const saveCode = async () => {
+  const createLink = async () => {
     setError(null);
+    setBusy(true);
     try {
-      await guestApi.saveCode(slug, code);
-      setSaved(true);
+      const { token } = await guestApi.recoveryLink(slug);
+      const personal = `${publicAppOrigin()}/e/${slug}?r=${encodeURIComponent(token)}`;
+      setLink(personal);
+      try {
+        await navigator.clipboard.writeText(personal);
+        setCopied(true);
+      } catch {
+        // Le champ reste visible et selectionnable si le presse-papiers est refuse.
+      }
     } catch {
-      setError("Le code n'a pas pu être enregistré. Réessayez.");
+      setError("Le lien n'a pas pu être créé. Réessayez.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const copyLink = async () => {
+    if (!link) return;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+    } catch {
+      setError('Sélectionnez le lien puis copiez-le manuellement.');
     }
   };
 
   return (
     <Screen
       title="Pellicule terminée"
-      subtitle="Vos photographies sont arrivées. Elles apparaîtront ici quand les mariés les auront publiées."
+      subtitle="Vos photographies sont arrivées. Elles apparaîtront ici quand l’organisateur les aura publiées."
       code={{
         hautGauche: 'MEMORA 400',
         basGauche: 'FIN DE PELLICULE',
         hautDroite: 'DÉVELOPPEMENT',
       }}
       footer={
-        <div className="flex flex-col gap-3">
-          <Button full onClick={onSeeAlbum} disabled={!albumReady}>
-            {albumReady ? "Voir l'album" : 'En attente de publication'}
-          </Button>
-          <InstallPrompt />
-        </div>
+        <Button full onClick={onSeeAlbum}>
+          {albumReady ? "Voir l'album" : 'Continuer'}
+        </Button>
       }
     >
       {/* Trois temps qui tiennent la hauteur : l'etat de la pellicule, le
@@ -77,41 +91,34 @@ export function EndOfRollScreen({
 
         <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-6">
           <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
-            Code de secours
+            Lien personnel
           </p>
           <h2 className="mt-2 decoupe text-sous-titre leading-tight">
-            Retrouver vos photos plus tard
+            Revenez sans rescanner
           </h2>
           <p className="mt-2.5 text-corps leading-relaxed text-ink-2">
-            Ce téléphone se souvient de vous. Choisissez un code à quatre
-            chiffres si vous voulez aussi y accéder depuis un autre appareil
-            {firstName ? `, avec le prénom ${firstName}` : ''}.
+            Gardez ce lien privé. Il retrouve votre pellicule sur ce téléphone
+            ou un autre, puis ouvre les photos autorisées par l’organisateur.
           </p>
 
-          {saved ? (
-            <p className="mt-5 rounded-champ border border-edge
-              bg-a-doux px-4 py-3 text-sm text-a1">
-              Code enregistré. Notez-le, il ne sera plus affiché.
-            </p>
-          ) : (
-            <div className="mt-5 flex gap-3">
-              <label className="flex-1">
-                <span className="sr-only">Code à quatre chiffres</span>
-                <input
-                  value={code}
-                  onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 4))}
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="0000"
-                  className="h-12 w-full rounded-champ bg-pap-2 px-4 text-center font-mono
-                    text-xl tabular-nums tracking-[0.4em] text-ink placeholder:text-ink-3
-                    focus:outline-2 focus:outline-a1"
-                />
-              </label>
-              <Button tone="ghost" onClick={saveCode} disabled={code.length !== 4}>
-                Garder
+          {link ? (
+            <div className="mt-5 flex flex-col gap-3">
+              <input
+                readOnly
+                value={link}
+                onFocus={(event) => event.currentTarget.select()}
+                aria-label="Votre lien personnel"
+                className="h-12 w-full rounded-champ bg-pap px-4 font-mono text-xs
+                  text-ink focus:outline-2 focus:outline-a1"
+              />
+              <Button full tone="ghost" onClick={copyLink}>
+                {copied ? 'Lien copié' : 'Copier le lien'}
               </Button>
             </div>
+          ) : (
+            <Button full tone="ghost" className="mt-5" onClick={createLink} disabled={busy}>
+              {busy ? 'Création…' : 'Créer et copier mon lien'}
+            </Button>
           )}
 
           {error && <p role="alert" className="mt-3 text-sm text-danger">{error}</p>}

@@ -19,6 +19,7 @@ import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { Photo } from '../../../ui/Photo.js';
+import { PhotoViewer } from './PhotoViewer.js';
 
 export function PublicAlbumScreen() {
   /** Angle de pose d'un tirage. Cinq valeurs qui se repetent : deux vues
@@ -29,6 +30,7 @@ export function PublicAlbumScreen() {
   const { token = '' } = useParams();
   const [code, setCode] = useState('');
   const [submitted, setSubmitted] = useState<string | undefined>(undefined);
+  const [selected, setSelected] = useState<number | null>(null);
 
   const { data, isPending, error } = useQuery({
     queryKey: ['public-album', token, submitted],
@@ -38,7 +40,10 @@ export function PublicAlbumScreen() {
   });
 
   const carnet = data?.event.carnet;
-  useEffect(() => { applyCarnet(carnet); }, [carnet]);
+  useEffect(() => {
+    applyCarnet(carnet);
+    return () => { applyCarnet('papier'); };
+  }, [carnet]);
 
   // L'attente garde l'enveloppe : les bandes de pellicule ne doivent pas
   // disparaitre le temps que l'album arrive.
@@ -59,13 +64,13 @@ export function PublicAlbumScreen() {
   if (error) {
     const failure = error as ApiError;
     // Un code est demande : ce n'est pas une erreur, c'est une porte.
-    const needsCode = failure.code === 'CODE_REQUIRED' || failure.code === 'WRONG_CODE';
+    const needsCode = failure.code === 'ACCESS_CODE_REQUIRED' || failure.code === 'WRONG_CODE';
 
     if (needsCode) {
       return (
         <Screen
           title="Album protégé"
-          subtitle="Les organisateurs ont ajouté un code à six chiffres."
+          subtitle="L’organisateur a ajouté un code à six chiffres."
           code={{
             hautGauche: 'MEMORA 400',
             basGauche: 'ALBUM',
@@ -181,17 +186,32 @@ export function PublicAlbumScreen() {
                   '--pose-angle': pose(index),
                 } as CSSProperties}
               >
-                <Photo
-                  src={photo.url}
-                  alt={`Photographie prise à ${new Date(photo.takenAt)
-                    .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
-                  loading="lazy"
-                  className="aspect-square w-full object-cover"
-                />
+                <button
+                  type="button"
+                  onClick={() => setSelected(index)}
+                  aria-label={`Ouvrir la photographie ${index + 1} sur ${photos.length}`}
+                  className="block w-full"
+                >
+                  <Photo
+                    src={photo.url}
+                    alt={`Photographie prise à ${new Date(photo.takenAt)
+                      .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
+                    loading="lazy"
+                    className="aspect-square w-full object-cover"
+                  />
+                </button>
               </li>
             ))}
           </ul>
         </>
+      )}
+      {selected !== null && (
+        <PhotoViewer
+          photos={photos}
+          index={selected}
+          onIndex={setSelected}
+          onClose={() => setSelected(null)}
+        />
       )}
     </Screen>
   );

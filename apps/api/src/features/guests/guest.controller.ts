@@ -27,13 +27,37 @@ const deviceCookieOptions = {
 export const join: RequestHandler = async (req, res, next) => {
   try {
     const existing = req.cookies?.[DEVICE_COOKIE] as string | undefined;
-    const session = await guestService.joinEvent(routeParam(req, 'slug'), existing);
+    const tableToken = typeof req.query.t === 'string' ? req.query.t : undefined;
+    const session = await guestService.joinEvent(routeParam(req, 'slug'), existing, tableToken);
 
     res.cookie(DEVICE_COOKIE, session.deviceToken, deviceCookieOptions);
     // Le jeton n'est pas renvoye dans le corps : il ne doit pas etre
     // accessible au JavaScript de la page.
     const { deviceToken: _omit, ...payload } = session;
     res.status(200).json(payload);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/** GET /api/e/:slug/recovery-link — produire son lien personnel. */
+export const recoveryLink: RequestHandler = (req, res, next) => {
+  try {
+    res.status(200).json(guestService.createRecoveryLinkToken(currentRoll(req).id));
+  } catch (err) {
+    next(err);
+  }
+};
+
+const linkSchema = z.object({ token: z.string().min(32).max(2048) });
+
+/** POST /api/e/:slug/recovery-link — ouvrir une pellicule depuis ce lien. */
+export const openRecoveryLink: RequestHandler = async (req, res, next) => {
+  try {
+    const { token } = linkSchema.parse(req.body);
+    const result = await guestService.recoverFromLink(routeParam(req, 'slug'), token);
+    res.cookie(DEVICE_COOKIE, result.deviceToken, deviceCookieOptions);
+    res.status(200).json({ rollId: result.rollId });
   } catch (err) {
     next(err);
   }

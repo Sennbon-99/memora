@@ -119,9 +119,7 @@ export function ConfidentialiteScreen() {
       <Section titre="Ce qui est collecté, côté organisateur">
         <p>
           L'organisateur d'une soirée a, lui, un compte : son adresse électronique
-          et son mot de passe, qui n'est jamais conservé en clair. S'il souscrit une
-          formule payante, le paiement est traité par Stripe, qui reçoit ses
-          coordonnées bancaires directement — Memora ne les voit ni ne les conserve.
+          et son mot de passe, qui n'est jamais conservé en clair.
         </p>
       </Section>
 
@@ -133,8 +131,7 @@ export function ConfidentialiteScreen() {
           et ne conserve rien.
         </p>
         <p>
-          Le compte de l'organisateur et son éventuel paiement relèvent de
-          l'exécution du contrat qui le lie à Memora.
+          Le compte de l'organisateur relève de l'exécution du service Memora.
         </p>
       </Section>
 

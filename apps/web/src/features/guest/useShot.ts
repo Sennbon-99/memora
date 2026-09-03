@@ -13,6 +13,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { isNetworkError, photoApi, uploadPhoto } from '../../lib/api.js';
 import { prepare } from '../../lib/image.js';
+import type { PreparedImage } from '../../lib/image.js';
 import { enqueue, dequeue, markAttempt, pending, MAX_ATTEMPTS } from '../../lib/queue.js';
 import { useUpdateSession } from './useGuestSession.js';
 
@@ -38,9 +39,9 @@ export function spendLocally<T extends { shotsLeft: number; bonusShots: number }
 export function useShot(slug: string) {
   const update = useUpdateSession(slug);
 
-  return useMutation<ShotResult, Error, ImageBitmap>({
+  return useMutation<ShotResult, Error, ImageBitmap | PreparedImage>({
     mutationFn: async (frame) => {
-      const { blob, width, height } = await prepare(frame);
+      const { blob, width, height } = 'blob' in frame ? frame : await prepare(frame);
       const idempotencyKey = crypto.randomUUID();
       const takenAt = new Date().toISOString();
 
@@ -59,7 +60,11 @@ export function useShot(slug: string) {
         // Le serveur fait autorite sur le quota des qu'il repond.
         update((previous) => ({
           ...previous,
-          roll: { ...previous.roll, shotsLeft: reservation.shotsLeft },
+          roll: {
+            ...previous.roll,
+            shotsLeft: reservation.shotsLeft,
+            bonusShots: reservation.bonusShots,
+          },
         }));
 
         return { idempotencyKey, previewBlob: blob, queued: false, fromBonus: reservation.fromBonus };
