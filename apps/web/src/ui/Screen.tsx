@@ -60,8 +60,6 @@ interface ScreenProps {
    * ordinaire mettrait un fil d'Ariane.
    */
   code?: CodePellicule;
-  /** Le viseur occupe toute la surface : il n'a ni bandes ni marges. */
-  pleinCadre?: boolean;
   /**
    * Le titre se replie en bandeau quand il sort de l'ecran.
    *
@@ -98,19 +96,9 @@ function Bande({
 }
 
 export function Screen({
-  title, hideTitle, subtitle, children, footer, code, pleinCadre, titreRepliable,
+  title, hideTitle, subtitle, children, footer, code, titreRepliable,
 }: ScreenProps) {
   const replie = useTitreReplie(titreRepliable === true && hideTitle !== true);
-
-  // Le viseur se passe de tout : ni bandes, ni marges, ni titre visible.
-  if (pleinCadre) {
-    return (
-      <div className="flex min-h-full flex-col">
-        <h1 className="sr-only">{title}</h1>
-        {children}
-      </div>
-    );
-  }
 
   return (
     <div className="quadrille flex min-h-full flex-col safe-top safe-bottom">

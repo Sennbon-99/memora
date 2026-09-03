@@ -303,7 +303,7 @@ function Stepper({ label, value, min, max, onChange, note }: {
   return (
     <div className="flex flex-col gap-2">
       <span className="text-sm font-semibold text-ink-2">{label}</span>
-      <div className="flex items-center gap-3.5 rounded-carte border border-edge bg-pap-2
+      <div className="flex items-center gap-3.5 rounded-carte bg-pap-2 shadow-[var(--ombre-tirage)]
         px-3.5 py-3">
         <button
           onClick={() => onChange(Math.max(min, value - 1))}

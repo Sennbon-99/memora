@@ -79,7 +79,7 @@ export function BillingScreen() {
             </p>
           </div>
         ) : (
-          <div className="mt-7 rounded-carte border border-edge bg-pap-2 p-5">
+          <div className="mt-7 rounded-carte bg-pap-2 shadow-[var(--ombre-tirage)] p-5">
             <p className="text-base font-bold">Cette soirée n’est pas encore réglée</p>
             <p className="mt-1.5 text-sm leading-relaxed text-ink-2">
               Votre première soirée est offerte, limitée à{' '}

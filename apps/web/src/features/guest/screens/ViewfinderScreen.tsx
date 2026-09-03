@@ -8,7 +8,6 @@
 //   - un obturateur bref confirme la prise, faute d'apercu
 
 import { useEffect, useRef, useState } from 'react';
-import { Button } from '../../../ui/Button.js';
 import { ShotCounter } from '../../../ui/ShotCounter.js';
 import { QrCode } from '../../../ui/QrCode.js';
 import { useCamera } from '../useCamera.js';
@@ -83,6 +82,17 @@ export function ViewfinderScreen({
     );
   }
 
+  // Le viseur ne passe pas par `Screen`, et c'est voulu. L'enveloppe commune
+  // tient quatre choses — zones sures, largeur maximale, titre lu, bandes de
+  // pellicule — et il les refuse toutes : ce qu'il lui faut a la place, c'est
+  // un bloc positionne (le flux, l'obturateur et le panneau de partage se
+  // calent en `absolute inset-0` dessus), une hauteur fixe, un fond noir et le
+  // debordement decrit juste dessous. Une variante « plein cadre » de `Screen`
+  // a existe pour lui ; elle ne portait aucun de ces quatre traits, donc elle
+  // n'a jamais eu d'appelant. Elle a ete retiree plutot que completee : la
+  // completer aurait fait entrer la mise en page du viseur dans l'enveloppe de
+  // tous les autres ecrans, pour un seul appelant.
+  //
   // pleine-largeur : le viseur deborde des bandes de pellicule. Le cadrage
   // prime ici sur la signature graphique — cinquante-deux pixels de moins,
   // c'est un visage coupe au bord de l'image.

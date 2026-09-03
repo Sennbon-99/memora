@@ -61,8 +61,8 @@ export function EventListScreen() {
               <li key={event.id}>
                 <button
                   onClick={() => navigate(`/hote/${event.id}`)}
-                  className="w-full overflow-hidden rounded-carte border border-edge
-                    bg-pap-2 text-left transition active:bg-appui"
+                  className="w-full overflow-hidden rounded-carte bg-pap-2 text-left
+                    shadow-[var(--ombre-tirage)] transition active:bg-appui"
                 >
                   <div className="px-4 py-3.5">
                     {/* La teinte choisie par l'hote sert de reperage entre

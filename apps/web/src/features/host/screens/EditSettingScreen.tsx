@@ -192,7 +192,7 @@ export function EditSettingScreen() {
                 changer d'application sous les doigts d'un invite en train de
                 photographier — c'est la regle deja appliquee a l'apercu. */}
             {event.state === 'OPEN' && (
-              <p className="rounded-carte border border-edge bg-pap-2 p-3 text-note
+              <p className="rounded-carte bg-pap-2 shadow-[var(--ombre-tirage)] p-3 text-note
                 leading-relaxed text-ink-2">
                 La soirée est en cours : le carnet ne change plus jusqu’à sa fermeture.
                 Vous pourrez le reprendre avant de publier l’album.

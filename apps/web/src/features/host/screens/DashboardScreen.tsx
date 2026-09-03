@@ -11,6 +11,7 @@
 // une carte grise arrondie, plus rien n'a de rang.
 
 import { useEffect } from 'react';
+import type { CSSProperties } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ApiError } from '../../../lib/api.js';
@@ -77,14 +78,25 @@ function Stat({ label, value, unit, note, edge = '' }: {
 }
 
 /** Une action : ce qu'elle fait, la precision qui la situe, et la fleche. */
-function Action({ title, note, onClick }: {
-  title: string; note: string; onClick: () => void;
+/**
+ * Une action du tableau de bord, posee comme un tirage.
+ *
+ * L'angle vient de l'appelant : quatre valeurs qui alternent, assez faibles
+ * pour qu'aucune carte ne soit alignee sur sa voisine sans que la pile parte
+ * en travers. La rotation ne deplace pas la zone tactile, elle la fait
+ * pivoter — a moins d'un demi-degre sur une hauteur de cinquante pixels, le
+ * decalage aux extremites reste sous le pixel.
+ */
+function Action({ title, note, onClick, pose }: {
+  title: string; note: string; onClick: () => void; pose: string;
 }) {
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-3 border-b border-edge-2 px-1 py-3.5
-        text-left transition last:border-b-0 active:bg-appui"
+      style={{ '--pose-angle': pose } as CSSProperties}
+      className="flex w-full items-center gap-3 rounded-carte bg-pap-2 px-3.5 py-3.5
+        text-left shadow-[var(--ombre-tirage)] transition
+        [transform:rotate(var(--pose-angle,0deg))] active:bg-appui"
     >
       <span className="min-w-0 flex-1">
         <span className="block truncate text-note font-bold">{title}</span>
@@ -170,8 +182,8 @@ export function DashboardScreen() {
       </p>
 
       {/* La plaque de chiffres : un seul cadre, des filets a l'interieur. */}
-      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-carte border border-edge
-        bg-pap-2">
+      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-carte bg-pap-2
+        shadow-[var(--ombre-tirage)]">
         <Stat label="Invités" value={stats?.activeGuests ?? '—'} edge="border-b border-r border-edge-2" />
         <Stat label="Photos" value={stats?.totalPhotos ?? '—'} edge="border-b border-edge-2" />
         <Stat
@@ -187,13 +199,15 @@ export function DashboardScreen() {
       <h2 className="mt-8 px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
         À faire
       </h2>
-      <div className="mt-1 flex flex-col">
+      <div className="mt-1 flex flex-col gap-2">
         <Action
+          pose="-0.35deg"
           title="Trier les photographies"
           note="Une pellicule d’invité à la fois"
           onClick={() => navigate(`/hote/${eventId}/invites`)}
         />
         <Action
+          pose="0.3deg"
           title="Moments forts"
           note={
             stats?.topMoments.find((m) => m.active)
@@ -203,11 +217,13 @@ export function DashboardScreen() {
           onClick={() => navigate(`/hote/${eventId}/moments`)}
         />
         <Action
+          pose="-0.25deg"
           title="Kit QR"
           note="À imprimer et poser sur les tables"
           onClick={() => navigate(`/hote/${eventId}/kit`)}
         />
         <Action
+          pose="0.2deg"
           title="Réglages de la soirée"
           note={`${event.quotaShots} vues · ${event.useTableCodes ? 'avec' : 'sans'} numéros de table`}
           onClick={() => navigate(`/hote/${eventId}/reglages`)}
