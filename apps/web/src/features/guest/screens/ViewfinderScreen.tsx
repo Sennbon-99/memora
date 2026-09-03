@@ -8,7 +8,6 @@
 //   - un obturateur bref confirme la prise, faute d'apercu
 
 import { useEffect, useRef, useState } from 'react';
-import { Button } from '../../../ui/Button.js';
 import { ShotCounter } from '../../../ui/ShotCounter.js';
 import { QrCode } from '../../../ui/QrCode.js';
 import { useCamera } from '../useCamera.js';

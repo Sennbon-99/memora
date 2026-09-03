@@ -148,8 +148,8 @@ export function PhotosScreen() {
       }
     >
       {photos.length > 0 && (
-        <div className="mt-6 grid grid-cols-3 overflow-hidden rounded-carte border border-edge
-          bg-pap-2">
+        <div className="mt-6 grid grid-cols-3 overflow-hidden rounded-carte bg-pap-2
+          shadow-[var(--ombre-tirage)]">
           <Tally label="Gardées" value={kept} edge="border-r border-edge-2" />
           <Tally label="Masquées" value={masked} edge="border-r border-edge-2" />
           <Tally label="À publier" value={ready} />
