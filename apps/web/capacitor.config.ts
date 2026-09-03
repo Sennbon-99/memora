@@ -13,7 +13,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.memora.client',
+  appId: 'fr.memora-app.client',
   appName: 'Memora',
   webDir: 'dist',
 
