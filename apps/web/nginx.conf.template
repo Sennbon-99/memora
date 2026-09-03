@@ -54,7 +54,7 @@ server {
     # rien. Un lien universel qui ne marche pas ne dit jamais pourquoi.
     location = /.well-known/apple-app-site-association {
         default_type application/json;
-        return 200 '{"applinks":{"details":[{"appIDs":["${APPLE_TEAM_ID}.app.memora.client"],"components":[{"/":"/e/*"},{"/":"/album/*"},{"/":"/p/*"}]}]}}';
+        return 200 '{"applinks":{"details":[{"appIDs":["${APPLE_TEAM_ID}.fr.memora-app.client"],"components":[{"/":"/e/*"},{"/":"/album/*"},{"/":"/p/*"}]}]}}';
     }
 
     # Les maquettes du dossier de projet. Elles chargent leurs polices chez

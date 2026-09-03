@@ -143,7 +143,7 @@ curl -I https://www.memora-app.fr/
 #   HTTP/2 301, location: https://memora-app.fr/
 
 curl https://memora-app.fr/.well-known/apple-app-site-association
-#   {"applinks":{"details":[{"appIDs":["XXXXXXXXXX.app.memora.client"], ...
+#   {"applinks":{"details":[{"appIDs":["XXXXXXXXXX.fr.memora-app.client"], ...
 #   avec le vrai identifiant, et content-type: application/json
 ```
 
@@ -176,7 +176,7 @@ developer.apple.com → Certificates, Identifiers & Profiles → Identifiers →
 **+** → App IDs → App :
 
 - Description : `Memora`
-- Bundle ID, *explicit* : `app.memora.client`
+- Bundle ID, *explicit* : `fr.memora-app.client`
 - Capabilities : **Push Notifications** et **Associated Domains**
 
 Xcode sait le faire tout seul en signature automatique, mais le faire ici
@@ -195,7 +195,7 @@ Variables de l'API (et du worker, qui envoie aussi) :
 ```
 APNS_KEY_ID=ABC123DEFG
 APNS_TEAM_ID=XXXXXXXXXX
-APNS_TOPIC=app.memora.client
+APNS_TOPIC=fr.memora-app.client
 APNS_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nMIGT…\n-----END PRIVATE KEY-----
 APNS_SANDBOX=false
 ```
@@ -213,7 +213,7 @@ envoyé en production répond `BadDeviceToken`, et inversement.
 appstoreconnect.apple.com → Mes apps → **+** → Nouvelle app :
 
 - Plateforme iOS, nom `Memora`, langue principale Français
-- Bundle ID : `app.memora.client` (créé en 4a)
+- Bundle ID : `fr.memora-app.client` (créé en 4a)
 - SKU : `memora-ios`
 
 Avant de pouvoir soumettre, App Store Connect exige :
