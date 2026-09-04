@@ -217,9 +217,13 @@ export function QrKitScreen() {
                   role="checkbox"
                   aria-checked={cochee}
                   onClick={() => basculer(piece)}
-                  className={`flex w-full items-start gap-3 rounded-carte border px-3.5 py-3
-                    text-left transition active:bg-appui
-                    ${cochee ? 'border-a1' : 'border-edge-2'}`}
+                  // Le fond de carte dans les deux etats. Sans lui, une ligne
+                  // non cochee n'a aucune surface sous elle et disparait dans
+                  // le quadrillage : le rose disait qu'une ligne existe, alors
+                  // qu'il ne doit dire que laquelle est cochee.
+                  className={`flex w-full items-start gap-3 rounded-carte border bg-pap-2
+                    px-3.5 py-3 text-left transition active:bg-appui
+                    ${cochee ? 'border-a1' : 'border-edge'}`}
                 >
                   <span
                     aria-hidden="true"
