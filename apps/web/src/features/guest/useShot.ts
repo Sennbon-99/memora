@@ -36,12 +36,17 @@ export function spendLocally<T extends { shotsLeft: number; bonusShots: number }
     : { ...roll, shotsLeft: Math.max(0, roll.shotsLeft - 1) };
 }
 
-export function useShot(slug: string) {
+/**
+ * @param ratio Rapport de recadrage de la soiree. Il est applique ici parce
+ * que c'est ici que l'image brute du capteur devient un fichier : le viseur,
+ * lui, n'a jamais qu'un flux a l'ecran.
+ */
+export function useShot(slug: string, ratio?: number) {
   const update = useUpdateSession(slug);
 
   return useMutation<ShotResult, Error, ImageBitmap | PreparedImage>({
     mutationFn: async (frame) => {
-      const { blob, width, height } = 'blob' in frame ? frame : await prepare(frame);
+      const { blob, width, height } = 'blob' in frame ? frame : await prepare(frame, ratio);
       const idempotencyKey = crypto.randomUUID();
       const takenAt = new Date().toISOString();
 

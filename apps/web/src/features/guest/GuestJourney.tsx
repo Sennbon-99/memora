@@ -190,6 +190,7 @@ export function GuestJourney() {
       quotaShots={event.quotaShots}
       joinCode={event.joinCode}
       previewMode={event.previewMode}
+      photoShape={event.photoShape}
       shotsLeft={roll.shotsLeft}
       bonusShots={roll.bonusShots}
       queued={queued}

@@ -15,8 +15,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  CARNETS, CARNET_PAR_TYPE, EVENT_TYPES, PREVIEW_MODES, QUOTA_DEFAULT, QUOTA_MAX, QUOTA_MIN,
-  type Carnet, type CreateEventInput, type EventType, type PreviewMode,
+  CARNETS, CARNET_PAR_TYPE, EVENT_TYPES, PHOTO_SHAPES, PREVIEW_MODES, QUOTA_DEFAULT, QUOTA_MAX, QUOTA_MIN,
+  type Carnet, type CreateEventInput, type EventType, type PhotoShape, type PreviewMode,
 } from '@memora/types';
 import { ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
@@ -51,6 +51,16 @@ const PREVIEW_LABEL: Record<PreviewMode, string> = {
   NONE: 'Rien', BLURRED: 'Vignette floutée', FLASH: 'Aperçu 2,5 s', CONFIRM: 'Garder ou reprendre',
 };
 
+const SHAPE_LABEL: Record<PhotoShape, string> = {
+  SQUARE: 'Carré', FULL: 'Plein écran',
+};
+
+/** Ce que chaque cadrage donne, ecrit pour un hote et non pour un photographe. */
+const SHAPE_HINT: Record<PhotoShape, string> = {
+  SQUARE: "Le format d'un tirage d'appareil jetable. Les bords de l'image sont coupés : sur une grande tablée, les convives des deux bouts sortent du cadre.",
+  FULL: "Le format du téléphone. Vos invités gardent exactement ce qu'ils voyaient dans le viseur, et les photographies s'affichent en grand sans bandes noires.",
+};
+
 
 /** Date du jour et 2 h du matin le lendemain, au format des champs natifs. */
 function defaultDates() {
@@ -72,6 +82,7 @@ export function CreateEventScreen() {
   const [closesAt, setClosesAt] = useState(dates.closesAt);
   const [quotaShots, setQuotaShots] = useState(QUOTA_DEFAULT);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('BLURRED');
+  const [photoShape, setPhotoShape] = useState<PhotoShape>('SQUARE');
   const [carnet, setCarnet] = useState<Carnet>(CARNET_PAR_TYPE.MARIAGE);
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [useTableCodes, setUseTableCodes] = useState(true);
@@ -86,6 +97,7 @@ export function CreateEventScreen() {
       closesAt: new Date(closesAt),
       quotaShots,
       previewMode,
+      photoShape,
       carnet,
       useTableCodes,
       ...(welcomeMessage.trim() ? { welcomeMessage: welcomeMessage.trim() } : {}),
@@ -218,6 +230,18 @@ export function CreateEventScreen() {
             <p className="rounded-champ border border-edge bg-a-doux px-3.5 py-3 text-xs
               leading-relaxed text-a1">
               {PREVIEW_HINT[previewMode]}
+            </p>
+
+            <Segmented
+              label="La forme des photographies"
+              value={photoShape}
+              onChange={setPhotoShape}
+              columns={2}
+              options={PHOTO_SHAPES.map((value) => ({ value, label: SHAPE_LABEL[value] }))}
+            />
+            <p className="rounded-champ border border-edge bg-a-doux px-3.5 py-3 text-xs
+              leading-relaxed text-a1">
+              {SHAPE_HINT[photoShape]}
             </p>
 
           </>

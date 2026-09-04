@@ -10,8 +10,11 @@ import {
 } from '@memora/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { eventApi, remettreFichier, tableApi, type ApiError } from '../../../lib/api.js';
+import {
+  eventApi, publicAppOrigin, remettreFichier, tableApi, type ApiError,
+} from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
+import { QrCode } from '../../../ui/QrCode.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { useEvent, useEventState } from '../useEvents.js';
@@ -27,6 +30,9 @@ export function QrKitScreen() {
   // appuie une fois et a tout ce qu'il lui faut. Les autres sont visibles et
   // non cochees — elles se decouvrent au lieu de se chercher dans un menu.
   const [choisies, setChoisies] = useState<KitPiece[]>(KIT_PIECES_PAR_DEFAUT);
+  // Le kit imprime peut manquer : oublie a la maison, mouille, ou simplement
+  // pas encore sorti de l'imprimante. L'hote a alors le sien dans la poche.
+  const [montrer, setMontrer] = useState(false);
   const basculer = (piece: KitPiece) =>
     setChoisies((actuelles) => actuelles.includes(piece)
       ? actuelles.filter((p) => p !== piece)
@@ -149,7 +155,44 @@ export function QrKitScreen() {
           Ce code est imprimé sous chaque QR. Un invité peut le saisir depuis
           « Rejoindre une soirée » si son appareil ne parvient pas à scanner.
         </p>
+        <Button tone="ghost" full className="mt-4" onClick={() => setMontrer(true)}>
+          Afficher le QR code
+        </Button>
+        <p className="mt-2 text-mini leading-relaxed text-ink-3">
+          Pour dépanner sur place : votre écran se scanne aussi bien que le papier.
+        </p>
       </section>
+
+      {/* Le meme geste que le partage entre invites : on tend l'ecran, l'autre
+          scanne. Presente en tirage, bord blanc epais, parce que c'est ce
+          contraste-la dont un appareil photo a besoin — voir QrCode.tsx. */}
+      {montrer && (
+        <div
+          className="fixed inset-0 z-[70] flex flex-col items-center justify-center gap-6
+            bg-pap px-8 safe-top safe-bottom"
+          role="dialog"
+          aria-modal="true"
+          aria-label="QR code de la soirée"
+        >
+          <p className="text-center text-lecture leading-relaxed text-ink-2">
+            Faites scanner cet écran. Votre invité rejoint la soirée
+            avec ses propres {event.quotaShots} poses.
+          </p>
+          <div className="bg-white p-3 shadow-2xl">
+            <QrCode
+              value={`${publicAppOrigin()}/e/${event.slug}`}
+              size={216}
+              label={`Code de la soirée ${event.name}`}
+            />
+            <p className="mt-2 text-center font-mono text-sm font-bold tracking-[0.2em] text-black">
+              {event.joinCode}
+            </p>
+          </div>
+          <Button tone="ghost" onClick={() => setMontrer(false)}>
+            Fermer
+          </Button>
+        </div>
+      )}
 
       <section className="mt-6 w-full">
         <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">

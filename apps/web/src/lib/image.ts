@@ -27,15 +27,42 @@ export function scaledSize(width: number, height: number, maxEdge = MAX_EDGE) {
 }
 
 /**
+ * Fenetre de recadrage centree, au rapport demande.
+ *
+ * Le viseur affiche le flux en object-cover, qui rogne exactement ainsi :
+ * en refaisant le meme calcul au moment de la capture, la photographie
+ * enregistree est celle que l'invite avait sous les yeux. C'est la seule
+ * facon d'obtenir cette garantie — les contraintes de getUserMedia sont des
+ * souhaits, chaque navigateur les honore a sa maniere.
+ */
+export function cropBox(width: number, height: number, ratio: number) {
+  const current = width / height;
+  // Une tolerance, sinon un flux deja au bon format serait recadre d'un pixel
+  // a chaque pose, pour rien.
+  if (Math.abs(current - ratio) < 0.01) return { x: 0, y: 0, width, height };
+
+  if (current > ratio) {
+    const kept = Math.round(height * ratio);
+    return { x: Math.round((width - kept) / 2), y: 0, width: kept, height };
+  }
+
+  const kept = Math.round(width / ratio);
+  return { x: 0, y: Math.round((height - kept) / 2), width, height: kept };
+}
+
+/**
  * Redessine l'image dans un canvas, puis la re-encode.
  *
  * L'effacement des metadonnees n'est pas une operation explicite : le canvas
  * ne connait que des pixels. Tout ce qui n'est pas un pixel — GPS, modele
  * d'appareil, date de prise de vue du capteur — disparait a la reconstruction.
  */
-export async function prepare(source: Blob | ImageBitmap): Promise<PreparedImage> {
+export async function prepare(source: Blob | ImageBitmap, ratio?: number): Promise<PreparedImage> {
   const bitmap = source instanceof ImageBitmap ? source : await createImageBitmap(source);
-  const { width, height } = scaledSize(bitmap.width, bitmap.height);
+  const box = ratio
+    ? cropBox(bitmap.width, bitmap.height, ratio)
+    : { x: 0, y: 0, width: bitmap.width, height: bitmap.height };
+  const { width, height } = scaledSize(box.width, box.height);
 
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -44,7 +71,7 @@ export async function prepare(source: Blob | ImageBitmap): Promise<PreparedImage
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Canvas indisponible');
 
-  context.drawImage(bitmap, 0, 0, width, height);
+  context.drawImage(bitmap, box.x, box.y, box.width, box.height, 0, 0, width, height);
   bitmap.close();
 
   const blob = await new Promise<Blob | null>((resolve) =>

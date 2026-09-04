@@ -65,7 +65,7 @@ export async function listEvents(userId: string) {
     select: {
       id: true, name: true, slug: true, joinCode: true, type: true, eventDate: true,
       state: true, quotaShots: true, closesAt: true, color: true, carnet: true,
-      previewMode: true, welcomeMessage: true, useTableCodes: true,
+      previewMode: true, photoShape: true, welcomeMessage: true, useTableCodes: true,
       ownerId: true,
       _count: { select: { rolls: true } },
     },
@@ -104,6 +104,7 @@ export async function getEvent(eventId: string, userId: string) {
     quotaShots: event.quotaShots,
     closesAt: event.closesAt,
     previewMode: event.previewMode,
+    photoShape: event.photoShape,
     carnet: event.carnet,
     color: event.color,
     welcomeMessage: event.welcomeMessage,

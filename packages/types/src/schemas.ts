@@ -9,6 +9,7 @@ import './locale.js';   // messages de validation en francais, avant tout schema
 import {
   EVENT_TYPES,
   PREVIEW_MODES,
+  PHOTO_SHAPES,
   PUBLICATION_SCOPES,
   QUOTA_MAX,
   QUOTA_MIN,
@@ -53,6 +54,8 @@ export const createEventSchema = z.object({
     message: "L'heure de fermeture doit etre posterieure a maintenant",
   }),
   previewMode: z.enum(PREVIEW_MODES),
+  /** Le cadrage de la prise de vue. Absent, le carre reste la valeur d'usage. */
+  photoShape: z.enum(PHOTO_SHAPES).default('SQUARE'),
   /** Le carnet. Absent, le serveur pose celui du type de soiree. */
   carnet: z.enum(CARNETS).optional(),
   /** @deprecated remplace par carnet ; plus aucun ecran ne le demande. */

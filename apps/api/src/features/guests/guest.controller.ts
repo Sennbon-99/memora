@@ -63,6 +63,25 @@ export const openRecoveryLink: RequestHandler = async (req, res, next) => {
   }
 };
 
+/**
+ * POST /api/e/:slug/decline — refus du droit a l'image.
+ *
+ * Le cookie est efface avec exactement les memes attributs qu'a la pose,
+ * sans quoi le navigateur garderait l'ancien : un chemin ou un SameSite
+ * different et la suppression ne vise pas le meme cookie.
+ */
+export const decline: RequestHandler = async (req, res, next) => {
+  try {
+    await guestService.declineConsent(currentRoll(req).id);
+
+    const { maxAge: _ignore, ...clearOptions } = deviceCookieOptions;
+    res.clearCookie(DEVICE_COOKIE, clearOptions);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
 /** POST /api/e/:slug/consent — acceptation du droit a l'image. */
 export const consent: RequestHandler = async (req, res, next) => {
   try {

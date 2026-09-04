@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Capacitor } from '@capacitor/core';
 import { Photo } from '../../../ui/Photo.js';
 
 export interface ViewablePhoto {
@@ -38,8 +37,11 @@ export function PhotoViewer({ photos, index, onIndex, onClose }: {
   onIndex: (index: number) => void;
   onClose: () => void;
 }) {
-  const [busy, setBusy] = useState<'save' | 'share' | null>(null);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // L'indication ne vaut que la ou une feuille systeme existe : sur un
+  // navigateur de bureau, elle designerait un menu que personne ne verra.
+  const systemSheet = typeof navigator.share === 'function';
   const touchStart = useRef<number | null>(null);
   const photo = photos[index];
 
@@ -60,21 +62,25 @@ export function PhotoViewer({ photos, index, onIndex, onClose }: {
 
   if (!photo) return null;
 
-  const deliver = async (mode: 'save' | 'share') => {
-    setBusy(mode);
+  /**
+   * Un seul geste, parce qu'il n'y en a qu'un de possible.
+   *
+   * Aucune interface web n'ecrit dans la phototheque du telephone : la
+   * feuille de partage du systeme est le seul chemin vers « Enregistrer
+   * l'image », y compris depuis une page ouverte dans Safari. Un bouton
+   * « Enregistrer » qui declencherait un telechargement direct deposerait la
+   * photographie dans Fichiers, la ou personne ne va la chercher.
+   *
+   * Le telechargement reste le repli des navigateurs de bureau, qui n'ont pas
+   * de feuille de partage.
+   */
+  const deliver = async () => {
+    setBusy(true);
     setError(null);
     try {
       const file = await photoFile(photo);
-      const share = await canShareFile(file);
-      // Dans l'application native, la feuille systeme est aussi le chemin
-      // fiable vers « Enregistrer l'image ». Sur le web, le bouton Enregistrer
-      // garde le telechargement direct attendu.
-      if (mode === 'share' || (mode === 'save' && Capacitor.isNativePlatform())) {
-        if (share) {
-          await navigator.share({ files: [file], title: 'Photographie Memora' });
-        } else {
-          saveInBrowser(file);
-        }
+      if (await canShareFile(file)) {
+        await navigator.share({ files: [file], title: 'Photographie Memora' });
       } else {
         saveInBrowser(file);
       }
@@ -83,7 +89,7 @@ export function PhotoViewer({ photos, index, onIndex, onClose }: {
         setError(cause instanceof Error ? cause.message : 'Cette action a échoué.');
       }
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   };
 
@@ -143,23 +149,20 @@ export function PhotoViewer({ photos, index, onIndex, onClose }: {
 
       <footer className="px-4 pb-4 pt-3">
         {error && <p role="alert" className="mb-2 text-center text-xs text-red-300">{error}</p>}
-        <div className="mx-auto flex max-w-md gap-2">
+        <div className="mx-auto max-w-md">
           <button
             type="button"
-            disabled={busy !== null}
-            onClick={() => void deliver('save')}
-            className="min-h-12 flex-1 rounded-champ bg-white font-semibold text-black disabled:opacity-50"
+            disabled={busy}
+            onClick={() => void deliver()}
+            className="min-h-12 w-full rounded-champ bg-white font-semibold text-black disabled:opacity-50"
           >
-            {busy === 'save' ? 'Préparation…' : 'Enregistrer'}
+            {busy ? 'Préparation…' : 'Enregistrer ou partager'}
           </button>
-          <button
-            type="button"
-            disabled={busy !== null}
-            onClick={() => void deliver('share')}
-            className="min-h-12 flex-1 rounded-champ border border-white/35 font-semibold disabled:opacity-50"
-          >
-            {busy === 'share' ? 'Préparation…' : 'Partager'}
-          </button>
+          {systemSheet && (
+            <p className="mt-2 text-center text-xs text-white/60">
+              Choisissez « Enregistrer l'image » pour l'ajouter à vos photos.
+            </p>
+          )}
         </div>
       </footer>
     </div>

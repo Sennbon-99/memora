@@ -15,7 +15,7 @@ import { useShot } from '../useShot.js';
 import { CameraDeniedScreen } from './CameraDeniedScreen.js';
 import { prepare, previewUrl, type PreparedImage } from '../../../lib/image.js';
 import { publicAppOrigin } from '../../../lib/api.js';
-import type { PreviewMode } from '@memora/types';
+import type { PhotoShape, PreviewMode } from '@memora/types';
 
 interface ViewfinderScreenProps {
   slug: string;
@@ -23,6 +23,8 @@ interface ViewfinderScreenProps {
   quotaShots: number;
   joinCode: string;
   previewMode: PreviewMode;
+  /** Le cadrage choisi par l'organisateur, applique au flux et au fichier. */
+  photoShape: PhotoShape;
   shotsLeft: number;
   bonusShots: number;
   queued: number;
@@ -33,11 +35,16 @@ interface ViewfinderScreenProps {
 }
 
 export function ViewfinderScreen({
-  slug, eventName, quotaShots, joinCode, previewMode,
+  slug, eventName, quotaShots, joinCode, previewMode, photoShape,
   shotsLeft, bonusShots, queued, online, moment, onEmpty,
 }: ViewfinderScreenProps) {
-  const { videoRef, state, start, capture } = useCamera();
-  const shot = useShot(slug);
+  // Le rapport du fichier a produire. En plein ecran, c'est celui de l'ecran
+  // lui-meme : le flux est affiche en object-cover, qui rogne exactement de
+  // cette facon, et la photographie doit rendre ce que l'invite a vu.
+  const ratio = photoShape === 'SQUARE' ? 1 : window.innerWidth / window.innerHeight;
+
+  const { videoRef, state, start, capture } = useCamera(photoShape);
+  const shot = useShot(slug, ratio);
   // Zero : obturateur au repos. Sinon, le numero du declenchement en cours.
   const [flashing, setFlashing] = useState(0);
   const minuteur = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -87,7 +94,7 @@ export function ViewfinderScreen({
         return;
       }
 
-      const prepared = await prepare(frame);
+      const prepared = await prepare(frame, ratio);
       const next = { ...prepared, url: previewUrl(prepared.blob) };
       setPreview(next);
 

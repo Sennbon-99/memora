@@ -9,17 +9,30 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type CameraState = 'idle' | 'starting' | 'ready' | 'denied' | 'unavailable';
 
-/** Camera arriere en priorite, definition la plus haute que l'appareil accepte. */
-const CONSTRAINTS: MediaStreamConstraints = {
-  video: {
-    facingMode: { ideal: 'environment' },
-    width: { ideal: 2048 },
-    height: { ideal: 2048 },
-  },
-  audio: false,
-};
+export type PhotoShape = 'SQUARE' | 'FULL';
 
-export function useCamera() {
+/**
+ * Camera arriere en priorite, definition la plus haute que l'appareil accepte.
+ *
+ * Deux dimensions egales ne demandent pas une image de 2048 pixels de cote :
+ * pour getUserMedia, c'est une demande de rapport 1:1, et le navigateur
+ * recadre le capteur pour l'honorer. C'est voulu pour le carre. En plein
+ * ecran on demande au contraire le format natif du capteur, le plus large
+ * disponible, et le recadrage a la forme de l'ecran est fait a la capture.
+ */
+function constraints(shape: PhotoShape): MediaStreamConstraints {
+  return {
+    video: {
+      facingMode: { ideal: 'environment' },
+      ...(shape === 'SQUARE'
+        ? { width: { ideal: 2048 }, height: { ideal: 2048 } }
+        : { width: { ideal: 2048 }, height: { ideal: 1536 } }),
+    },
+    audio: false,
+  };
+}
+
+export function useCamera(shape: PhotoShape = 'SQUARE') {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [state, setState] = useState<CameraState>('idle');
@@ -33,7 +46,7 @@ export function useCamera() {
 
     setState('starting');
     try {
-      const stream = await navigator.mediaDevices.getUserMedia(CONSTRAINTS);
+      const stream = await navigator.mediaDevices.getUserMedia(constraints(shape));
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -46,7 +59,7 @@ export function useCamera() {
       const denied = error instanceof DOMException && error.name === 'NotAllowedError';
       setState(denied ? 'denied' : 'unavailable');
     }
-  }, []);
+  }, [shape]);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());

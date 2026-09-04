@@ -62,6 +62,7 @@ const routes: RouteDoc[] = [
   { method: 'get', path: '/e/{slug}', summary: 'Rejoindre un evenement par QR code ou code court', tag: 'Invites', auth: 'public' },
   { method: 'post', path: '/e/{slug}/consent', summary: 'Accepter le droit a l image', tag: 'Invites', auth: 'guest' },
   { method: 'post', path: '/e/{slug}/identity', summary: 'Renseigner prenom et table', tag: 'Invites', auth: 'guest', body: joinEventSchema },
+  { method: 'post', path: '/e/{slug}/decline', summary: 'Refuser le droit a l image et effacer sa pellicule', tag: 'Invites', auth: 'guest' },
   { method: 'get', path: '/e/{slug}/recovery-link', summary: 'Creer son lien personnel de recuperation', tag: 'Invites', auth: 'guest' },
   { method: 'post', path: '/e/{slug}/recovery-link', summary: 'Retrouver sa pellicule par son lien personnel', tag: 'Invites', auth: 'public' },
 

@@ -141,6 +141,13 @@ export function AlbumScreen({ slug, firstName }: { slug: string; firstName: stri
           >
             {archive.isPending ? 'Préparation de l’album…' : 'Télécharger tout l’album'}
           </Button>
+          {/* L'archive ne peut pas rejoindre la phototheque : aucun systeme ne
+              sait ranger un fichier compresse dans Photos. Le dire evite de
+              chercher les images la ou elles ne sont pas. */}
+          <p className="mt-2 text-center text-xs text-ink-3">
+            L’album complet arrive en archive, dans vos fichiers. Pour ajouter une
+            photographie à vos photos, ouvrez-la et utilisez « Enregistrer ou partager ».
+          </p>
           {archive.error && (
             <p role="alert" className="mt-2 text-center text-xs text-danger">
               {(archive.error as ApiError).message}

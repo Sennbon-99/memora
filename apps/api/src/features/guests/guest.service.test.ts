@@ -10,6 +10,8 @@ const rollFindUnique = vi.fn();
 const rollFindMany = vi.fn();
 const rollCreate = vi.fn();
 const rollUpdate = vi.fn();
+const rollDelete = vi.fn();
+const photoCount = vi.fn();
 const eventTableFindFirst = vi.fn();
 const readQuota = vi.fn();
 const readBonusQuota = vi.fn();
@@ -21,21 +23,23 @@ vi.mock('../../config/prisma.js', () => ({
     roll: {
       findFirst: rollFindFirst, findUnique: rollFindUnique,
       findMany: rollFindMany, create: rollCreate, update: rollUpdate,
+      delete: rollDelete,
     },
+    photo: { count: photoCount },
     eventTable: { findFirst: eventTableFindFirst },
   },
 }));
 
 vi.mock('../../config/redis.js', () => ({ readQuota, readBonusQuota, initQuota }));
 
-const { joinEvent, giveConsent, recoverFromLink, recoverRoll, setIdentity } = await import('./guest.service.js');
+const { joinEvent, giveConsent, declineConsent, recoverFromLink, recoverRoll, setIdentity } = await import('./guest.service.js');
 const { hashRecoveryCode } = await import('../../utils/hash.js');
 const { signDeviceToken } = await import('../../utils/jwt.js');
 
 const openEvent = {
   id: 'e1', slug: 'mariage-x', joinCode: 'LEA624', name: 'Mariage de Lea et Sam',
   state: 'OPEN', scope: 'NONE', quotaShots: 24,
-  previewMode: 'NONE', color: '#B0741C', welcomeMessage: null,
+  previewMode: 'NONE', photoShape: 'SQUARE', color: '#B0741C', welcomeMessage: null,
   carnet: 'papier', closesAt: new Date('2026-09-01'), useTableCodes: false,
   tables: [],
   _count: { rolls: 12 },
@@ -43,7 +47,7 @@ const openEvent = {
 
 beforeEach(() => {
   [eventFindUnique, rollFindFirst, rollFindUnique, rollFindMany, rollCreate, rollUpdate,
-   eventTableFindFirst, readQuota, readBonusQuota, initQuota]
+   rollDelete, photoCount, eventTableFindFirst, readQuota, readBonusQuota, initQuota]
     .forEach((m) => m.mockReset());
   readBonusQuota.mockResolvedValue(0);
 });
@@ -207,6 +211,26 @@ describe('giveConsent', () => {
     // C'est la date du premier accord qui fait foi, pas celle du dernier clic.
     expect(consentedAt).toEqual(premiere);
     expect(rollUpdate).not.toHaveBeenCalled();
+  });
+});
+
+describe('declineConsent', () => {
+  it('supprime la pellicule ouverte a l arrivee', async () => {
+    photoCount.mockResolvedValue(0);
+    rollDelete.mockResolvedValue({ id: 'r1' });
+
+    await declineConsent('r1');
+
+    expect(rollDelete).toHaveBeenCalledWith({ where: { id: 'r1' } });
+  });
+
+  it('refuse d effacer une pellicule qui porte deja des photographies', async () => {
+    // Sans ce garde-fou, la suppression en cascade emporterait les lignes
+    // mais laisserait les fichiers dans le stockage.
+    photoCount.mockResolvedValue(2);
+
+    await expect(declineConsent('r1')).rejects.toMatchObject({ code: 'ALREADY_SHOT' });
+    expect(rollDelete).not.toHaveBeenCalled();
   });
 });
 
