@@ -120,6 +120,7 @@ export function ViewfinderScreen({
       <CameraDeniedScreen
         slug={slug}
         denied={state === 'denied'}
+        ratio={ratio}
         shotsLeft={shotsLeft}
         bonusShots={bonusShots}
         queued={queued}
