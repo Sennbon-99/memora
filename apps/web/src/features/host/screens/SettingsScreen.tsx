@@ -19,6 +19,7 @@ import type { ReactNode } from 'react';
 import type { PreviewMode } from '@memora/types';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { Section } from '../../../ui/Section.js';
 import { useSession, useLogout } from '../useAuth.js';
 import { useEvent } from '../useEvents.js';
 import { CARNET_LABEL } from '../../../carnets/labels.js';
@@ -32,11 +33,9 @@ const PREVIEW_LABEL: Record<PreviewMode, string> = {
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="mt-8">
-      <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">{title}</h2>
-      <div className="mt-2 flex flex-col overflow-hidden rounded-carte bg-pap-2
-        shadow-[var(--ombre-tirage)]">{children}</div>
-    </section>
+    <Section title={title} flush className="mt-8">
+      <div className="flex flex-col">{children}</div>
+    </Section>
   );
 }
 

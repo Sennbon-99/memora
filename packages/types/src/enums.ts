@@ -21,6 +21,16 @@ export type EventState = (typeof EVENT_STATES)[number];
 export const PREVIEW_MODES = ['NONE', 'FLASH', 'BLURRED', 'CONFIRM'] as const;
 export type PreviewMode = (typeof PREVIEW_MODES)[number];
 
+/**
+ * Le cadrage de la prise de vue, choisi par l'organisateur a la creation.
+ *
+ * SQUARE recadre au carre, comme un tirage d'appareil jetable. FULL garde le
+ * champ que le capteur donne : rien n'est jete, et le viseur montre alors
+ * exactement ce qui sera enregistre.
+ */
+export const PHOTO_SHAPES = ['SQUARE', 'FULL'] as const;
+export type PhotoShape = (typeof PHOTO_SHAPES)[number];
+
 /** Portee de publication choisie par l'hote apres son tri. */
 export const PUBLICATION_SCOPES = ['NONE', 'EVERYONE', 'SELECTED', 'OWN_ONLY'] as const;
 export type PublicationScope = (typeof PUBLICATION_SCOPES)[number];

@@ -14,6 +14,9 @@ model Event {
   /// Heure a laquelle la prise de vue s'arrete. Fait foi, fuseau compris.
   closesAt       DateTime    @db.Timestamptz
   previewMode    PreviewMode @default(NONE)
+  /// Le cadrage de la prise de vue, choisi a la creation. Il fige le rendu de
+  /// toute la soiree : une meme pellicule ne melange pas les formats.
+  photoShape     PhotoShape  @default(SQUARE)
   /// Le carnet applique au parcours de l'invite : un jeu de valeurs, jamais
   /// une structure. Voir apps/web/src/carnets.
   carnet         String      @default("papier") @db.VarChar(32)
@@ -82,6 +85,13 @@ enum PreviewMode {
   FLASH
   BLURRED
   CONFIRM
+}
+
+/// Le cadrage de la prise de vue. SQUARE recadre au carre, a la maniere d'un
+/// tirage d'appareil jetable ; FULL garde tout le champ du capteur.
+enum PhotoShape {
+  SQUARE
+  FULL
 }
 
 /// Portee de publication retenue par l'hote apres son tri.

@@ -56,11 +56,27 @@ export function useConsent(slug: string) {
   const update = useUpdateSession(slug);
 
   return useMutation({
-    // Le schema partage impose z.literal(true) : le refus n'a pas de route,
-    // il ferme simplement la page. La signature le dit aussi cote client.
+    // Le schema partage impose z.literal(true) : accepter est la seule chose
+    // que cette route sait faire. Le refus a la sienne, voir useDecline.
     mutationFn: () => guestApi.consent(slug, { accepted: true }),
     onSuccess: () =>
       update((previous) => ({ ...previous, roll: { ...previous.roll, hasConsented: true } })),
+  });
+}
+
+/**
+ * Refus du droit a l'image.
+ *
+ * Le serveur supprime la pellicule et efface le cookie d'appareil. On vide
+ * ensuite le cache : sans cela, l'ecran continuerait d'afficher une session
+ * qui n'existe plus, et un retour en arriere la ferait reapparaitre.
+ */
+export function useDecline(slug: string) {
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => guestApi.decline(slug),
+    onSuccess: () => client.removeQueries({ queryKey: sessionKey(slug) }),
   });
 }
 

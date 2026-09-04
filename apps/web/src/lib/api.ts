@@ -243,6 +243,8 @@ export interface GuestSession {
   event: {
     id: string; slug: string; joinCode: string;
     name: string; quotaShots: number; previewMode: 'NONE' | 'FLASH' | 'BLURRED' | 'CONFIRM';
+    /** Le cadrage voulu par l'organisateur : le viseur et la capture s'y conforment. */
+    photoShape: 'SQUARE' | 'FULL';
     /** @deprecated remplace par carnet ; conserve le temps de la migration. */
     color: string;
     carnet?: string | undefined;
@@ -268,6 +270,8 @@ export const guestApi = {
     call<{ saved: boolean }>(`/e/${slug}/recovery-code`, { method: 'POST', body: { code } }),
   recover: (slug: string, body: RecoveryCodeInput) =>
     call<{ rollId: string }>(`/e/${slug}/recover`, { method: 'POST', body }),
+  decline: (slug: string) =>
+    call<void>(`/e/${slug}/decline`, { method: 'POST' }),
   recoveryLink: (slug: string) =>
     call<{ token: string }>(`/e/${slug}/recovery-link`),
   openRecoveryLink: (slug: string, token: string) =>
@@ -367,6 +371,7 @@ export interface EventSummary {
   carnet: string;
   quotaShots: number;
   previewMode: 'NONE' | 'FLASH' | 'BLURRED' | 'CONFIRM';
+  photoShape: 'SQUARE' | 'FULL';
   welcomeMessage: string | null;
   useTableCodes: boolean;
   /** Present sur le detail d'une soiree, omis dans la liste. */

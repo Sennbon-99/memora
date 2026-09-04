@@ -15,16 +15,23 @@ import { useShot } from '../useShot.js';
 interface CameraDeniedScreenProps {
   slug: string;
   denied: boolean;
+  /**
+   * Le rapport de recadrage de la soiree. Le repli passe par le meme
+   * traitement que le viseur : sans lui, une soiree en plein ecran
+   * produirait des photographies au format du capteur des qu'un invite
+   * refuse la camera.
+   */
+  ratio: number;
   shotsLeft: number;
   bonusShots: number;
   queued: number;
 }
 
 export function CameraDeniedScreen({
-  slug, denied, shotsLeft, bonusShots, queued,
+  slug, denied, ratio, shotsLeft, bonusShots, queued,
 }: CameraDeniedScreenProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const shot = useShot(slug);
+  const shot = useShot(slug, ratio);
   const total = shotsLeft + bonusShots;
 
   const onPick = async (file: File | undefined) => {

@@ -56,6 +56,10 @@ export default defineConfig({
       // pas de CORS a configurer, et les cookies sont poses sur la meme
       // origine qu'en production.
       '/api': { target: 'http://localhost:3000', changeOrigin: true },
+      // Le temps reel passe par la meme origine que la page. Sans ce relais,
+      // socket.io tape sur le serveur de developpement, recoit l'index HTML,
+      // echoue, et recommence sans fin : la page finit par se figer.
+      '/socket.io': { target: 'http://localhost:3000', ws: true, changeOrigin: true },
     },
   },
 });

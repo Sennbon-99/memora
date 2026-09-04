@@ -38,6 +38,8 @@ export interface GuestSession {
     name: string;
     quotaShots: number;
     previewMode: string;
+    /** Le cadrage retenu par l'organisateur : le viseur s'y conforme. */
+    photoShape: string;
     color: string;
     carnet: string;
     welcomeMessage: string | null;
@@ -78,7 +80,7 @@ export async function joinEvent(
       ? { joinCode: identifier.toUpperCase() }
       : { slug: identifier },
     select: {
-      id: true, name: true, slug: true, joinCode: true, state: true, quotaShots: true, previewMode: true,
+      id: true, name: true, slug: true, joinCode: true, state: true, quotaShots: true, previewMode: true, photoShape: true,
       color: true, carnet: true, welcomeMessage: true, closesAt: true, useTableCodes: true, scope: true,
       tables: { select: { id: true, label: true, qrToken: true }, orderBy: { label: 'asc' } },
       _count: { select: { rolls: true } },
@@ -167,6 +169,7 @@ function buildSession(
     event: {
       id: event.id, slug: event.slug, joinCode: event.joinCode,
       name: event.name, quotaShots: event.quotaShots, previewMode: event.previewMode,
+      photoShape: event.photoShape,
       color: event.color, carnet: event.carnet, welcomeMessage: event.welcomeMessage,
       closesAt: event.closesAt, useTableCodes: event.useTableCodes,
       tables: (event.tables ?? []).map(({ id, label }) => ({ id, label })),
@@ -228,6 +231,27 @@ export async function giveConsent(rollId: string) {
     select: { consentedAt: true },
   });
   return updated;
+}
+
+/**
+ * Refus du droit a l'image.
+ *
+ * L'ecran de consentement annonce qu'un refus ne laisse rien derriere lui.
+ * La pellicule existe pourtant deja : c'est joinEvent qui la cree, avant que
+ * la question soit posee. Le refus doit donc la supprimer pour de bon, et non
+ * se contenter de ne pas horodater l'accord.
+ *
+ * Le garde-fou sur les photographies n'est pas theorique. Supprimer une
+ * pellicule emporte ses lignes en cascade, mais pas les fichiers deposes dans
+ * le stockage : ils resteraient orphelins jusqu'a la purge.
+ */
+export async function declineConsent(rollId: string) {
+  const shots = await prisma.photo.count({ where: { rollId } });
+  if (shots > 0) {
+    throw new AppError('ALREADY_SHOT', 409, 'Cette pellicule contient déjà des photographies');
+  }
+
+  await prisma.roll.delete({ where: { id: rollId } });
 }
 
 /** Prenom et table, tous deux facultatifs. */

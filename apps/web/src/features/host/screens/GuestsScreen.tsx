@@ -13,6 +13,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { EmptyState } from '../../../ui/EmptyState.js';
 import type { RollSummary } from '../../../lib/api.js';
 import { reviewProgress, useRolls } from '../useRolls.js';
 
@@ -86,9 +87,9 @@ export function GuestsScreen() {
       }}
     >
       {rolls.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-ink-3">
+        <EmptyState>
           Aucun invité n’a encore scanné le QR code.
-        </p>
+        </EmptyState>
       ) : (
         <>
           {/* L'avancement du tri est un chiffre, pas une phrase : mono et or,

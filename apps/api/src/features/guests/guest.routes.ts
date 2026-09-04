@@ -19,6 +19,9 @@ guestRouter.post('/:slug/recovery-link', authLimiter, guestController.openRecove
 // POST /api/e/:slug/consent — accepter le droit a l'image
 guestRouter.post('/:slug/consent', requireGuest, guestController.consent);
 
+// POST /api/e/:slug/decline — refuser, et effacer la pellicule ouverte
+guestRouter.post('/:slug/decline', requireGuest, guestController.decline);
+
 // POST /api/e/:slug/identity — renseigner prenom et table
 guestRouter.post('/:slug/identity', requireGuest, guestController.identity);
 

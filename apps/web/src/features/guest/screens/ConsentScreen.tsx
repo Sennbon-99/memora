@@ -7,7 +7,7 @@
 
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
-import { useConsent } from '../useGuestSession.js';
+import { useConsent, useDecline } from '../useGuestSession.js';
 
 interface ConsentScreenProps {
   slug: string;
@@ -17,6 +17,25 @@ interface ConsentScreenProps {
 
 export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreenProps) {
   const consent = useConsent(slug);
+  const decline = useDecline(slug);
+  const busy = consent.isPending || decline.isPending;
+
+  // Apres un refus, la pellicule n'existe plus : il n'y a plus rien a proposer
+  // que de fermer la page. Aucun bouton ne ramene vers la soiree, ce serait
+  // rouvrir la porte que l'invite vient de fermer.
+  if (decline.isSuccess) {
+    return (
+      <Screen
+        title="C’est noté"
+        subtitle="Votre pellicule a été supprimée. Aucune photographie ne partira de ce téléphone."
+      >
+        <p className="mt-10 text-lecture leading-relaxed text-ink-2">
+          Vous pouvez fermer cette page. Si vous changez d’avis pendant la soirée,
+          scannez à nouveau le QR code : une pellicule vierge vous sera ouverte.
+        </p>
+      </Screen>
+    );
+  }
 
   return (
     <Screen
@@ -24,11 +43,17 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
       subtitle={welcomeMessage ?? 'Bienvenue dans la pellicule partagée de la soirée.'}
       footer={
         <div className="flex flex-col gap-3">
-          <Button full onClick={() => consent.mutate()} disabled={consent.isPending}>
+          <Button full onClick={() => consent.mutate()} disabled={busy}>
             {consent.isPending ? 'Un instant...' : "J'accepte, je prends mes photos"}
           </Button>
+          {/* Refuser doit etre un geste, pas l'absence de geste. Une pellicule
+              a deja ete ouverte a l'arrivee sur cette page : la fermer sans
+              rien dire la laisserait derriere soi. */}
+          <Button full tone="ghost" onClick={() => decline.mutate()} disabled={busy}>
+            {decline.isPending ? 'Un instant...' : 'Je refuse'}
+          </Button>
           <p className="text-center text-xs text-ink-3">
-            Refuser ferme simplement cette page. Aucune donnée n'est conservée.
+            Refuser supprime la pellicule ouverte sur ce téléphone.
           </p>
           {/* Le detail de ce qui est conserve, pour qui veut le lire avant
               d'accepter. Dans un nouvel onglet, et non par navigation : le
@@ -60,9 +85,11 @@ export function ConsentScreen({ slug, eventName, welcomeMessage }: ConsentScreen
         </p>
       </div>
 
-      {consent.isError && (
+      {(consent.isError || decline.isError) && (
         <p role="alert" className="mt-6 rounded-carte bg-danger-doux p-4 text-sm text-danger">
-          L'enregistrement n'a pas abouti. Vérifiez votre connexion et réessayez.
+          {consent.isError
+            ? "L'enregistrement n'a pas abouti. Vérifiez votre connexion et réessayez."
+            : "Le refus n'a pas pu être enregistré. Vérifiez votre connexion et réessayez."}
         </p>
       )}
     </Screen>

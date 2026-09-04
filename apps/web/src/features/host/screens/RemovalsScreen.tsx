@@ -21,6 +21,8 @@ import { removalApi, type RemovalRequest } from '../../../lib/api.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { Photo } from '../../../ui/Photo.js';
+import { EmptyState } from '../../../ui/EmptyState.js';
+import { Section } from '../../../ui/Section.js';
 
 export const removalsKey = (eventId: string) => ['host', 'removals', eventId] as const;
 
@@ -74,9 +76,9 @@ export function RemovalsScreen() {
       }}
     >
       {data.removals.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-ink-3">
+        <EmptyState>
           Aucune demande.<br />C’est plutôt bon signe.
-        </p>
+        </EmptyState>
       ) : (
         <div className="mt-6 flex flex-col gap-6 pb-6">
           {pending.map((request) => (
@@ -119,11 +121,8 @@ export function RemovalsScreen() {
           ))}
 
           {handled.length > 0 && (
-            <section>
-              <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
-                Déjà traitées
-              </h2>
-              <ul className="mt-1 flex flex-col">
+            <Section title="Déjà traitées">
+              <ul className="flex flex-col">
                 {handled.map((request) => (
                   <li
                     key={request.id}
@@ -153,7 +152,7 @@ export function RemovalsScreen() {
                   </li>
                 ))}
               </ul>
-            </section>
+            </Section>
           )}
         </div>
       )}

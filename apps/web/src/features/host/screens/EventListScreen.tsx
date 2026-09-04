@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { EmptyState } from '../../../ui/EmptyState.js';
 import { useEvents } from '../useEvents.js';
 import type { EventSummary } from '../../../lib/api.js';
 
@@ -49,10 +50,10 @@ export function EventListScreen() {
       }
     >
       {events.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-ink-3">
+        <EmptyState>
           Rien pour l’instant.<br />Créez votre première soirée, imprimez le kit,
           et vos invités photographient.
-        </p>
+        </EmptyState>
       ) : (
         <ul className="mt-8 flex flex-col gap-3 pb-6">
           {events.map((event) => {

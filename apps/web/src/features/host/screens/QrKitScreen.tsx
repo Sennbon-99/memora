@@ -10,8 +10,12 @@ import {
 } from '@memora/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { eventApi, remettreFichier, tableApi, type ApiError } from '../../../lib/api.js';
+import {
+  eventApi, publicAppOrigin, remettreFichier, tableApi, type ApiError,
+} from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
+import { QrCode } from '../../../ui/QrCode.js';
+import { Section } from '../../../ui/Section.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { useEvent, useEventState } from '../useEvents.js';
@@ -27,6 +31,9 @@ export function QrKitScreen() {
   // appuie une fois et a tout ce qu'il lui faut. Les autres sont visibles et
   // non cochees — elles se decouvrent au lieu de se chercher dans un menu.
   const [choisies, setChoisies] = useState<KitPiece[]>(KIT_PIECES_PAR_DEFAUT);
+  // Le kit imprime peut manquer : oublie a la maison, mouille, ou simplement
+  // pas encore sorti de l'imprimante. L'hote a alors le sien dans la poche.
+  const [montrer, setMontrer] = useState(false);
   const basculer = (piece: KitPiece) =>
     setChoisies((actuelles) => actuelles.includes(piece)
       ? actuelles.filter((p) => p !== piece)
@@ -149,18 +156,50 @@ export function QrKitScreen() {
           Ce code est imprimé sous chaque QR. Un invité peut le saisir depuis
           « Rejoindre une soirée » si son appareil ne parvient pas à scanner.
         </p>
+        <Button tone="ghost" full className="mt-4" onClick={() => setMontrer(true)}>
+          Afficher le QR code
+        </Button>
+        <p className="mt-2 text-mini leading-relaxed text-ink-3">
+          Pour dépanner sur place : votre écran se scanne aussi bien que le papier.
+        </p>
       </section>
 
-      <section className="mt-6 w-full">
-        <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
-          Ce que vous imprimez
-        </h2>
-        <p className="mt-2 px-1 text-note leading-relaxed text-ink-2">
-          L’affiche se pose à l’entrée, les cartes sur les tables. Chaque pièce
-          est un fichier : cochez celles dont vous avez besoin.
-        </p>
+      {/* Le meme geste que le partage entre invites : on tend l'ecran, l'autre
+          scanne. Presente en tirage, bord blanc epais, parce que c'est ce
+          contraste-la dont un appareil photo a besoin — voir QrCode.tsx. */}
+      {montrer && (
+        <div
+          className="fixed inset-0 z-[70] flex flex-col items-center justify-center gap-6
+            bg-pap px-8 safe-top safe-bottom"
+          role="dialog"
+          aria-modal="true"
+          aria-label="QR code de la soirée"
+        >
+          <p className="text-center text-lecture leading-relaxed text-ink-2">
+            Faites scanner cet écran. Votre invité rejoint la soirée
+            avec ses propres {event.quotaShots} poses.
+          </p>
+          <div className="bg-white p-3 shadow-2xl">
+            <QrCode
+              value={`${publicAppOrigin()}/e/${event.slug}`}
+              size={216}
+              label={`Code de la soirée ${event.name}`}
+            />
+            <p className="mt-2 text-center font-mono text-sm font-bold tracking-[0.2em] text-black">
+              {event.joinCode}
+            </p>
+          </div>
+          <Button tone="ghost" onClick={() => setMontrer(false)}>
+            Fermer
+          </Button>
+        </div>
+      )}
 
-        <ul className="mt-4 flex flex-col gap-2">
+      <Section
+        title="Ce que vous imprimez"
+        intro="L’affiche se pose à l’entrée, les cartes sur les tables. Chaque pièce est un fichier : cochez celles dont vous avez besoin."
+      >
+        <ul className="flex flex-col gap-2">
           {KIT_PIECES.map((piece) => {
             const info = KIT_PIECE_INFO[piece];
             const cochee = choisies.includes(piece);
@@ -174,9 +213,13 @@ export function QrKitScreen() {
                   role="checkbox"
                   aria-checked={cochee}
                   onClick={() => basculer(piece)}
+                  // Le fond de carte dans les deux etats. Sans lui, une ligne
+                  // non cochee n'a aucune surface sous elle et disparait dans
+                  // le quadrillage : le rose disait qu'une ligne existe, alors
+                  // qu'il ne doit dire que laquelle est cochee.
                   className={`flex w-full items-start gap-3 rounded-carte border px-3.5 py-3
                     text-left transition active:bg-appui
-                    ${cochee ? 'border-a1' : 'border-edge-2'}`}
+                    ${cochee ? 'border-a1 bg-a-doux' : 'border-edge'}`}
                 >
                   <span
                     aria-hidden="true"
@@ -206,17 +249,13 @@ export function QrKitScreen() {
             );
           })}
         </ul>
-      </section>
+      </Section>
 
         {event.useTableCodes && (
-          <section className="w-full">
-            <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
-              Vos tables
-            </h2>
-            <p className="mt-2 px-1 text-note leading-relaxed text-ink-2">
-              Vous demandez le numéro de table à vos invités. Créez-les ici :
-              chacune reçoit son propre QR code dans le kit.
-            </p>
+          <Section
+            title="Vos tables"
+            intro="Vous demandez le numéro de table à vos invités. Créez-les ici : chacune reçoit son propre QR code dans le kit."
+          >
 
             {tableTotal > 0 ? (
               <p role="status" className="mt-4 rounded-champ border border-ok
@@ -261,7 +300,7 @@ export function QrKitScreen() {
                 )}
               </>
             )}
-          </section>
+          </Section>
         )}
 
         {event.state === 'DRAFT' && (
