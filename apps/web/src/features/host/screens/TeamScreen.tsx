@@ -15,6 +15,7 @@ import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { Section } from '../../../ui/Section.js';
 import { useSession } from '../useAuth.js';
 
 const teamKey = (eventId: string) => ['host', 'team', eventId] as const;
@@ -55,14 +56,10 @@ export function TeamScreen() {
         hautDroite: 'ÉQUIPE',
       }}
     >
-      <section className="mt-8">
-        <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
-          Co-hôtes
-        </h2>
-
+      <Section title="Co-hôtes" className="mt-8">
         {/* Deux ou trois personnes : une liste de rangees, pas une pile de
             cartes qui donnerait a chacune le poids d'un ecran. */}
-        <ul className="mt-1 flex flex-col">
+        <ul className="flex flex-col">
           <li className="flex items-center gap-3 border-b border-edge-2 px-1 py-3
             last:border-b-0">
             <span className="min-w-0 flex-1">
@@ -114,7 +111,7 @@ export function TeamScreen() {
             {invite.isPending ? 'Invitation…' : 'Ajouter ce co-hôte'}
           </Button>
         </div>
-      </section>
+      </Section>
 
       <button
         onClick={() => navigate(`/hote/${eventId}/reglages`)}

@@ -6,6 +6,7 @@ export default mergeConfig(base, defineConfig({
     port: 5173,
     proxy: {
       '/api': { target: 'http://localhost:3100', changeOrigin: true },
+      '/socket.io': { target: 'http://localhost:3100', ws: true, changeOrigin: true },
     },
   },
 }));

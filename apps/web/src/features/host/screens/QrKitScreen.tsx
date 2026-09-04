@@ -15,6 +15,7 @@ import {
 } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
 import { QrCode } from '../../../ui/QrCode.js';
+import { Section } from '../../../ui/Section.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { useEvent, useEventState } from '../useEvents.js';
@@ -194,16 +195,11 @@ export function QrKitScreen() {
         </div>
       )}
 
-      <section className="mt-6 w-full">
-        <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
-          Ce que vous imprimez
-        </h2>
-        <p className="mt-2 px-1 text-note leading-relaxed text-ink-2">
-          L’affiche se pose à l’entrée, les cartes sur les tables. Chaque pièce
-          est un fichier : cochez celles dont vous avez besoin.
-        </p>
-
-        <ul className="mt-4 flex flex-col gap-2">
+      <Section
+        title="Ce que vous imprimez"
+        intro="L’affiche se pose à l’entrée, les cartes sur les tables. Chaque pièce est un fichier : cochez celles dont vous avez besoin."
+      >
+        <ul className="flex flex-col gap-2">
           {KIT_PIECES.map((piece) => {
             const info = KIT_PIECE_INFO[piece];
             const cochee = choisies.includes(piece);
@@ -221,9 +217,9 @@ export function QrKitScreen() {
                   // non cochee n'a aucune surface sous elle et disparait dans
                   // le quadrillage : le rose disait qu'une ligne existe, alors
                   // qu'il ne doit dire que laquelle est cochee.
-                  className={`flex w-full items-start gap-3 rounded-carte border bg-pap-2
-                    px-3.5 py-3 text-left transition active:bg-appui
-                    ${cochee ? 'border-a1' : 'border-edge'}`}
+                  className={`flex w-full items-start gap-3 rounded-carte border px-3.5 py-3
+                    text-left transition active:bg-appui
+                    ${cochee ? 'border-a1 bg-a-doux' : 'border-edge'}`}
                 >
                   <span
                     aria-hidden="true"
@@ -253,17 +249,13 @@ export function QrKitScreen() {
             );
           })}
         </ul>
-      </section>
+      </Section>
 
         {event.useTableCodes && (
-          <section className="w-full">
-            <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
-              Vos tables
-            </h2>
-            <p className="mt-2 px-1 text-note leading-relaxed text-ink-2">
-              Vous demandez le numéro de table à vos invités. Créez-les ici :
-              chacune reçoit son propre QR code dans le kit.
-            </p>
+          <Section
+            title="Vos tables"
+            intro="Vous demandez le numéro de table à vos invités. Créez-les ici : chacune reçoit son propre QR code dans le kit."
+          >
 
             {tableTotal > 0 ? (
               <p role="status" className="mt-4 rounded-champ border border-ok
@@ -308,7 +300,7 @@ export function QrKitScreen() {
                 )}
               </>
             )}
-          </section>
+          </Section>
         )}
 
         {event.state === 'DRAFT' && (
