@@ -21,6 +21,7 @@ import { removalApi, type RemovalRequest } from '../../../lib/api.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { Photo } from '../../../ui/Photo.js';
+import { EmptyState } from '../../../ui/EmptyState.js';
 
 export const removalsKey = (eventId: string) => ['host', 'removals', eventId] as const;
 
@@ -74,9 +75,9 @@ export function RemovalsScreen() {
       }}
     >
       {data.removals.length === 0 ? (
-        <p className="mt-14 text-center text-sm leading-relaxed text-ink-3">
+        <EmptyState>
           Aucune demande.<br />C’est plutôt bon signe.
-        </p>
+        </EmptyState>
       ) : (
         <div className="mt-6 flex flex-col gap-6 pb-6">
           {pending.map((request) => (

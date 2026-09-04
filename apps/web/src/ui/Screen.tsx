@@ -101,7 +101,11 @@ export function Screen({
   const replie = useTitreReplie(titreRepliable === true && hideTitle !== true);
 
   return (
-    <div className="quadrille flex min-h-full flex-col safe-top safe-bottom">
+    // flex-1 et non min-h-full seul : le parent est lui-meme en hauteur
+    // minimale, donc un pourcentage ne se resout contre rien et le quadrillage
+    // s'arretait a la derniere ligne de texte. S'etirer dans la colonne du
+    // parent ne depend, lui, d'aucune hauteur definie.
+    <div className="quadrille flex min-h-full flex-1 flex-col safe-top safe-bottom">
       <Bande cote="gauche" haut={code?.hautGauche ?? 'MEMORA 400'} bas={code?.basGauche} />
       <Bande cote="droite" haut={code?.hautDroite} bas={code?.basDroite} />
 

@@ -145,7 +145,10 @@ export function HostLayout() {
 
       </header>
 
-      <div className="flex-1"><Outlet /></div>
+      {/* Colonne, et pas seulement extensible : c'est ce conteneur qui doit
+          etre en flex pour que la page a l'interieur puisse s'etirer. Sans
+          cela le quadrillage s'arretait a la derniere ligne de texte. */}
+      <div className="flex flex-1 flex-col"><Outlet /></div>
 
       {/* La barre n'apparait qu'une fois une soiree choisie. */}
       {current && <TabBar eventId={eventId} />}

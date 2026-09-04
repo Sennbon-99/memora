@@ -21,6 +21,7 @@ import { Button } from '../../../ui/Button.js';
 import { Field } from '../../../ui/Field.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
+import { EmptyState } from '../../../ui/EmptyState.js';
 import { useEvent } from '../useEvents.js';
 import { formatCountdown, secondsLeft, useMomentActions, useMoments } from '../useMoments.js';
 
@@ -214,10 +215,10 @@ export function MomentsScreen() {
       ) : (
         <div className="pb-6">
           {moments.length === 0 ? (
-            <p className="mt-10 text-center text-sm leading-relaxed text-ink-3">
+            <EmptyState>
               Aucun moment préparé.<br />
               Préparez-les avant la soirée : le jour J, une touche suffira.
-            </p>
+            </EmptyState>
           ) : waiting.length > 0 ? (
             <>
               <h2 className="mt-8 px-1 font-mono text-etiquette uppercase tracking-[0.16em]

@@ -20,6 +20,7 @@ import { useEvent } from '../useEvents.js';
 import { useRolls } from '../useRolls.js';
 import { PublishSheet } from './PublishSheet.js';
 import { Photo } from '../../../ui/Photo.js';
+import { EmptyState } from '../../../ui/EmptyState.js';
 
 /**
  * Compte ce qui attend d'etre publie.
@@ -174,9 +175,9 @@ export function PhotosScreen() {
       </div>
 
       {shown.length === 0 ? (
-        <p className="mt-14 text-center text-sm text-ink-3">
+        <EmptyState>
           {filter === 'hidden' ? 'Aucune photographie masquée.' : 'Rien à montrer ici.'}
-        </p>
+        </EmptyState>
       ) : (
         <ul className="mt-4 grid grid-cols-3 gap-1 pb-6">
           {shown.map((photo, index) => (
