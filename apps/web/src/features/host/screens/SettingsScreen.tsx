@@ -22,8 +22,6 @@ import { Spinner } from '../../../ui/Spinner.js';
 import { Section } from '../../../ui/Section.js';
 import { useSession, useLogout } from '../useAuth.js';
 import { useEvent } from '../useEvents.js';
-import { CARNET_LABEL } from '../../../carnets/labels.js';
-import type { Carnet } from '@memora/types';
 import { useRolls } from '../useRolls.js';
 
 const PREVIEW_LABEL: Record<PreviewMode, string> = {
@@ -60,10 +58,10 @@ function Line({ label, value, mono, onClick, danger }: {
         text-note transition last:border-b-0 active:bg-appui disabled:active:bg-transparent
         ${danger ? 'text-danger' : ''}`}
     >
-      <span className="min-w-0 flex-1 truncate">{label}</span>
+      <span className="min-w-0 flex-1">{label}</span>
       {value && (
         <span
-          className={`shrink-0 text-petit ${mono
+          className={`max-w-[48%] text-right text-petit ${mono
             ? 'font-mono tabular-nums text-a1'
             : 'text-ink-3'}`}
         >
@@ -119,9 +117,8 @@ export function SettingsScreen() {
         />
         <Line label="Mot d’accueil" value={event.welcomeMessage ? 'Défini' : 'Aucun'} onClick={() => edit('welcome')} />
         <Line
-          label="Le carnet"
-          value={CARNET_LABEL[(event.carnet ?? 'papier') as Carnet]}
-          onClick={() => edit('carnet')}
+          label="Apparence"
+          value="Studio"
         />
       </Group>
 

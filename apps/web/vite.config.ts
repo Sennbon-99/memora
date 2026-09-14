@@ -23,8 +23,8 @@ export default defineConfig({
         // montre l'ecran de lancement d'une application installee depuis
         // le navigateur. La balise theme-color, elle, suit le carnet de la
         // soiree a l'execution ; ici c'est seulement le premier instant.
-        background_color: '#f5f2ea',
-        theme_color: '#f5f2ea',
+        background_color: '#f6f5f7',
+        theme_color: '#f6f5f7',
         // Ces trois adresses ne pointaient sur aucun fichier : le manifeste
         // annoncait des icones qui n'ont jamais existe, et le systeme
         // retombait sur une capture de la page a l'installation.

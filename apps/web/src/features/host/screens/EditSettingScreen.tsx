@@ -13,8 +13,6 @@ import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   PREVIEW_MODES, QUOTA_MAX, QUOTA_MIN, type PreviewMode,
-  CARNETS,
-  type Carnet,
 } from '@memora/types';
 import type { ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
@@ -24,7 +22,6 @@ import { Segmented } from '../../../ui/Segmented.js';
 import { Spinner } from '../../../ui/Spinner.js';
 import { toDateTimeInput } from '../../../lib/datetime.js';
 import { useEvent, useUpdateEvent } from '../useEvents.js';
-import { CARNET_LABEL, CARNET_NOTE } from '../../../carnets/labels.js';
 
 type Setting = 'quota' | 'preview' | 'closes' | 'tables' | 'welcome' | 'carnet';
 
@@ -46,7 +43,7 @@ const TITLES: Record<Setting, string> = {
   closes: 'Heure de fermeture',
   tables: 'Numéros de table',
   welcome: 'Mot d’accueil',
-  carnet: 'Le carnet de la soirée',
+  carnet: 'Apparence',
 };
 
 export function EditSettingScreen() {
@@ -187,53 +184,9 @@ export function EditSettingScreen() {
         )}
 
         {setting === 'carnet' && (
-          <div className="flex flex-col gap-3">
-            {/* Le carnet est fige pendant la soiree. Le changer a minuit ferait
-                changer d'application sous les doigts d'un invite en train de
-                photographier — c'est la regle deja appliquee a l'apercu. */}
-            {event.state === 'OPEN' && (
-              <p className="rounded-carte bg-pap-2 shadow-[var(--ombre-tirage)] p-3 text-note
-                leading-relaxed text-ink-2">
-                La soirée est en cours : le carnet ne change plus jusqu’à sa fermeture.
-                Vous pourrez le reprendre avant de publier l’album.
-              </p>
-            )}
-            {CARNETS.map((carnet) => {
-              const choisi = value('carnet', event.carnet ?? 'papier') === carnet;
-              return (
-                <button
-                  key={carnet}
-                  type="button"
-                  role="radio"
-                  aria-checked={choisi}
-                  disabled={event.state === 'OPEN'}
-                  onClick={() => set('carnet', carnet)}
-                  className={`flex items-stretch gap-3 rounded-carte border p-3 text-left transition
-                    disabled:opacity-40 ${choisi ? 'border-a1' : 'border-edge'}`}
-                >
-                  {/* L'apercu porte l'attribut du carnet : il se peint donc dans
-                      ses propres couleurs, sans une ligne de style en plus. */}
-                  <span
-                    data-carnet={carnet}
-                    aria-hidden="true"
-                    className="quadrille flex w-16 shrink-0 flex-col justify-between rounded-carte
-                      border border-edge bg-pap p-1.5"
-                  >
-                    <span className="block h-6 rounded-carte bg-tirage shadow-sm" />
-                    <span className="mt-1 flex gap-1">
-                      <span className="block h-2 w-2 rounded-full bg-a1" />
-                      <span className="block h-2 flex-1 rounded-full bg-ink-3" />
-                    </span>
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-lecture font-bold">{CARNET_LABEL[carnet]}</span>
-                    <span className="mt-1 block text-note leading-relaxed text-ink-2">
-                      {CARNET_NOTE[carnet]}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
+          <div className="studio-card">
+            <h2 className="text-lecture font-semibold">Studio</h2>
+            <p className="mt-2 text-note text-ink-3">L’apparence de votre soirée.</p>
           </div>
         )}
       </div>

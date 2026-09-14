@@ -1,11 +1,6 @@
-/* apps/web/src/styles.css
-   Jetons de style et reglages propres au telephone.
-
-   Ce fichier ne contient que des valeurs par defaut et des mecanismes. La
-   couleur, elle, appartient au carnet : chaque soiree en choisit un, et
-   toute l'interface suit sans qu'une seule regle de mise en page bouge.
-   Le carnet par defaut est celui de la marque — Papier — pose ici meme,
-   pour qu'une page rendue sans carnet soit deja juste. */
+/* Studio : jetons partagés et composants mobiles.
+   Les clés des carnets historiques restent compatibles avec l’API.
+   L’habillage actif est défini par lib/theme.ts. */
 
 @import 'tailwindcss';
 
@@ -15,9 +10,7 @@
    l'adresse de chaque invite vers un serveur qui n'a rien a en connaitre. */
 /* opsz et non l'entree par defaut : ce fichier porte l'axe de taille
    optique, celui qui redessine les lettres selon le corps de rendu. */
-@import '@fontsource/anton';
 @import '@fontsource-variable/dm-sans';
-@import '@fontsource-variable/jetbrains-mono';
 
 /* Les carnets. Trois fichiers de valeurs, embarques dans le bundle : deux
    kilo-octets chacun, et un invite hors reseau garde le sien. */
@@ -38,61 +31,61 @@
   ------------------------------------------------------------------ */
 
   /* Surfaces : la page, et ce qui se pose dessus. */
-  --color-pap: #f5f2ea;
+  --color-pap: #f6f5f7;
   --color-pap-2: #ffffff;
   /* Le bord d'un tirage. Blanc dans les trois carnets : une photographie
      tiree sur papier ne devient pas grise parce que la page est sombre. */
   --color-tirage: #ffffff;
   /* La legende ecrite sur un tirage. Le bord etant clair dans les trois
      carnets, son encre reste sombre meme quand celle de la page est creme. */
-  --color-ink-tirage: #3a3a34;
+  --color-ink-tirage: #514c58;
 
   /* Encres : trois niveaux, pas un de plus. Chacun se verifie au contraste. */
-  --color-ink: #1a1a18;
-  --color-ink-2: #4a4a42;
-  --color-ink-3: #69675e;
+  --color-ink: #232329;
+  --color-ink-2: #514c58;
+  --color-ink-3: #6e6676;
 
   /* Filets : celui qui se voit, celui qui se devine. */
-  --color-edge: #c9c5b6;
-  --color-edge-2: #e2dfd4;
+  --color-edge: #ddd7e2;
+  --color-edge-2: #eeeaf1;
 
   /* Accents. Trois au maximum, chacun avec la couleur de texte qui se pose
      dessus — calculee une fois ici plutot que devinee a chaque usage. */
-  --color-a1: #ff5c7a;
+  --color-a1: #b72e5b;
   --color-on-a1: #ffffff;
-  --color-a2: #2fa89c;
+  --color-a2: #23796f;
   --color-on-a2: #ffffff;
-  --color-a3: #f5c518;
-  --color-on-a3: #1a1a18;
+  --color-a3: #f4dce5;
+  --color-on-a3: #62243b;
 
   /* Signaux. Un carnet peut choisir SA nuance de rouge — un rouge brique
      sur un fond presque noir ne donne que 3,9:1 — mais il ne peut pas
      changer ce que la couleur veut dire. Le test verifie les deux : que la
      teinte reste rouge, et qu'elle tient le contraste sur la page. */
   --color-ok: #2e6b4f;
-  --color-warn: #b06b0f;
+  --color-warn: #895109;
   --color-danger: #c4362b;
   --color-on-danger: #ffffff;
 
   /* Le puits : ce qui est creuse dans la page plutot que pose dessus — la
      fenetre du compteur de poses, la barre d'onglets. */
-  --color-well: #22221f;
-  --color-ink-well: #f5f2ea;
+  --color-well: #25212a;
+  --color-ink-well: #faf6fc;
   /* L'encre en retrait dans le puits : un onglet qu'on n'a pas choisi. */
-  --color-ink-well-2: #9a988f;
+  --color-ink-well-2: #c6becb;
   /* L'accent du puits. Distinct de --color-a1 : l'accent qui porte une page
      claire ne porte pas forcement un fond presque noir. */
-  --color-a-well: #f5c518;
+  --color-a-well: #f5a4c0;
 
   /* Formes. Un carnet peut rendre l'interface anguleuse ou ronde sans
      qu'une seule classe change. */
-  --radius-carte: 2px;
-  --radius-champ: 2px;
+  --radius-carte: 26px;
+  --radius-champ: 17px;
   --radius-pilule: 999px;
 
   /* L'approche du titre suit la police : Anton demande a etre resserre,
      une grotesque non. */
-  --tracking-display: -0.01em;
+  --tracking-display: -0.035em;
 
   /* Le voile d'appui. Translucide, donc jamais porteur de texte : un
      modificateur d'opacite ici n'aurait servi qu'a figer sa valeur. */
@@ -107,8 +100,8 @@
   /* Trois roles, pas trois polices : un carnet peut poser la meme famille
      sur les trois. C'est ce que fait Bleu de bureau, ou une ecriture
      manuscrite dans une soiree d'entreprise n'aurait aucun sens. */
-  --font-display: Anton, Impact, 'Haettenschweiler', sans-serif;
-  --font-sans: 'DM Sans Variable', system-ui, -apple-system, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'DM Sans Variable', sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'DM Sans Variable', sans-serif;
 
   /* L'echelle typographique.
 
@@ -145,20 +138,18 @@
   --text-grand: 34px;
   /* le titre principal d'un ecran d'invite */
   --text-affiche: 42px;
-  /* le nom du produit, une seule fois */
-  --text-marque: 64px;
 
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-mono: -apple-system, BlinkMacSystemFont, 'DM Sans Variable', sans-serif;
 }
 
 :root {
   /* Matiere. Ces variables ne passent pas par @theme : elles ne servent
      jamais d'utilitaire Tailwind, seulement de valeur dans les regles
      ci-dessous. Un carnet les redefinit comme les autres. */
-  --grade: contrast(1.06) saturate(1.1) brightness(1.04);
-  --rule: rgb(90 120 190 / 0.16);
+  --grade: none;
+  --rule: transparent;
   --tape: rgb(255 247 214 / 0.68);
-  --ombre-tirage: 0 12px 26px -12px rgb(0 0 0 / 0.5), 0 1px 0 rgb(0 0 0 / 0.1);
+  --ombre-tirage: 0 4px 20px rgb(35 25 45 / 0.045);
 
   /* Les bandes perforees de la charte Nocturne. Elles ne sont pas
      supprimees : elles sont devenues un trait, que seul un carnet qui les
@@ -179,47 +170,47 @@
  * memorise un choix explicite.
  */
 [data-host-theme='light'] {
-  --color-pap: #f5f2ea;
+  --color-pap: #f6f5f7;
   --color-pap-2: #ffffff;
   --color-tirage: #ffffff;
-  --color-ink-tirage: #3a3a34;
-  --color-ink: #1a1a18;
-  --color-ink-2: #4a4a42;
-  --color-ink-3: #69675e;
-  --color-edge: #c2beaf;
-  --color-edge-2: #e2dfd4;
-  --color-a1: #d92f52;
+  --color-ink-tirage: #514c58;
+  --color-ink: #232329;
+  --color-ink-2: #514c58;
+  --color-ink-3: #6e6676;
+  --color-edge: #ddd7e2;
+  --color-edge-2: #eeeaf1;
+  --color-a1: #b72e5b;
   --color-on-a1: #ffffff;
-  --color-well: #22221f;
-  --color-ink-well: #f5f2ea;
-  --color-ink-well-2: #aaa79e;
-  --color-a-well: #f5c518;
+  --color-well: #25212a;
+  --color-ink-well: #faf6fc;
+  --color-ink-well-2: #c6becb;
+  --color-a-well: #f5a4c0;
   --color-a-doux: rgb(217 47 82 / 0.1);
   --color-appui: rgb(0 0 0 / 0.06);
   --color-ok: #226b4c;
-  --color-warn: #8a5300;
+  --color-warn: #895109;
   --color-danger: #b92f26;
   --color-danger-doux: rgb(185 47 38 / 0.12);
   --color-ok-doux: rgb(34 107 76 / 0.12);
-  --ombre-tirage: 0 12px 26px -12px rgb(0 0 0 / 0.5), 0 1px 0 rgb(0 0 0 / 0.1);
+  --ombre-tirage: 0 4px 20px rgb(35 25 45 / 0.045);
 }
 
 [data-host-theme='dark'] {
-  --color-pap: #15161a;
-  --color-pap-2: #222329;
+  --color-pap: #19171d;
+  --color-pap-2: #26222c;
   --color-tirage: #ffffff;
   --color-ink-tirage: #34343a;
-  --color-ink: #f7f5ee;
-  --color-ink-2: #d1cdc3;
-  --color-ink-3: #aaa69d;
-  --color-edge: rgb(255 255 255 / 0.25);
-  --color-edge-2: rgb(255 255 255 / 0.12);
-  --color-a1: #ff718c;
-  --color-on-a1: #1a1115;
-  --color-well: #090a0d;
-  --color-ink-well: #f7f5ee;
-  --color-ink-well-2: #b7b2a8;
-  --color-a-well: #ff8fa4;
+  --color-ink: #faf6fc;
+  --color-ink-2: #ddd4e2;
+  --color-ink-3: #bfb3c8;
+  --color-edge: #49414f;
+  --color-edge-2: #37303e;
+  --color-a1: #f5a4c0;
+  --color-on-a1: #351221;
+  --color-well: #151219;
+  --color-ink-well: #faf6fc;
+  --color-ink-well-2: #c6becb;
+  --color-a-well: #f5a4c0;
   --color-a-doux: rgb(255 113 140 / 0.14);
   --color-appui: rgb(255 255 255 / 0.09);
   --color-ok: #79d2a2;
@@ -227,8 +218,8 @@
   --color-danger: #ff8b7e;
   --color-danger-doux: rgb(255 139 126 / 0.14);
   --color-ok-doux: rgb(121 210 162 / 0.14);
-  --ombre-tirage: 0 18px 36px -14px rgb(0 0 0 / 0.92);
-  --rule: rgb(255 255 255 / 0.06);
+  --ombre-tirage: 0 4px 20px rgb(35 25 45 / 0.045);
+  --rule: transparent;
 }
 
 html, body, #root {
@@ -303,7 +294,8 @@ input, textarea {
   .decoupe {
     font-family: var(--font-display);
     letter-spacing: var(--tracking-display);
-    line-height: 0.92;
+    line-height: 1.12;
+    font-weight: 700;
   }
 
   /* Le quadrillage du carnet. Un carnet qui n'en veut pas met --rule a
@@ -324,9 +316,10 @@ input, textarea {
      beige n'en ferait plus un tirage mais un cadre. */
   .tirage {
     background: var(--color-tirage);
-    padding: 8px;
+    padding: 0;
+    border-radius: 18px;
+    overflow: hidden;
     box-shadow: var(--ombre-tirage);
-    transform: rotate(var(--pose-angle, 0deg));
   }
 
   /* Le meme papier, mais qui ne porte que du texte.
@@ -355,7 +348,7 @@ input, textarea {
     color: var(--color-ink-tirage);
     border: 1px solid var(--color-edge);
     box-shadow: var(--ombre-tirage);
-    transform: rotate(var(--pose-angle, 0deg));
+    transform: none;
   }
 
   /* Le ruban adhesif. Decoratif : il ne porte aucune information. */
@@ -502,3 +495,109 @@ input, textarea {
   .obturateur .basse { transform: translateY(100%); }
   .obturateur .eclair { animation-duration: 200ms; }
 }
+
+/* Studio : composants de présentation, alimentés par les mêmes jetons que
+   les écrans. Les futurs thèmes pourront les réutiliser sans changer les parcours. */
+@layer components {
+  .studio-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+  .studio-card { padding: 22px; border-radius: var(--radius-carte); background: var(--color-pap-2); box-shadow: var(--ombre-tirage); }
+  .studio-cover {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: var(--radius-carte);
+    background: linear-gradient(125deg, #7b465c, #49374d);
+    color: #ffffff;
+    padding: 24px;
+  }
+  .studio-cover::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    width: 180px;
+    height: 240px;
+    right: -30px;
+    top: 12px;
+    border: 1px solid rgb(255 255 255 / .24);
+    border-radius: 110px 110px 0 0;
+    transform: rotate(25deg);
+    box-shadow: 0 0 0 24px rgb(255 255 255 / .035), 0 0 0 48px rgb(255 255 255 / .03);
+  }
+  .studio-welcome-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 190px;
+    overflow: hidden;
+    border-radius: 30px;
+    background: var(--color-a-doux);
+  }
+  .studio-print {
+    display: block;
+    width: 125px;
+    height: 145px;
+    padding: 8px 8px 23px;
+    border-radius: 10px;
+    background: var(--color-pap-2);
+    box-shadow: 0 10px 24px rgb(49 27 44 / .14);
+    transform: rotate(-12deg) translateX(10px);
+  }
+  .studio-print > span {
+    display: grid;
+    height: 100%;
+    place-items: center;
+    border-radius: 5px;
+    color: #fff;
+    background: linear-gradient(135deg, #c592a2, #75465b);
+  }
+  .studio-print + .studio-print { transform: rotate(12deg) translateX(-10px); }
+  .studio-print + .studio-print > span { background: linear-gradient(135deg, #9cae99, #536b66); }
+}
+
+.studio-screen { background: var(--color-pap); }
+.studio-screen h1, .studio-screen h2, .studio-screen p { overflow-wrap: anywhere; }
+.studio-footer { padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); }
+[data-host-theme] .studio-screen { padding-top: 0; padding-bottom: 0; }
+[data-host-theme] .studio-footer { padding-bottom: 16px; }
+.studio-host-header { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+.studio-tabbar { padding-bottom: max(8px, env(safe-area-inset-bottom, 0px)); }
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+button, a { touch-action: manipulation; }
+textarea, select { font-size: max(16px, 1em); }
+:focus-visible { outline: 2px solid var(--color-a1); outline-offset: 3px; }
+/* Les légendes de l'ancien carnet deviennent des libellés lisibles. */
+.studio-screen .text-etiquette, .studio-screen .text-micro { font-size: 12px; }
+.studio-screen .font-mono.uppercase { font-family: var(--font-sans); letter-spacing: .06em; }
+.studio-screen .ruban { display: none; }
+
+/* Le viseur garde ses propres encres : aucun texte sombre au-dessus du flux. */
+.studio-camera {
+  --color-ink: #faf6fc;
+  --color-ink-2: #eee7f2;
+  --color-ink-3: #d0c4d8;
+  --color-pap: #19171d;
+  --color-pap-2: #26222c;
+  --color-edge: #645a6d;
+  --color-a1: #f5a4c0;
+  --color-on-a1: #351221;
+  --color-danger: #ffb2aa;
+  --color-danger-doux: #48262c;
+  --color-a-doux: #352632;
+}
+.studio-camera > header { padding-top: calc(16px + env(safe-area-inset-top, 0px)); flex-wrap: wrap; }
+.studio-camera > footer { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+.studio-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  width: min(100% - 24px, 424px);
+  max-height: calc(100dvh - 32px);
+  margin: 12px auto;
+  overflow-y: auto;
+  border: 1px solid var(--color-edge-2);
+  border-radius: 28px;
+  padding: 24px 24px max(24px, env(safe-area-inset-bottom, 0px));
+  background: var(--color-pap-2);
+  color: var(--color-ink);
+  box-shadow: 0 20px 60px rgb(0 0 0 / .2);
+}
+.studio-sheet::backdrop { background: rgb(20 15 26 / .45); backdrop-filter: blur(4px); }

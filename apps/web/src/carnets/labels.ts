@@ -8,7 +8,7 @@
 import type { Carnet } from '@memora/types';
 
 export const CARNET_LABEL: Record<Carnet, string> = {
-  papier: 'Papier',
+  papier: 'Studio',
   'carnet-noir': 'Carnet noir',
   bleu: 'Bleu de bureau',
 };
@@ -16,7 +16,7 @@ export const CARNET_LABEL: Record<Carnet, string> = {
 /** Ce que chaque carnet promet, en une phrase, au moment du choix. */
 export const CARNET_NOTE: Record<Carnet, string> = {
   papier:
-    "Creme et quadrille, comme un carnet d'ecolier. Celui de Memora, et celui qui va a tout.",
+    "Des cartes douces, un accent framboise et vos souvenirs au premier plan.",
   'carnet-noir':
     'Pages noires, tirages a bord blanc. De loin le meilleur pour montrer des photographies.',
   bleu:

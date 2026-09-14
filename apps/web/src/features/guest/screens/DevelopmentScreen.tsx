@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { Icon } from '../../../ui/Icon.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { fetchPushConfig, pushState, subscribeToPush, type PushState } from '../../../lib/push.js';
@@ -53,7 +54,7 @@ export function DevelopmentScreen({ queued, albumReady, onSeeAlbum }: {
 
   return (
     <Screen
-      title="Au développement"
+      title="Les souvenirs se préparent"
       subtitle="L’organisateur trie les photographies de la soirée. Cela prend souvent un jour ou deux."
       code={{
         hautGauche: 'MEMORA 400',
@@ -72,18 +73,10 @@ export function DevelopmentScreen({ queued, albumReady, onSeeAlbum }: {
           proposition le bas : la hauteur est occupee de bout en bout. */}
       <div className="flex flex-1 flex-col justify-between gap-8 pb-6 pt-8">
         <div className="flex flex-col items-center gap-4">
-          {/* Une bobine qui tourne : elle dit que quelque chose est en cours,
-              sans promettre une duree qu'on ne connait pas. */}
-          <span
-            aria-hidden="true"
-            className="relative h-24 w-24 rounded-full border-2 border-edge
-              after:absolute after:-inset-0.5 after:rounded-full after:border-2
-              after:border-transparent after:border-t-a1
-              after:animate-[spin_2.4s_linear_infinite] motion-reduce:after:animate-none"
-          />
-          <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
-            Bain de révélateur
-          </p>
+          <span className="grid size-28 place-items-center rounded-carte bg-a-doux text-a1" aria-hidden="true">
+            <Icon nom="planche" taille={48} />
+          </span>
+          <p className="text-note font-medium text-ink-3">Encore un peu de patience</p>
         </div>
 
         <div className="rounded-carte border border-edge bg-pap-2 shadow-[var(--ombre-tirage)] p-5">

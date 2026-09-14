@@ -91,7 +91,7 @@ export function ReviewScreen() {
   const who = data.roll.firstName ?? 'Anonyme';
 
   return (
-    <div className="quadrille flex min-h-full flex-col safe-top">
+    <div className="studio-screen mx-auto max-w-md flex min-h-full flex-col safe-top">
       <div className="bande bande-gauche" aria-hidden="true">
         <span>MEMORA 400</span>
         <span>{photos.length} VUES</span>
@@ -142,7 +142,7 @@ export function ReviewScreen() {
         ))}
       </ul>
 
-      <footer className="sticky bottom-0 z-20 mt-3 flex gap-2 border-t border-edge
+      <footer className="studio-footer sticky bottom-0 z-20 mt-3 flex gap-2 border-t border-edge
         bg-pap px-5 py-3 backdrop-blur safe-bottom">
         <Button
           tone="ghost"
