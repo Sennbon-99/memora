@@ -148,7 +148,7 @@ export function ViewfinderScreen({
   // famille `ink-well` : sinon le carnet Papier y peint son encre #1a1a18,
   // soit 1,20:1 de contraste — invisible.
   return (
-    <div className="pleine-largeur relative flex h-full flex-col bg-black">
+    <div className="studio-camera pleine-largeur relative flex h-full flex-col bg-black">
       <video
         ref={videoRef}
         playsInline
@@ -207,7 +207,7 @@ export function ViewfinderScreen({
             type="button"
             onClick={() => setPartage(true)}
             aria-label="Montrer le code à quelqu’un"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-black/50
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-black/50
               text-ink-well backdrop-blur active:bg-black/70"
           >
             {/* Un carre de visee, pas un faux QR code : l'icone dit le geste
@@ -237,7 +237,7 @@ export function ViewfinderScreen({
           {/* Blanc pur, et pas un jeton : c'est la zone de silence du
                   code. Un appareil photo a besoin de ce contraste-la quel que
                   soit le carnet — meme raison qu'au sommet de QrCode.tsx. */}
-              <div className="bg-white p-3 shadow-2xl">
+              <div className="rounded-carte bg-white p-5 shadow-2xl">
             <QrCode
               value={`${publicAppOrigin()}/e/${slug}`}
               size={216}

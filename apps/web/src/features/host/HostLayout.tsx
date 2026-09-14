@@ -72,7 +72,7 @@ export function HostLayout() {
 
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]');
-    meta?.setAttribute('content', theme === 'dark' ? '#151412' : '#f5f0e8');
+    meta?.setAttribute('content', theme === 'dark' ? '#19171d' : '#f6f5f7');
   }, [theme]);
 
   const toggleTheme = () => {
@@ -84,21 +84,21 @@ export function HostLayout() {
 
   return (
     <div data-host-theme={theme} className="flex min-h-full flex-col bg-pap text-ink">
-      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-edge
-        bg-pap px-4 pb-3 pt-3 backdrop-blur safe-top">
+      <header className="studio-host-header sticky top-0 z-30 mx-auto flex w-full max-w-md items-center gap-3
+        bg-pap px-6 pb-3 pt-3 safe-top">
         <button
           onClick={() => navigate('/hote')}
-          className="text-lecture font-extrabold tracking-tight"
+          className="shrink-0 text-sous-titre font-bold tracking-tight"
         >
           memora<span className="text-a1">.</span>
         </button>
 
         {current && (
-          <div className="relative ml-auto">
+          <div className="relative ml-auto min-w-0 flex-1">
             <button
               onClick={() => setOpen((was) => !was)}
               aria-expanded={open}
-              className="max-w-40 truncate rounded-full border border-edge px-3 py-1.5
+              className="max-w-full min-h-11 truncate rounded-full bg-pap-2 px-3 py-2
                 text-xs text-ink-2"
             >
               {current.event.name} ▾
@@ -136,7 +136,7 @@ export function HostLayout() {
           onClick={toggleTheme}
           aria-label={theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'}
           title={theme === 'light' ? 'Mode sombre' : 'Mode clair'}
-          className={`${current ? '' : 'ml-auto'} grid h-9 w-9 shrink-0 place-items-center
+          className={`${current ? '' : 'ml-auto'} grid h-11 w-11 shrink-0 place-items-center
             rounded-full border border-edge bg-pap-2 text-base text-ink
             active:bg-appui`}
         >

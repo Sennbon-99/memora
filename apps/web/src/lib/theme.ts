@@ -1,11 +1,6 @@
 // apps/web/src/lib/theme.ts
-// Application du carnet choisi par l'hote.
-//
-// Un seul point d'injection, comme avant : on pose un attribut sur l'element
-// racine, et la feuille de style fait le reste. La difference avec la version
-// precedente est ce qui voyage — non plus une couleur d'accent, mais le nom
-// d'un carnet, qui porte a lui seul les surfaces, les encres, les filets, les
-// formes et l'etalonnage des photographies.
+// Application de Studio. Les clés des carnets historiques sont conservées
+// côté API pour permettre le retour des thèmes sans migration des événements.
 
 import { CARNETS, CARNET_MARQUE, type Carnet } from '@memora/types';
 
@@ -43,15 +38,12 @@ export function estUnCarnet(valeur: string | null | undefined): valeur is Carnet
   return typeof valeur === 'string' && (CARNETS as readonly string[]).includes(valeur);
 }
 
-/**
- * Pose le carnet sur l'element racine.
- *
- * Un nom inconnu retombe sur le carnet de la marque plutot que de laisser la
- * page sans habillage : une soiree creee par une version plus recente du
- * serveur doit rester lisible sur un telephone qui n'a pas encore recharge.
- */
+/** Studio est le thème actif de cette version, pour toutes les soirées. */
 export function applyCarnet(carnet: string | null | undefined): Carnet {
-  const choisi = estUnCarnet(carnet) ? carnet : CARNET_MARQUE;
+  // Les valeurs historiques restent en base ; Studio est le seul habillage
+  // exposé dans cette version, avant le retour du choix de thèmes.
+  void carnet;
+  const choisi = CARNET_MARQUE;
   const root = document.documentElement;
   root.dataset.carnet = choisi;
 

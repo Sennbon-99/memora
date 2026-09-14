@@ -124,7 +124,7 @@ export function AlbumScreen({ slug, firstName }: { slug: string; firstName: stri
         <>
           <div className="mt-8 flex items-baseline justify-between border-b border-edge pb-3">
             <p className="font-mono text-mini uppercase tracking-[0.24em] text-a1">
-              Planche contact
+              Les souvenirs
             </p>
             <p className="font-mono text-petit tabular-nums text-ink-3">
               <span className="text-a1">{photos.length}</span>{' '}
@@ -154,7 +154,7 @@ export function AlbumScreen({ slug, firstName }: { slug: string; firstName: stri
             </p>
           )}
 
-          <ul className="mt-4 grid grid-cols-2 gap-2 pb-10">
+          <ul className="mt-4 grid grid-cols-2 gap-3 pb-10">
             {photos.map((photo, index) => (
               <li
                 key={photo.id}
@@ -188,7 +188,7 @@ export function AlbumScreen({ slug, firstName }: { slug: string; firstName: stri
                   <button
                     onClick={() => setAsking(photo.id)}
                     aria-label="Demander le retrait de cette photographie"
-                    className="absolute right-1.5 top-1.5 grid h-8 w-8 place-items-center
+                    className="absolute right-1.5 top-1.5 grid h-11 w-11 place-items-center
                       rounded-full bg-pap text-sm text-ink backdrop-blur"
                   >
                     ⋯

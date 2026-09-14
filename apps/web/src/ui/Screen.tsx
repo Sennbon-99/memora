@@ -105,7 +105,7 @@ export function Screen({
     // minimale, donc un pourcentage ne se resout contre rien et le quadrillage
     // s'arretait a la derniere ligne de texte. S'etirer dans la colonne du
     // parent ne depend, lui, d'aucune hauteur definie.
-    <div className="quadrille flex min-h-full flex-1 flex-col safe-top safe-bottom">
+    <div className="studio-screen flex min-h-full flex-1 flex-col safe-top safe-bottom">
       <Bande cote="gauche" haut={code?.hautGauche ?? 'MEMORA 400'} bas={code?.basGauche} />
       <Bande cote="droite" haut={code?.hautDroite} bas={code?.basDroite} />
 
@@ -125,12 +125,12 @@ export function Screen({
         </div>
       )}
 
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pt-10">
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pt-7 pb-7">
         <h1
           className={
             hideTitle
               ? 'sr-only'
-              : 'decoupe text-affiche leading-[0.95] tracking-tight text-balance'
+              : 'decoupe text-grand leading-tight tracking-tight text-balance break-words'
           }
         >
           {title}
@@ -151,8 +151,8 @@ export function Screen({
           la verrait. */}
       {footer && (
         <div
-          className="sticky z-20 border-t border-edge bg-pap
-            px-5 pb-6 pt-3"
+          className="studio-footer sticky z-20 bg-pap
+            px-6 pb-5 pt-3"
           style={{ bottom: 'var(--tabbar, 0px)' }}
         >
           <div className="mx-auto w-full max-w-md">{footer}</div>

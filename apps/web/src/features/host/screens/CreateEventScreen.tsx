@@ -12,11 +12,11 @@
 // structurel. La couleur de la soiree n'apparait que dans les pastilles a
 // choisir, parce que c'est la son seul role : identifier une soiree.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  CARNETS, CARNET_PAR_TYPE, EVENT_TYPES, PHOTO_SHAPES, PREVIEW_MODES, QUOTA_DEFAULT, QUOTA_MAX, QUOTA_MIN,
-  type Carnet, type CreateEventInput, type EventType, type PhotoShape, type PreviewMode,
+  CARNET_MARQUE, EVENT_TYPES, PHOTO_SHAPES, PREVIEW_MODES, QUOTA_DEFAULT, QUOTA_MAX, QUOTA_MIN,
+  type CreateEventInput, type EventType, type PhotoShape, type PreviewMode,
 } from '@memora/types';
 import { ApiError } from '../../../lib/api.js';
 import { Button } from '../../../ui/Button.js';
@@ -25,7 +25,7 @@ import { Screen } from '../../../ui/Screen.js';
 import { Segmented } from '../../../ui/Segmented.js';
 import { defaultClosing, toDateInput, toDateTimeInput } from '../../../lib/datetime.js';
 import { useCreateEvent } from '../useEvents.js';
-import { CARNET_LABEL, CARNET_NOTE } from '../../../carnets/labels.js';
+
 
 /** Ce que le nombre de vues veut dire, plutot que le nombre seul. */
 function quotaMeaning(shots: number): string {
@@ -76,6 +76,7 @@ export function CreateEventScreen() {
   const dates = defaultDates();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [step]);
   const [name, setName] = useState('');
   const [type, setType] = useState<EventType>('MARIAGE');
   const [eventDate, setEventDate] = useState(dates.eventDate);
@@ -83,7 +84,7 @@ export function CreateEventScreen() {
   const [quotaShots, setQuotaShots] = useState(QUOTA_DEFAULT);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('BLURRED');
   const [photoShape, setPhotoShape] = useState<PhotoShape>('SQUARE');
-  const [carnet, setCarnet] = useState<Carnet>(CARNET_PAR_TYPE.MARIAGE);
+  const carnet = CARNET_MARQUE;
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [useTableCodes, setUseTableCodes] = useState(true);
 
@@ -110,7 +111,7 @@ export function CreateEventScreen() {
 
   return (
     <Screen
-      title={{ 1: "L'essentiel", 2: 'La pellicule', 3: "L'allure" }[step]}
+      title={{ 1: "L'essentiel", 2: 'La pellicule', 3: "L’accueil" }[step]}
       code={{
         hautGauche: 'MEMORA 400',
         basGauche: `${quotaShots} VUES`,
@@ -120,7 +121,7 @@ export function CreateEventScreen() {
       subtitle={{
         1: 'Ce que vos invités verront en scannant.',
         2: 'Combien de photographies chacun peut prendre, et ce qu’il voit après.',
-        3: 'Choisissez le carnet que vos invités verront pendant la soirée.',
+        3: 'Personnalisez le petit mot qui accueillera vos invités.',
       }[step]}
       footer={
         <div className="flex flex-col gap-3">
@@ -175,7 +176,6 @@ export function CreateEventScreen() {
               value={type}
               onChange={(next) => {
                 setType(next);
-                setCarnet(CARNET_PAR_TYPE[next]);
               }}
               options={EVENT_TYPES.map((value) => ({ value, label: TYPE_LABEL[value] }))}
             />
@@ -249,40 +249,11 @@ export function CreateEventScreen() {
 
         {step === 3 && (
           <>
-            <fieldset>
-              <legend className="text-sm font-semibold text-ink-2">Le carnet</legend>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {CARNETS.map((value) => {
-                  const selected = carnet === value;
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setCarnet(value)}
-                      aria-pressed={selected}
-                      className={`overflow-hidden rounded-carte border text-left transition
-                        ${selected ? 'border-a1 ring-1 ring-a1' : 'border-edge'}`}
-                    >
-                      <span
-                        data-carnet={value}
-                        className="block h-16 bg-pap p-2 text-ink"
-                      >
-                        <span className="block h-2 w-8 bg-a1" />
-                        <span className="mt-2 block font-mono text-etiquette uppercase tracking-wider">
-                          MEMORA
-                        </span>
-                      </span>
-                      <span className="block bg-pap-2 px-2 py-2 text-mini font-bold text-ink">
-                        {CARNET_LABEL[value]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-2.5 text-xs leading-relaxed text-ink-3">
-                {CARNET_NOTE[carnet]}
-              </p>
-            </fieldset>
+            <div className="studio-card bg-a-doux">
+              <p className="text-mini font-semibold text-a1">MEMORA STUDIO</p>
+              <h2 className="mt-2 text-sous-titre font-semibold tracking-tight">Votre soirée, tous leurs regards.</h2>
+              <p className="mt-2 text-note text-ink-2">Une pellicule personnelle pour chacun, des souvenirs à partager.</p>
+            </div>
 
             <Field
               label="Mot d’accueil"

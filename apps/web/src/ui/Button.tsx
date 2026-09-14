@@ -27,8 +27,8 @@ const TONES: Record<Tone, string> = {
 export function Button({ tone = 'primary', full, className = '', ...props }: ButtonProps) {
   return (
     <button
-      // 48 pixels de haut : la cible tactile minimale recommandee par le RGAA.
-      className={`min-h-12 rounded-champ px-6 text-base font-semibold transition
+      // Studio : une cible confortable de 52 px, sans contraindre le texte.
+      className={`studio-button min-h-13 rounded-champ px-5 py-3 text-base font-semibold transition active:scale-[.98] motion-reduce:transform-none
         disabled:opacity-40 disabled:pointer-events-none
         focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-a1
         ${TONES[tone]} ${full ? 'w-full' : ''} ${className}`}

@@ -2,6 +2,7 @@
 // Liste des soirees. Premier ecran apres la connexion.
 
 import { useNavigate } from 'react-router-dom';
+import { Icon } from '../../../ui/Icon.js';
 import { Button } from '../../../ui/Button.js';
 import { Screen } from '../../../ui/Screen.js';
 import { Spinner } from '../../../ui/Spinner.js';
@@ -41,11 +42,11 @@ export function EventListScreen() {
 
   return (
     <Screen
-      title="Vos soirées"
-      subtitle="Une pellicule par soirée. Chacune a son QR code et ses vues."
+      title="Mes soirées"
+      subtitle="Les petits moments. Tous ensemble."
       footer={
         <Button full onClick={() => navigate('/hote/nouvelle')}>
-          Créer une soirée
+          <Icon nom="plus" /> Créer une soirée
         </Button>
       }
     >
@@ -65,33 +66,20 @@ export function EventListScreen() {
                   className="w-full overflow-hidden rounded-carte bg-pap-2 text-left
                     shadow-[var(--ombre-tirage)] transition active:bg-appui"
                 >
-                  <div className="px-4 py-3.5">
-                    {/* La teinte choisie par l'hote sert de reperage entre
-                        plusieurs soirees. Elle etait posee en bande de six
-                        pixels en haut de la carte : une bande aussi fine ne
-                        peut pas epouser un rayon de vingt-quatre, et se
-                        detachait en pastille flottante au-dessus du cadre. */}
-                    <p className="flex items-center gap-2 text-lecture font-extrabold tracking-tight">
-                      <span
-                        aria-hidden="true"
-                        className="size-2.5 shrink-0 rounded-full"
-                        style={{ background: event.color }}
-                      />
-                      {event.name}
+                  <div className="studio-cover flex min-h-48 flex-col justify-between gap-6">
+                    <span className="self-start rounded-full bg-white px-3 py-1.5 text-petit font-semibold text-[#49374d]">
+                      {badge.text}
+                    </span>
+                    <div>
+                      <p className="text-titre font-semibold leading-tight tracking-tight">{event.name}</p>
+                      <p className="mt-2 text-note">{dateFr(event.eventDate)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 px-5 py-4">
+                    <p className="text-note text-ink-2">
+                      {event._count ? `${event._count.rolls} invités · ${event._count.photos} photos` : 'Préparer votre soirée'}
                     </p>
-                    <p className="mt-1.5 flex items-center gap-2 text-xs text-ink-3">
-                      {dateFr(event.eventDate)}
-                      <span className={`rounded-full px-2 py-0.5 font-bold ${badge.tone}`}>
-                        {badge.text}
-                      </span>
-                    </p>
-                    {event._count && (
-                      <p className="mt-1 text-xs text-ink-3">
-                        {event._count.rolls} invité{event._count.rolls > 1 ? 's' : ''}
-                        {' · '}
-                        {event._count.photos} vue{event._count.photos > 1 ? 's' : ''}
-                      </p>
-                    )}
+                    <Icon nom="chevron" className="text-a1" />
                   </div>
                 </button>
               </li>

@@ -22,9 +22,9 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
       <input
         ref={ref}
         aria-invalid={error ? true : undefined}
-        className={`h-12 rounded-champ bg-pap-2 px-4 text-base text-ink
+        className={`min-h-13 min-w-0 w-full rounded-champ bg-pap-2 px-4 text-base text-ink
           border border-edge placeholder:text-ink-3
-          focus:outline-none focus:border-a1
+          focus:outline-2 focus:outline-offset-2 focus:outline-a1 focus:border-a1
           aria-[invalid=true]:border-danger ${className}`}
         {...props}
       />

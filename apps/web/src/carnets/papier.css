@@ -1,54 +1,54 @@
 /* apps/web/src/carnets/papier.css
-   Le carnet de la marque, et l'etat vide du produit : papier creme,
-   quadrillage d'ecolier, quatre couleurs d'autocollants.
+   Studio, apparence de la marque. La clé papier est conservée pour
+   rester compatible avec les événements existants.
 
    Il repete les valeurs par defaut de styles.css au lieu de s'y fier :
    sans cette repetition, revenir a Papier depuis un autre carnet ne
    remettrait rien en place. */
 
 [data-carnet='papier'] {
-  --color-pap: #f5f2ea;
+  --color-pap: #f6f5f7;
   --color-pap-2: #ffffff;
   --color-tirage: #ffffff;
-  --color-ink-tirage: #3a3a34;
+  --color-ink-tirage: #514c58;
 
-  --color-ink: #1a1a18;
-  --color-ink-2: #4a4a42;
-  --color-ink-3: #69675e;
+  --color-ink: #232329;
+  --color-ink-2: #514c58;
+  --color-ink-3: #6e6676;
 
-  --color-edge: #c2beaf;
-  --color-edge-2: #e2dfd4;
+  --color-edge: #ddd7e2;
+  --color-edge-2: #eeeaf1;
 
-  --color-a1: #d92f52;
+  --color-a1: #b72e5b;
   --color-on-a1: #ffffff;
   --color-a2: #23796f;
   --color-on-a2: #ffffff;
-  --color-a3: #f5c518;
-  --color-on-a3: #1a1a18;
+  --color-a3: #f4dce5;
+  --color-on-a3: #62243b;
 
-  --color-well: #22221f;
-  --color-ink-well: #f5f2ea;
-  --color-ink-well-2: #9a988f;
-  --color-a-well: #f5c518;
+  --color-well: #25212a;
+  --color-ink-well: #faf6fc;
+  --color-ink-well-2: #c6becb;
+  --color-a-well: #f5a4c0;
   --color-a-doux: rgb(217 47 82 / 0.1);
 
   --color-ok: #226b4c;
-  --color-warn: #8a5300;
+  --color-warn: #895109;
   --color-danger: #c4362b;
   --color-on-danger: #ffffff;
   --color-danger-doux: rgb(196 54 43 / 0.12);
   --color-ok-doux: rgb(34 107 76 / 0.12);
   --color-appui: rgb(0 0 0 / 0.06);
 
-  --radius-carte: 2px;
-  --radius-champ: 2px;
+  --radius-carte: 26px;
+  --radius-champ: 17px;
 
-  --grade: contrast(1.06) saturate(1.1) brightness(1.04);
-  --rule: rgb(90 120 190 / 0.16);
+  --grade: none;
+  --rule: transparent;
   --tape: rgb(255 247 214 / 0.68);
-  --ombre-tirage: 0 12px 26px -12px rgb(0 0 0 / 0.5), 0 1px 0 rgb(0 0 0 / 0.1);
+  --ombre-tirage: 0 4px 20px rgb(35 25 45 / 0.045);
 
-  --font-display: Anton, Impact, sans-serif;
-  --font-sans: 'DM Sans Variable', system-ui, sans-serif;
-  --tracking-display: -0.01em;
+  --font-display: -apple-system, BlinkMacSystemFont, 'DM Sans Variable', sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'DM Sans Variable', sans-serif;
+  --tracking-display: -0.035em;
 }

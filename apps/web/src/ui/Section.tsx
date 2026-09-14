@@ -26,11 +26,11 @@ interface SectionProps {
 export function Section({ title, intro, children, flush, className = '' }: SectionProps) {
   return (
     <section
-      className={`mt-6 overflow-hidden rounded-carte border border-edge bg-pap-2
+      className={`mt-6 overflow-hidden rounded-carte bg-pap-2
         shadow-[var(--ombre-tirage)] ${className}`}
     >
       <div className={flush ? 'px-5 pt-5' : 'p-5'}>
-        <h2 className="font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
+        <h2 className="text-lecture font-semibold tracking-tight text-ink">
           {title}
         </h2>
         {intro && <p className="mt-2 text-note leading-relaxed text-ink-2">{intro}</p>}

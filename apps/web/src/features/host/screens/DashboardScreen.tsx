@@ -10,8 +10,9 @@
 // separees par un filet. Le releve par table est une liste. Quand tout est
 // une carte grise arrondie, plus rien n'a de rang.
 
-import { useEffect } from 'react';
-import type { CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
+import { ConfirmSheet } from '../../../ui/ConfirmSheet.js';
+import { Icon, type NomIcone } from '../../../ui/Icon.js';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ApiError } from '../../../lib/api.js';
@@ -66,9 +67,9 @@ function Stat({ label, value, unit, note, edge = '' }: {
   edge?: string;
 }) {
   return (
-    <div className={`px-3.5 py-3 ${edge}`}>
-      <p className="font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">{label}</p>
-      <p className="mt-1.5 font-mono text-titre leading-none font-medium tabular-nums text-a1">
+    <div className={`px-5 py-4 ${edge}`}>
+      <p className="text-note font-medium text-ink-3">{label}</p>
+      <p className="mt-1.5 text-grand leading-none font-semibold tabular-nums text-ink">
         {value}
         {unit && <span className="ml-0.5 align-baseline text-base text-ink-3">{unit}</span>}
       </p>
@@ -77,32 +78,18 @@ function Stat({ label, value, unit, note, edge = '' }: {
   );
 }
 
-/** Une action : ce qu'elle fait, la precision qui la situe, et la fleche. */
-/**
- * Une action du tableau de bord, posee comme un tirage.
- *
- * L'angle vient de l'appelant : quatre valeurs qui alternent, assez faibles
- * pour qu'aucune carte ne soit alignee sur sa voisine sans que la pile parte
- * en travers. La rotation ne deplace pas la zone tactile, elle la fait
- * pivoter — a moins d'un demi-degre sur une hauteur de cinquante pixels, le
- * decalage aux extremites reste sous le pixel.
- */
-function Action({ title, note, onClick, pose }: {
-  title: string; note: string; onClick: () => void; pose: string;
+/** Une action Studio : un pictogramme, un titre et sa conséquence. */
+function Action({ title, note, onClick, icon }: {
+  title: string; note: string; onClick: () => void; icon: NomIcone;
 }) {
   return (
-    <button
-      onClick={onClick}
-      style={{ '--pose-angle': pose } as CSSProperties}
-      className="flex w-full items-center gap-3 rounded-carte bg-pap-2 px-3.5 py-3.5
-        text-left shadow-[var(--ombre-tirage)] transition
-        [transform:rotate(var(--pose-angle,0deg))] active:bg-appui"
-    >
+    <button onClick={onClick} className="flex w-full items-center gap-4 rounded-carte bg-pap-2 p-5 text-left shadow-[var(--ombre-tirage)] transition active:bg-appui">
+      <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-a-doux text-a1"><Icon nom={icon} /></span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-note font-bold">{title}</span>
-        <span className="block truncate text-mini text-ink-3">{note}</span>
+        <span className="block text-lecture font-semibold">{title}</span>
+        <span className="mt-1 block text-note text-ink-3">{note}</span>
       </span>
-      <span aria-hidden="true" className="shrink-0 text-sm text-a1">→</span>
+      <Icon nom="chevron" taille={16} className="text-ink-3" />
     </button>
   );
 }
@@ -110,6 +97,7 @@ function Action({ title, note, onClick, pose }: {
 export function DashboardScreen() {
   const { eventId = '' } = useParams();
   const navigate = useNavigate();
+  const [confirmClose, setConfirmClose] = useState(false);
   const client = useQueryClient();
 
   const { data: eventData, isPending } = useEvent(eventId);
@@ -153,14 +141,10 @@ export function DashboardScreen() {
             <p className="rounded-carte bg-pap-2 px-4 py-3 text-center text-note text-ink-2">
               L’organisateur ouvrira la pellicule quand la soirée commencera.
             </p>
-          ) : live && event.role === 'OWNER' ? (
-            <Button tone="ghost" full disabled={close.isPending} onClick={() => close.mutate()}>
-              {close.isPending ? 'Fermeture…' : 'Fermer la pellicule maintenant'}
-            </Button>
           ) : live ? (
-            <p className="rounded-carte bg-pap-2 px-4 py-3 text-center text-note text-ink-2">
-              La pellicule est ouverte. Seul l’organisateur peut la fermer.
-            </p>
+            <Button full onClick={() => navigate(`/hote/${eventId}/kit`)}>
+              <Icon nom="qr" /> Inviter mes proches
+            </Button>
           ) : (
             <Button full onClick={() => navigate(`/hote/${eventId}/invites`)}>
               Trier les photographies
@@ -175,7 +159,7 @@ export function DashboardScreen() {
         </div>
       }
     >
-      <p className="mt-3 flex items-center gap-2 text-xs text-ink-2">
+      <p className="studio-cover mt-5 flex min-h-24 items-center gap-3 text-note">
         {live && (
           // Une bague de lumiere, pas une ombre portee : sur un fond sombre,
           // seule la clarte se voit.
@@ -202,18 +186,18 @@ export function DashboardScreen() {
         <Stat label="Tables" value={stats?.byTable.length ?? '—'} />
       </div>
 
-      <h2 className="mt-8 px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
+      <h2 className="mt-8 px-1 text-note font-medium text-ink-3">
         À faire
       </h2>
       <div className="mt-1 flex flex-col gap-2">
         <Action
-          pose="-0.35deg"
+          icon="planche"
           title="Trier les photographies"
           note="Une pellicule d’invité à la fois"
           onClick={() => navigate(`/hote/${eventId}/invites`)}
         />
         <Action
-          pose="0.3deg"
+          icon="etoile"
           title="Moments forts"
           note={
             stats?.topMoments.find((m) => m.active)
@@ -223,13 +207,13 @@ export function DashboardScreen() {
           onClick={() => navigate(`/hote/${eventId}/moments`)}
         />
         <Action
-          pose="-0.25deg"
-          title="Kit QR"
+          icon="qr"
+          title="Invitations et QR code"
           note="À imprimer et poser sur les tables"
           onClick={() => navigate(`/hote/${eventId}/kit`)}
         />
         <Action
-          pose="0.2deg"
+          icon="crayon"
           title="Réglages de la soirée"
           note={`${event.quotaShots} vues · ${event.useTableCodes ? 'avec' : 'sans'} numéros de table`}
           onClick={() => navigate(`/hote/${eventId}/reglages`)}
@@ -238,7 +222,7 @@ export function DashboardScreen() {
 
       {stats && stats.byTable.length > 0 && (
         <section className="mt-8 pb-6">
-          <h2 className="px-1 font-mono text-etiquette uppercase tracking-[0.16em] text-ink-3">
+          <h2 className="px-1 text-note font-medium text-ink-3">
             Photos par table
           </h2>
           <ul className="mt-1 flex flex-col">
@@ -263,6 +247,19 @@ export function DashboardScreen() {
           </ul>
         </section>
       )}
+      {live && event.role === 'OWNER' && (
+        <Button tone="danger" full className="my-5" disabled={close.isPending} onClick={() => setConfirmClose(true)}>
+          {close.isPending ? 'Fermeture…' : 'Terminer la prise de photos'}
+        </Button>
+      )}
+      <ConfirmSheet
+        open={confirmClose}
+        title="Fermer la pellicule ?"
+        description="Les invités ne pourront plus prendre de nouvelles photos. Les photos déjà prises pourront encore arriver pendant le délai de synchronisation."
+        confirmLabel="Fermer la pellicule"
+        onCancel={() => setConfirmClose(false)}
+        onConfirm={() => { setConfirmClose(false); close.mutate(); }}
+      />
     </Screen>
   );
 }
